@@ -1,9 +1,9 @@
-# Dual-version deployment: v1.3.x (root) and v2.x (/v2)
+# Dual-version deployment: main (root) and v2.x (/v2)
 name: Deploy Next.js site to Pages
 
 on:
   push:
-    branches: ["v1.3-maintenance", "develop"]
+    branches: ["main", "v1.3-maintenance", "develop"]
   workflow_dispatch:
 
 permissions:
@@ -45,8 +45,8 @@ jobs:
           # Setup directories
           mkdir -p build_output/v2
           
-          # 1. Build Version 1.3 (Stable Maintenance)
-          git checkout -f v1.3-maintenance
+          # 1. Build Version 1.0 (Current Main)
+          git checkout -f main
           export NEXT_PUBLIC_BASE_PATH="/kamivoca"
           npm run build
           cp -r out/* build_output/
