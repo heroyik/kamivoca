@@ -98,6 +98,14 @@ The following behavior changes were implemented to improve quiz quality, map vis
    - All touched TypeScript files were lint-checked after each fix cycle.
    - CSS lint warning for `globals.css` remains expected under current ESLint config (file not targeted), with no runtime impact.
 
+8. **Persistent top header while scrolling**
+   - Updated the top `KamiVoca` header behavior so it stays visible during vertical scroll.
+   - Switched header positioning from sticky to fixed for more consistent behavior across mobile browsers.
+   - Added top padding to the main content container to prevent overlap with the fixed header.
+   - Affected files:
+     - `src/app/globals.css`
+     - `src/app/page.tsx`
+
 ### 👥 Social & Engagement
 
 - **Home (巡礼)**: Core learning path and Pilgrimage maps.

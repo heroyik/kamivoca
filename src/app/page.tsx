@@ -95,7 +95,7 @@ export default function Home() {
   };
 
   return (
-    <main className="container min-h-screen bg-soft pb-140">
+    <main className="container min-h-screen bg-soft pb-140 pt-68">
       {/* Premium Compact Header */}
       {/* Premium Compact Header - 2 Line Redesign */}
       <header className="sticky-header japanese-header">

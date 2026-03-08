@@ -365,8 +365,12 @@ button {
 /* Page Layout Styles */
 /* Page Layout Styles */
 .sticky-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
   z-index: 200;
   background-color: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
@@ -389,6 +393,10 @@ button {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.pt-68 {
+  padding-top: 68px;
 }
 
 .japanese-header .version-badge {
