@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Dual Versions
+      - name: Build and Export
         env:
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
@@ -41,27 +41,13 @@ jobs:
           NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-        run: |
-          # Setup directories
-          mkdir -p build_output/v2
-          
-          # 1. Build Version 1.0 (Current Main)
-          git checkout -f main
-          export NEXT_PUBLIC_BASE_PATH="/kamivoca"
-          npm run build
-          cp -r out/* build_output/
-          
-          # 2. Build Version 2.0 (Develop Alpha)
-          git reset --hard
-          git checkout -f develop
-          export NEXT_PUBLIC_BASE_PATH="/kamivoca/v2"
-          npm run build
-          cp -r out/* build_output/v2/
+          NEXT_PUBLIC_BASE_PATH: "/kamivoca"
+        run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build_output
+          path: ./out
 
   deploy:
     environment:
