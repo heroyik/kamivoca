@@ -22,6 +22,7 @@ A winding, interactive learning path that visually guides users through 15 diffi
 
 - **Bespoke Palette**: Crafted with traditional hues like Washi paper (`#F6F4EB`), Ai-iro Indigo (`#165E83`), Kurenai Crimson (`#CB1B45`), Matcha Green (`#B8D200`), and Kintsugi Gold (`#D4AF37`).
 - **Typography**: A blend of elegant Shodo-style Mincho headers and clean modern Gothic body text for readable Kanji.
+- **High-Tension Japanese Audio**: Features native Japanese female voice-overs (Mizuki voice) with high motivation levels for correct answers and encouraging feedback.
 - **Audio Feedback**: Distinct sounds and haptics for correct answers (Satisfying "Ding!") and errors (Distinct "Bloop!").
 
 ---
@@ -69,9 +70,11 @@ To add or update vocabulary, modify `voca_json/japanese_opic_dataset_integrated.
 ### Running the Pipeline
 
 After updating the data, run:
+
 ```bash
 node scripts/transform_japanese_data.mjs
 ```
+
 This will regenerate `src/data/vocab.json`, which is the primary source for the application.
 
 ---
