@@ -125,6 +125,8 @@ async function transform() {
       });
     }
 
+    const normalizedPos = String(item.PoS || item.pos || 'other').toLowerCase();
+
     return {
       id: index + 1,
       word: word,
@@ -133,7 +135,7 @@ async function transform() {
       meaning: item.coreana,
       level: level,
       jlpt: jlpt,
-      pos: item.pos || 'other',
+      pos: normalizedPos,
       synonyms: item.expresion_similar || [],
       sentences: sentences
     };
