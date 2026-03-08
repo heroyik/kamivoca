@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const INPUT_FILE = 'voca_json/japanese_opic_dataset_integrated.json';
-const OUTPUT_FILE = 'src/data/voca_json/japanese_opic.json';
+const OUTPUT_FILE = 'src/data/vocab.json';
 
 // Helper to extract word and furigana
 // Example: "沐浴(もくよく)" -> { word: "沐浴", furigana: "もくよく" }

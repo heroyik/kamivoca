@@ -51,6 +51,13 @@ A winding, interactive learning path that visually guides users through 15 diffi
 
 ---
 
+### 🗄️ Data Implementation
+- **Dataset**: Integrated Japanese OPIc dataset (200+ target words).
+- **Format**: Local JSON-based vocabulary with Firestore-backed global stats.
+- **Initialization**: Automated transformation and seeding pipeline for clean project starts.
+
+---
+
 ## 🛠️ Technical Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org) (App Router, Client Components)
