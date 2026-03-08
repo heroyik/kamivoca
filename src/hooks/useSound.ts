@@ -1,19 +1,19 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 
 type SoundType = "correct" | "incorrect" | "cheer";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/kamivoca";
 
 const SOUND_FILES: Record<string, string> = {
-  correct: `${BASE_PATH}/sounds/correct.mp3`,
-  incorrect: `${BASE_PATH}/sounds/incorrect.mp3`,
-  cheer1: `${BASE_PATH}/sounds/cheer1.mp3`,
-  cheer2: `${BASE_PATH}/sounds/cheer2.mp3`,
-  cheer3: `${BASE_PATH}/sounds/cheer3.mp3`,
-  cheer4: `${BASE_PATH}/sounds/cheer4.mp3`,
-  cheer5: `${BASE_PATH}/sounds/cheer5.mp3`,
+  correct: `${BASE_PATH}/sounds/correct.mp3?v=1`,
+  incorrect: `${BASE_PATH}/sounds/incorrect.mp3?v=1`,
+  cheer1: `${BASE_PATH}/sounds/cheer1.mp3?v=1`,
+  cheer2: `${BASE_PATH}/sounds/cheer2.mp3?v=1`,
+  cheer3: `${BASE_PATH}/sounds/cheer3.mp3?v=1`,
+  cheer4: `${BASE_PATH}/sounds/cheer4.mp3?v=1`,
+  cheer5: `${BASE_PATH}/sounds/cheer5.mp3?v=1`,
 };
 
 /**
@@ -36,11 +36,10 @@ let isPreloadingStarted = false;
 const getGlobalContext = (): AudioContext | null => {
   if (typeof window === "undefined") return null;
   if (!globalCtx) {
-    const AC =
-      window.AudioContext ||
-      (window as any).webkitAudioContext;
-    if (!AC) return null;
-    globalCtx = new AC();
+    const AudioContextClass = (window.AudioContext || 
+      (window as any).webkitAudioContext) as typeof AudioContext;
+    if (!AudioContextClass) return null;
+    globalCtx = new AudioContextClass();
   }
   return globalCtx;
 };
