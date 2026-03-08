@@ -97,7 +97,7 @@ export default function Leaderboard() {
 
     return (
         <div className="p-20 max-w-600 mx-auto">
-            <h2 className="font-24 font-900 text-es-red mb-20 text-center">
+            <h2 className="font-24 font-900 text-kv-kurenai mb-20 text-center">
                 Hall of Fame 🏆
             </h2>
             <div className="flex flex-col flex-gap-12">
@@ -115,7 +115,7 @@ export default function Leaderboard() {
                             {entry.photoURL ? (
                                 <Image
                                     src={entry.photoURL}
-                                    alt={entry.displayName || "Usuario"}
+                                    alt={entry.displayName || "学習者"}
                                     fill
                                     className="object-cover rounded-full"
                                 />
@@ -124,7 +124,7 @@ export default function Leaderboard() {
                             )}
                         </div>
                         <div className="leader-item-name">
-                            {entry.displayName || "Explorador Anónimo"}
+                            {entry.displayName || "匿名学習者"}
                         </div>
                         <div className="leader-item-xp">
                             {entry.xp.toLocaleString()} XP

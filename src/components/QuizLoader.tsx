@@ -15,13 +15,12 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
     const router = useRouter();
     const { stats, isInitialized } = useGamification();
     const [hasStarted, setHasStarted] = useState(false);
-    const excludeEasyWords = stats?.settings?.excludeEasyWords ?? false;
 
     const sourcesStr = searchParams.get("sources");
     const mode = searchParams.get("mode");
     const sources = sourcesStr ? sourcesStr.split(",") : ["1"];
 
-    const units = getUnits(sources, excludeEasyWords);
+    const units = getUnits();
     const unit = units.find((u) => u.id === unitId);
 
     // If review mode, filter by mistakes
@@ -31,7 +30,7 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
     if (isReviewMode && stats.mistakes) {
         // Filter words that are in the mistakes list
         unitWords = (unit?.words || []).filter(word => {
-            const normalized = word["스페인어 단어"].toLowerCase().trim();
+            const normalized = word.word.toLowerCase().trim();
             return !!stats.mistakes[normalized];
         });
     }

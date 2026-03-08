@@ -103,4 +103,6 @@ To maintain consistency across multiple development environments, follow this st
 4. **Validation Check**: Run a final format and vulnerability scan prior to branching pushing.
 
 ---
-¡Aprende japonés con KamiVoca! ✨🇯🇵
+---
+KamiVocaで、神レベルの日本語を。✨🇯🇵
+Enjoy your pilgrimage to mastery with KamiVoca!

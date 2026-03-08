@@ -4,11 +4,9 @@ import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import vocabData from "@/data/vocab.json";
 import { VocabEntry } from "@/utils/vocab";
-import { Trash2, Brain, Frown } from "lucide-react";
+import { Trash2, Brain, Frown, Landmark } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import vol1 from "../../public/vol1.jpg";
-import vol2 from "../../public/vol2.jpg";
 
 export default function ReviewTab() {
   const { stats, removeMistake, clearAllMistakes } = useGamification();
@@ -19,8 +17,8 @@ export default function ReviewTab() {
   // Grouping logic to handle data inconsistency (duplicates in vocab and variant keys in mistakes)
   const groupedMistakesMap = new Map<string, { entry: VocabEntry; totalCount: number }>();
   
-  (vocabData as VocabEntry[]).forEach((v) => {
-    const word = v["스페인어 단어"];
+  (vocabData.data as VocabEntry[]).forEach((v) => {
+    const word = v.word;
     const normalized = word.trim();
     
     // Sum counts for all keys that match this word (trimmed)
@@ -87,10 +85,16 @@ export default function ReviewTab() {
 
           <div className="mistake-list">
             {reviewEntries.map(({ entry, totalCount }) => (
-              <div key={entry["스페인어 단어"]} className="mistake-item flex-between">
-                <div className="flex-1">
-                  <div className="text-subtitle text-es-red">{entry["스페인어 단어"]}</div>
-                  <div className="text-small">{entry["한국어 의미"]}</div>
+              <div key={entry.word} className="mistake-item flex-between">
+                <div className="flex-1 pr-12">
+                  <div className="text-subtitle text-kv-kurenai mb-4">{entry.word}</div>
+                  {!stats.settings?.hideFurigana && entry.furigana && entry.word !== entry.furigana && (
+                    <div className="text-small text-secondary mb-4">{entry.furigana}</div>
+                  )}
+                  {!stats.settings?.hideRomaji && entry.romaji && (
+                    <div className="font-12 mb-8" style={{ color: '#9ca3af' }}>{entry.romaji}</div>
+                  )}
+                  <div className="text-small">{entry.meaning}</div>
                 </div>
                 <div className="flex-center gap-12">
                   <div
@@ -101,9 +105,9 @@ export default function ReviewTab() {
                     {totalCount}
                   </div>
                   <button
-                    onClick={() => removeMistake(entry["스페인어 단어"])}
+                    onClick={() => removeMistake(entry.word)}
                     className="trash-button"
-                    aria-label={`Remove ${entry["스페인어 단어"]} from review list`}
+                    aria-label={`Remove ${entry.word} from review list`}
                   >
                     <Trash2 size={16} />
                   </button>
@@ -149,9 +153,7 @@ export default function ReviewTab() {
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {top20.map((entry, idx) => {
               const rank = idx + 1;
-              const bookImg = entry.book === "2" ? vol2 : vol1;
-              // Pass correct sources so QuizLoader uses the right vocabulary
-              const quizHref = `/quiz/${entry.unitId}?sources=${entry.book}`;
+              const quizHref = `/quiz/${entry.unitId}?mode=review`;
               return (
                 <Link
                   key={entry.word}
@@ -191,19 +193,25 @@ export default function ReviewTab() {
                         {rank}
                       </div>
 
-                      {/* Spanish word — full, no ellipsis */}
+                      {/* Japanese word — full, no ellipsis */}
                       <div
                         style={{
                           flex: 1,
                           fontWeight: 700,
                           fontSize: "15px",
-                          color: "#dc2626",
+                          color: "var(--kv-kurenai)",
                           wordBreak: "break-word",
                           overflowWrap: "break-word",
                           minWidth: 0,
                         }}
                       >
-                        {entry.word}
+                        <div style={{ marginBottom: "2px" }}>{entry.word}</div>
+                        {!stats.settings?.hideFurigana && entry.furigana && entry.word !== entry.furigana && (
+                          <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px", fontWeight: 400 }}>{entry.furigana}</div>
+                        )}
+                        {!stats.settings?.hideRomaji && entry.romaji && (
+                          <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px", fontWeight: 400 }}>{entry.romaji}</div>
+                        )}
                       </div>
 
                       {/* Fail count badge */}
@@ -213,8 +221,8 @@ export default function ReviewTab() {
                           alignItems: "center",
                           gap: "3px",
                           flexShrink: 0,
-                          background: "#fee2e2",
-                          color: "#dc2626",
+                          background: "var(--kv-kurenai-light, #fee2e2)",
+                          color: "var(--kv-kurenai)",
                           borderRadius: "8px",
                           padding: "3px 8px",
                           fontSize: "13px",
@@ -227,7 +235,7 @@ export default function ReviewTab() {
                       </div>
                     </div>
 
-                    {/* ── Row 2: meaning · [book img + Unit badge] ── */}
+                    {/* ── Row 2: meaning · [Unit badge] ── */}
                     <div
                       style={{
                         display: "flex",
@@ -242,19 +250,23 @@ export default function ReviewTab() {
                         {entry.meaning}
                       </span>
 
-                      {/* Book thumbnail — height matches Unit badge (~20px) */}
-                      <Image
-                        src={bookImg}
-                        alt={`Vol.${entry.book}`}
-                        width={15}
-                        height={20}
+                      {/* JLPT Level Badge */}
+                      <span
                         style={{
-                          objectFit: "cover",
-                          borderRadius: "2px",
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          color: "#B8D200",
+                          background: "#f0fdf4",
+                          borderRadius: "6px",
+                          padding: "2px 6px",
+                          whiteSpace: "nowrap",
                           flexShrink: 0,
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.18)",
+                          lineHeight: "16px",
+                          border: "1px solid #dcfce7"
                         }}
-                      />
+                      >
+                        {entry.book}
+                      </span>
 
                       {/* Unit badge */}
                       <span
@@ -270,7 +282,7 @@ export default function ReviewTab() {
                           lineHeight: "16px",
                         }}
                       >
-                        Unit {entry.unitNum}
+                        Step {entry.unitNum}
                       </span>
                     </div>
                   </div>

@@ -23,7 +23,8 @@ export interface UserStats {
   settings?: {
     soundEnabled: boolean;
     hapticsEnabled: boolean;
-    excludeEasyWords: boolean;
+    hideRomaji: boolean;
+    hideFurigana: boolean;
     unlockAllLevels: boolean;
   };
 }
@@ -35,10 +36,10 @@ interface GamificationContextType {
   addXP: (amount: number) => void;
   completeUnit: (unitId: string, xpEarned?: number, isPerfect?: boolean) => void;
   unlockProgress: (unitIds: string[], xp?: number, gems?: number) => void;
-  recordMistake: (spanishWord: string, unitId?: string) => void;
-  addMistake: (spanishWord: string, unitId?: string) => void;
-  clearMistake: (spanishWord: string) => void;
-  removeMistake: (spanishWord: string) => void;
+  recordMistake: (word: string, unitId?: string) => void;
+  addMistake: (word: string, unitId?: string) => void;
+  clearMistake: (word: string) => void;
+  removeMistake: (word: string) => void;
   clearAllMistakes: () => void;
   addGem: (amount: number) => void;
   updateSettings: (settings: Partial<NonNullable<UserStats['settings']>>) => void;
@@ -62,7 +63,8 @@ const defaultStats: UserStats = {
   settings: {
     soundEnabled: true,
     hapticsEnabled: true,
-    excludeEasyWords: false,
+    hideRomaji: false,
+    hideFurigana: false,
     unlockAllLevels: false,
   },
 };
@@ -75,7 +77,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   // Client-side hydration
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem("holavoca_stats");
+      const saved = localStorage.getItem("kamivoca_stats");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -134,7 +136,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
                 settings: {
                   soundEnabled: cloudData.settings?.soundEnabled ?? prev.settings?.soundEnabled ?? defaultStats.settings!.soundEnabled,
                   hapticsEnabled: cloudData.settings?.hapticsEnabled ?? prev.settings?.hapticsEnabled ?? defaultStats.settings!.hapticsEnabled,
-                  excludeEasyWords: cloudData.settings?.excludeEasyWords ?? prev.settings?.excludeEasyWords ?? defaultStats.settings!.excludeEasyWords,
+                  hideRomaji: cloudData.settings?.hideRomaji ?? prev.settings?.hideRomaji ?? defaultStats.settings!.hideRomaji,
+                  hideFurigana: cloudData.settings?.hideFurigana ?? prev.settings?.hideFurigana ?? defaultStats.settings!.hideFurigana,
                   unlockAllLevels: cloudData.settings?.unlockAllLevels ?? prev.settings?.unlockAllLevels ?? defaultStats.settings!.unlockAllLevels,
                 },
               };
@@ -192,7 +195,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
   const saveStatsLocally = (newStats: UserStats, isDeletion: boolean = false) => {
     setStats(newStats);
-    localStorage.setItem("holavoca_stats", JSON.stringify(newStats));
+    localStorage.setItem("kamivoca_stats", JSON.stringify(newStats));
     syncStatsToCloud(newStats, isDeletion);
   };
 
@@ -251,8 +254,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     saveStatsLocally(newStats);
   };
 
-  const recordMistake = (spanishWord: string, unitId?: string) => {
-    const word = spanishWord.trim();
+  const recordMistake = (wordParam: string, unitId?: string) => {
+    const word = wordParam.trim();
     const currentMistakes = statsRef.current.mistakes || {};
     const newUnitStats = { ...(statsRef.current.unitStats || {}) };
 
@@ -281,8 +284,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const clearMistake = async (spanishWord: string) => {
-    const word = spanishWord.trim();
+  const clearMistake = async (wordParam: string) => {
+    const word = wordParam.trim();
     const currentMistakes = { ...statsRef.current.mistakes };
     delete currentMistakes[word];
 

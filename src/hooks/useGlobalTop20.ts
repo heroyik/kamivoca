@@ -9,6 +9,8 @@ import { VocabEntry } from "@/utils/vocab";
 export interface GlobalWordStat {
   word: string;
   meaning: string;
+  furigana?: string;
+  romaji?: string;
   totalCount: number;
   book: string;   // "1" or "2"
   unitId: string; // "unit-X"
@@ -18,29 +20,32 @@ export interface GlobalWordStat {
 // ── Unit lookup (mirrors getUnits logic from vocab.ts) ──────────────────────
 function getDifficultyScore(word: string): number {
   let score = word.length * 10;
-  if (/[áéíóúñ]/i.test(word)) score += 50;
+  // Increase score for Kanji (more complex) and Katakana
+  if (/[\u4e00-\u9faf\u30a0-\u30ff]/.test(word)) score += 50;
   return score;
 }
 
-function buildWordUnitMap(): Map<string, { book: string; unitNum: number }> {
+function buildWordUnitMap(): Map<string, { book: string; unitNum: number; furigana?: string; romaji?: string }> {
   const uniqueWords = new Map<string, VocabEntry>();
-  (vocabData as VocabEntry[]).forEach((w) => {
-    const key = w["스페인어 단어"].toLowerCase().trim();
+  (vocabData.data as VocabEntry[]).forEach((w) => {
+    const key = w.word.toLowerCase().trim();
     if (!uniqueWords.has(key)) uniqueWords.set(key, w);
   });
   const allWords = Array.from(uniqueWords.values()).sort((a, b) => {
-    const da = getDifficultyScore(a["스페인어 단어"]);
-    const db = getDifficultyScore(b["스페인어 단어"]);
-    return da !== db ? da - db : a["스페인어 단어"].localeCompare(b["스페인어 단어"]);
+    const da = getDifficultyScore(a.word);
+    const db = getDifficultyScore(b.word);
+    return da !== db ? da - db : a.word.localeCompare(b.word);
   });
 
   const TOTAL_UNITS = 15;
   const unitSize = Math.ceil(allWords.length / TOTAL_UNITS);
-  const map = new Map<string, { book: string; unitNum: number }>();
+  const map = new Map<string, { book: string; unitNum: number; furigana?: string; romaji?: string }>();
   allWords.forEach((w, idx) => {
-    map.set(w["스페인어 단어"], {
-      book: w["출처"],
+    map.set(w.word, {
+      book: w.jlpt,
       unitNum: Math.floor(idx / unitSize) + 1,
+      furigana: w.furigana,
+      romaji: w.romaji,
     });
   });
   return map;
@@ -69,6 +74,8 @@ export function useGlobalTop20() {
         return {
           word: wordStr,
           meaning: data.meaning ?? "",
+          furigana: meta.furigana,
+          romaji: meta.romaji,
           totalCount: (data.seedCount ?? 0) + (data.failCount ?? 0),
           book: meta.book,
           unitId: `unit-${meta.unitNum}`,

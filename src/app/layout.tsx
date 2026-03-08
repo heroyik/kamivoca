@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "HolaVoca - Spanish Mastery",
-  description: "DuoLingo-style Spanish vocabulary learning for Korean speakers",
+  title: "KamiVoca - Japanese Mastery",
+  description: "DuoLingo-style Japanese vocabulary learning for Korean speakers",
 };
 
 export const viewport: Viewport = {

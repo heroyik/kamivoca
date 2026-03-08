@@ -1,0 +1,156 @@
+import fs from 'fs';
+import path from 'path';
+
+const INPUT_FILE = 'voca_json/japanese_opic_dataset_integrated.json';
+const OUTPUT_FILE = 'src/data/voca_json/japanese_opic.json';
+
+// Helper to extract word and furigana
+// Example: "沐浴(もくよく)" -> { word: "沐浴", furigana: "もくよく" }
+// Example: "世話(せわ)になってね" -> { word: "世話になってね", furigana: "せわになってね" }
+function extractFurigana(text) {
+  if (!text) return { word: '', furigana: '' };
+  
+  const regex = /(.*?)\((.*?)\)/g;
+  let word = '';
+  let furigana = '';
+  let lastIndex = 0;
+  let match;
+  
+  while ((match = regex.exec(text)) !== null) {
+    word += text.substring(lastIndex, match.index) + match[1];
+    furigana += text.substring(lastIndex, match.index) + match[2];
+    lastIndex = regex.lastIndex;
+  }
+  
+  word += text.substring(lastIndex);
+  furigana += text.substring(lastIndex);
+  
+  // If no parentheses found, furigana is the word itself (if it's hiragana/katakana)
+  if (!word) {
+    word = text;
+    furigana = text;
+  }
+  
+  return { word, furigana };
+}
+
+// Simple Romaji mapping (partial for basic needs)
+const kanaToRomaji = {
+  'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
+  'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
+  'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
+  'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
+  'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
+  'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
+  'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
+  'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
+  'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
+  'わ': 'wa', 'を': 'wo', 'ん': 'n',
+  'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
+  'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
+  'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
+  'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
+  'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
+  'きゃ': 'kya', 'きゅ': 'kyu', 'きょ': 'kyo',
+  'しゃ': 'sha', 'しゅ': 'shu', 'しょ': 'sho',
+  'ちゃ': 'cha', 'ちゅ': 'chu', 'ちょ': 'cho',
+  'にゃ': 'nya', 'にゅ': 'nyu', 'にょ': 'nyo',
+  'ひゃ': 'hya', 'ひゅ': 'hyu', 'ひょ': 'hyo',
+  'みゃ': 'mya', 'みゅ': 'myu', 'みょ': 'myo',
+  'りゃ': 'rya', 'りゅ': 'ryu', 'りょ': 'ryo',
+  'ぎゃ': 'gya', 'ぎゅ': 'gyu', 'ぎょ': 'gyo',
+  'じゃ': 'ja', 'じゅ': 'ju', 'じょ': 'jo',
+  'びゃ': 'bya', 'びゅ': 'byu', 'びょ': 'byo',
+  'ぴゃ': 'pya', 'ぴゅ': 'pyu', 'ぴょ': 'pyo',
+  // Add common katakana or just fallback
+};
+
+function toRomaji(text) {
+  if (!text) return '';
+  let result = '';
+  // Handle sokuon (small tsu)
+  let processed = text.replace(/っ(.)/g, (match, p1) => {
+    const nextRomaji = kanaToRomaji[p1] || p1;
+    return nextRomaji[0] + nextRomaji;
+  });
+  // Handle long vowels
+  processed = processed.replace(/ー/g, ''); 
+  
+  return processed.split('').map(char => kanaToRomaji[char] || char).join('');
+}
+
+function mapOPIcToJLPT(opic) {
+  const mapping = {
+    'AL': { level: 15, jlpt: 'N1' },
+    'IH': { level: 13, jlpt: 'N2' },
+    'IM3': { level: 11, jlpt: 'N2' },
+    'IM2': { level: 9, jlpt: 'N3' },
+    'IM1': { level: 7, jlpt: 'N3' },
+    'IL': { level: 5, jlpt: 'N4' },
+    'NH': { level: 3, jlpt: 'N5' },
+    'NM': { level: 2, jlpt: 'N5' },
+    'NL': { level: 1, jlpt: 'N5' },
+  };
+  return mapping[opic] || { level: 1, jlpt: 'N5' };
+}
+
+async function transform() {
+  const rawData = fs.readFileSync(INPUT_FILE, 'utf8');
+  const dataset = JSON.parse(rawData);
+  
+  const transformedData = dataset.map((item, index) => {
+    const { word, furigana } = extractFurigana(item.japones);
+    const { level, jlpt } = mapOPIcToJLPT(item.level);
+    
+    // Process sentences
+    const sentences = [];
+    if (item.conversacion && item.conversacion.length > 0) {
+      item.conversacion.forEach(line => {
+        if (line.startsWith('A:') || line.startsWith('B:')) {
+          const s = extractFurigana(line);
+          sentences.push({
+            japanese: s.word,
+            furigana: s.furigana,
+            meaning: '' // No translation available per line
+          });
+        }
+      });
+    } else if (item.ejemplos) {
+      item.ejemplos.forEach(ex => {
+        const s = extractFurigana(ex);
+        sentences.push({
+          japanese: s.word,
+          furigana: s.furigana,
+          meaning: '' // No translation available per line
+        });
+      });
+    }
+
+    return {
+      id: index + 1,
+      word: word,
+      furigana: furigana,
+      romaji: toRomaji(furigana),
+      meaning: item.coreana,
+      level: level,
+      jlpt: jlpt,
+      pos: 'other', // Default as it's not in the source
+      sentences: sentences
+    };
+  });
+
+  const output = {
+    totalWords: transformedData.length,
+    data: transformedData
+  };
+
+  const outputDir = path.dirname(OUTPUT_FILE);
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
+  console.log(`Transformed ${transformedData.length} entries to ${OUTPUT_FILE}`);
+}
+
+transform().catch(console.error);

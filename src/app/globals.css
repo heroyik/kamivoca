@@ -1,27 +1,27 @@
 :root {
-  /* Spanish-inspired Color Palette */
-  --es-red: #c60b1e;
-  --es-red-dark: #a00818;
-  --es-yellow: #ffc400;
-  --es-yellow-dark: #cc9c00;
-  --es-gold: #f1bf00;
+  /* Japanese-inspired Color Palette */
+  --kv-washi-paper: #F6F4EB;
+  --kv-ai-iro: #165E83;
+  --kv-kurenai: #CB1B45;
+  --kv-matcha-green: #B8D200;
+  --kv-kintsugi-gold: #D4AF37;
 
-  /* Duo-style logic with Spanish colors */
-  --duo-green: #58cc02; /* Keeping for 'Correct' success state */
-  --duo-green-dark: #46a302;
-  --duo-blue: #1cb0f6;
-  --duo-blue-dark: #1899d6;
-  --duo-orange: #ff9600;
+  /* Duo-style logic with Japanese colors */
+  --duo-green: var(--kv-matcha-green); /* 'Correct' success state */
+  --duo-green-dark: #91A600;
+  --duo-blue: var(--kv-ai-iro);
+  --duo-blue-dark: #0E3E56;
+  --duo-orange: #ff9600; /* Keeping as secondary action color */
   --duo-orange-dark: #cc7800;
-  --duo-red: var(--es-red);
-  --duo-red-dark: var(--es-red-dark);
+  --duo-red: var(--kv-kurenai);
+  --duo-red-dark: #9A1434;
   --duo-purple: #ce82ff;
-  --duo-yellow: var(--es-yellow);
+  --duo-yellow: var(--kv-kintsugi-gold);
 
   --text-main: #4b4b4b;
   --text-secondary: #777777;
-  --bg-main: #ffffff;
-  --bg-soft: #fffdf5; /* Warmer background for Spanish feel */
+  --bg-main: var(--kv-washi-paper);
+  --bg-soft: #FFFFFF; /* White foreground element background */
   --border-light: #e5e5e5;
 
   --radius-sm: 8px;
@@ -46,7 +46,7 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    "Shippori Mincho", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   color: var(--text-main);
   background-color: var(--bg-main);
@@ -127,9 +127,9 @@ button {
 }
 
 .duo-button-primary {
-  background-color: var(--es-red);
+  background-color: var(--kv-kurenai);
   color: white;
-  box-shadow: 0 4px 0 var(--es-red-dark);
+  box-shadow: 0 4px 0 var(--duo-red-dark);
 }
 
 .duo-button-blue {
@@ -140,7 +140,7 @@ button {
 
 .duo-button-outline {
   background-color: white;
-  color: var(--es-red);
+  color: var(--kv-kurenai);
   border: 2px solid var(--border-light);
   box-shadow: 0 2px 0 var(--border-light);
 }
@@ -334,9 +334,9 @@ button {
 }
 
 .duo-button-outline.incorrect {
-  border-color: var(--es-red) !important;
+  border-color: var(--kv-kurenai) !important;
   background-color: #fff0f0 !important;
-  color: var(--es-red-dark) !important;
+  color: var(--duo-red-dark) !important;
 }
 
 .quiz-feedback-bar {
@@ -359,7 +359,7 @@ button {
 
 .quiz-feedback-bar.incorrect {
   background-color: #fff0f0;
-  border-color: var(--es-red);
+  border-color: var(--kv-kurenai);
 }
 
 /* Page Layout Styles */
@@ -370,16 +370,16 @@ button {
   z-index: 200;
   background-color: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
-  /* Spanish Flag Inspired Border */
+  /* Japanese Flag Inspired Border */
   border-bottom: 4px solid transparent;
   border-image: linear-gradient(
     to right,
-    var(--es-red) 0%,
-    var(--es-red) 20%,
-    var(--es-yellow) 20%,
-    var(--es-yellow) 80%,
-    var(--es-red) 80%,
-    var(--es-red) 100%
+    var(--kv-kurenai) 0%,
+    var(--kv-kurenai) 20%,
+    var(--kv-kintsugi-gold) 20%,
+    var(--kv-kintsugi-gold) 80%,
+    var(--kv-kurenai) 80%,
+    var(--kv-kurenai) 100%
   );
   border-image-slice: 1;
   height: 60px;
@@ -391,7 +391,7 @@ button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.spanish-header .version-badge {
+.japanese-header .version-badge {
   border: none;
   background: transparent;
   color: #a0a0a0;
@@ -592,8 +592,20 @@ button {
 }
 
 .text-error {
-  color: var(--es-red);
+  color: var(--kv-kurenai);
   font-weight: 800;
+}
+
+.text-kv-kurenai {
+  color: var(--kv-kurenai);
+}
+
+.bg-kv-kurenai {
+  background-color: var(--kv-kurenai);
+}
+
+.shadow-kv-kurenai {
+  box-shadow: 0 4px 0 var(--duo-red-dark);
 }
 
 /* Layout Helpers */
@@ -741,10 +753,10 @@ button {
   border: 2px dashed var(--duo-green);
 }
 .shadow-danger {
-  box-shadow: 0 4px 0 #b91c1c;
+  box-shadow: 0 4px 0 var(--duo-red-dark);
 }
 .bg-danger {
-  background-color: #ef4444;
+  background-color: var(--kv-kurenai);
 }
 
 .object-cover {
@@ -881,20 +893,20 @@ button {
 }
 
 .unit-button.current {
-  background-color: var(--es-red);
-  box-shadow: 0 10px 0 #b91c1c;
+  background-color: var(--kv-kurenai);
+  box-shadow: 0 10px 0 var(--duo-red-dark);
   cursor: pointer;
   animation: pulse-node 2s infinite ease-in-out;
 }
 
 .unit-button.completed {
   background-color: var(--duo-green);
-  box-shadow: 0 10px 0 #16a34a;
+  box-shadow: 0 10px 0 var(--duo-green-dark);
   cursor: pointer;
 }
 
 .unit-button.mastered {
-  background-color: var(--es-gold);
+  background-color: var(--kv-kintsugi-gold);
   box-shadow: 0 10px 0 #cc9c00;
   cursor: pointer;
 }
@@ -904,7 +916,7 @@ button {
   top: -45px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--es-red);
+  background-color: var(--kv-kurenai);
   color: white;
   padding: 8px 16px;
   border-radius: 12px;
@@ -924,7 +936,7 @@ button {
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-top: 8px solid var(--es-red);
+  border-top: 8px solid var(--kv-kurenai);
 }
 
 .unit-label-card {
@@ -964,7 +976,7 @@ button {
 
 .leader-item-xp {
   font-weight: 900;
-  color: var(--es-red);
+  color: var(--kv-kurenai);
 }
 
 .text-duo-green {
@@ -1011,11 +1023,11 @@ button {
   margin: 0;
 }
 .feedback-incorrect {
-  color: var(--es-red);
+  color: var(--kv-kurenai);
   margin: 0;
 }
 .correct-solution {
-  color: var(--es-red);
+  color: var(--kv-kurenai);
   font-weight: 700;
   font-size: 18px;
   margin: 4px 0 0;
@@ -1113,13 +1125,13 @@ button {
 
 @keyframes subtle-pulse {
   0% {
-    box-shadow: 0 4px 0 var(--es-red-dark);
+    box-shadow: 0 4px 0 var(--duo-red-dark);
   }
   50% {
     box-shadow: 0 4px 12px rgba(198, 11, 30, 0.4);
   }
   100% {
-    box-shadow: 0 4px 0 var(--es-red-dark);
+    box-shadow: 0 4px 0 var(--duo-red-dark);
   }
 }
 .px-20 {
@@ -1209,7 +1221,7 @@ button {
 
 .mistake-count {
   background: #fff5f5;
-  color: var(--es-red);
+  color: var(--kv-kurenai);
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 13px;
@@ -1232,7 +1244,7 @@ button {
 
 .trash-button:hover {
   background: #fff5f5;
-  color: var(--es-red);
+  color: var(--kv-kurenai);
 }
 
 .bg-google {
@@ -1338,8 +1350,8 @@ input:checked + .slider:before {
 
 /* Tiered Snake Path & Mastery Styles */
 .unit-button.beginner {
-  background-color: var(--es-red);
-  box-shadow: 0 6px 0 var(--es-red-dark);
+  background-color: var(--kv-kurenai);
+  box-shadow: 0 6px 0 var(--duo-red-dark);
 }
 
 .unit-button.intermediate {
@@ -1348,7 +1360,7 @@ input:checked + .slider:before {
 }
 
 .unit-button.advanced {
-  background-color: var(--es-yellow);
+  background-color: var(--kv-kintsugi-gold);
   box-shadow: 0 6px 0 #d97706;
 }
 
@@ -1388,46 +1400,47 @@ input:checked + .slider:before {
   position: absolute;
   width: 32px;
   height: 32px;
-  background-color: var(--es-red);
+  background-color: var(--kv-kurenai);
   border-radius: 50%;
   border: 3px solid white;
   box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
 }
 
-.vol-count {
-  position: absolute;
-  font-size: 11px;
-  font-weight: 900;
-  color: var(--es-red);
-  background-color: white;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1.5px solid var(--es-red);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 11;
-}
-
-.vol1-count {
-  top: -2px;
-  right: -6px;
-}
-
-.vol2-count {
-  top: -2px;
-  left: -6px;
-}
-
 .unit-label-card.tier-beginner {
-  border-color: var(--es-red);
+  border-color: var(--kv-kurenai);
 }
 .unit-label-card.tier-intermediate {
   border-color: #3b82f6;
 }
 .unit-label-card.tier-advanced {
-  border-color: var(--es-yellow);
+  border-color: var(--kv-kintsugi-gold);
+}
+
+/* ── Japanese JLPT Badges ── */
+.jlpt-badge-quiz {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--kv-kintsugi-gold);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 900;
+  font-size: 14px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.jlpt-badge-quiz.smaller {
+  top: 12px;
+  right: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.japanese-header {
+  background: rgba(246, 244, 235, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid var(--border-glass);
 }

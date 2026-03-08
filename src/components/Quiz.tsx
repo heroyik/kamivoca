@@ -2,21 +2,15 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSound } from "@/hooks/useSound";
-import { VocabEntry, guessPOS } from "@/utils/vocab";
+import { VocabEntry, categorizePOS } from "@/utils/vocab";
 import vocabData from "@/data/vocab.json"; // Import full vocab for distractors
-import deleSentences from "@/data/dele_sentences.json";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { X, Frown } from "lucide-react";
+import { X, Frown, Landmark } from "lucide-react";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import { useRank } from "@/hooks/useRank";
 import Image from "next/image";
-import vol1 from "../../public/vol1.jpg";
-import vol2 from "../../public/vol2.jpg";
-
-type DeleSentenceMap = Record<string, { sentence: string; translation: string }>;
-const DELE: DeleSentenceMap = deleSentences as DeleSentenceMap;
 
 interface QuizProps {
   unitId: string;
@@ -52,8 +46,8 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
       adjective: [],
       other: []
     };
-    (vocabData as VocabEntry[]).forEach(entry => {
-      const pos = guessPOS(entry);
+    (vocabData.data as VocabEntry[]).forEach((entry: VocabEntry) => {
+      const pos = categorizePOS(entry.pos);
       groups[pos].push(entry);
     });
     return groups;
@@ -69,11 +63,12 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
   const [questions] = useState(() => [...unitWords].sort(() => Math.random() - 0.5));
   const [prevIndex, setPrevIndex] = useState(-1);
   const [initiallyWasMistake, setInitiallyWasMistake] = useState(false);
+  const [hearts, setHearts] = useState(5); // New Magatama/Heart system
 
   // Sync initial mistake status when moving to a new question
   if (currentIndex !== prevIndex && questions[currentIndex]) {
     setPrevIndex(currentIndex);
-    const word = questions[currentIndex]["스페인어 단어"].trim();
+    const word = questions[currentIndex].word.trim();
     setInitiallyWasMistake(!!stats.mistakes?.[word]);
   }
 
@@ -85,24 +80,24 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
   }, [showResult, refreshRank]);
 
   const generateOptions = useCallback((currentEntry: VocabEntry) => {
-    const correctAnswer = currentEntry["한국어 의미"];
-    const pos = guessPOS(currentEntry);
+    const correctAnswer = currentEntry.meaning;
+    const pos = categorizePOS(currentEntry.pos);
 
     // 1. Try to get 3 distractors from the same POS
     const samePOSDistractors = vocabByPOS[pos]
-      .filter(v => v["한국어 의미"] !== correctAnswer)
+      .filter(v => v.meaning !== correctAnswer)
       .sort(() => Math.random() - 0.5)
       .slice(0, 3);
 
-    let finalDistractors = samePOSDistractors.map(v => v["한국어 의미"]);
+    let finalDistractors = samePOSDistractors.map(v => v.meaning);
 
     // 2. Fallback if not enough same-POS words (unlikely with this dataset but safe)
     if (finalDistractors.length < 3) {
-      const fallbackDistractors = (vocabData as VocabEntry[])
-        .filter(v => v["한국어 의미"] !== correctAnswer && !finalDistractors.includes(v["한국어 의미"]))
+      const fallbackDistractors = (vocabData.data as VocabEntry[])
+        .filter((v: VocabEntry) => v.meaning !== correctAnswer && !finalDistractors.includes(v.meaning))
         .sort(() => Math.random() - 0.5)
         .slice(0, 3 - finalDistractors.length)
-        .map(v => v["한국어 의미"]);
+        .map(v => v.meaning);
 
       finalDistractors = [...finalDistractors, ...fallbackDistractors];
     }
@@ -121,7 +116,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
     if (selectedOption) return;
 
     setSelectedOption(option);
-    const correct = option === questions[currentIndex]["한국어 의미"];
+    const correct = option === questions[currentIndex].meaning;
     setIsCorrect(correct);
 
     if (correct) {
@@ -131,7 +126,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
       addXP(10);
 
       if (initiallyWasMistake) {
-        removeMistake(questions[currentIndex]["스페인어 단어"]);
+        removeMistake(questions[currentIndex].word);
       }
 
       if (newCombo >= 3) {
@@ -144,7 +139,8 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
     } else {
       setComboCount(0);
       setHasMistakes(true);
-      addMistake(questions[currentIndex]["스페인어 단어"], unitId);
+      addMistake(questions[currentIndex].word, unitId);
+      setHearts(prev => Math.max(0, prev - 1));
       playSound("incorrect");
       triggerHaptic("error");
     }
@@ -155,7 +151,8 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
 
     setComboCount(0);
     setHasMistakes(true);
-    addMistake(questions[currentIndex]["스페인어 단어"], unitId);
+    addMistake(questions[currentIndex].word, unitId);
+    setHearts(prev => Math.max(0, prev - 1));
     setIsCorrect(false);
     setSelectedOption("UNKNOWN");
     playSound("incorrect");
@@ -207,21 +204,15 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
     const isMastery = isReview && score === questions.length;
     return (
       <div className="container flex-center min-h-screen flex-col pt-40-pb-20 relative">
-        {/* Book Source Badge */}
+        {/* JLPT Level Badge */}
         {questions.length > 0 && questions[currentIndex] && (
-          <div className="source-badge" data-testid="source-badge">
-            <Image
-              src={questions[currentIndex]["출처"] === "2" ? vol2 : vol1}
-              alt="Book Source"
-              fill
-              sizes="40px"
-              className="object-cover"
-            />
+          <div className="jlpt-badge-quiz" data-testid="jlpt-badge">
+            {questions[currentIndex].jlpt}
           </div>
         )}
 
         <div className="w-full max-w-md mb-8 flex justify-between items-center px-4"></div>
-        <h2 className={`text-main-title ${isMastery ? 'text-duo-orange' : 'text-duo-green'} mb-20`}>
+        <h2 className={`text-main-title ${isMastery ? 'text-duo-yellow' : 'text-duo-green'} mb-20`}>
           {isMastery ? "UNIT MASTERED!" : "Finished!"}
         </h2>
         <div className="text-center mb-32">
@@ -249,18 +240,18 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
 
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex) / questions.length) * 100;
-  const painRank = wallOfPainMap.get(currentQuestion["스페인어 단어"]);
+  const painRank = wallOfPainMap.get(currentQuestion.word);
   const isUnknown = selectedOption === "UNKNOWN";
 
-  // 6.4 — DELE sentence lookup
-  const deleSentence = isCorrect
-    ? DELE[currentQuestion["스페인어 단어"]] ?? null
+  // 6.4 — JSON sentence mapped correctly
+  const contextualSentence = isCorrect && currentQuestion.sentences && currentQuestion.sentences.length > 0
+    ? currentQuestion.sentences[0]
     : null;
 
   return (
     <div className="container flex flex-col min-h-screen p-20-120 relative">
       {/* Header */}
-      <div className="flex-between gap-16 mb-32">
+      <div className="flex-between gap-16 mb-16">
         <Link href="/" aria-label="Close lesson" className="no-underline">
           <X className="text-subtitle pointer" />
         </Link>
@@ -273,6 +264,15 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
           </span>
         </div>
       </div>
+      
+      {/* Hearts Visualization */}
+      <div className="flex justify-center gap-4 mb-24">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <span key={i} className={`font-24 transition-transform ${i < hearts ? 'scale-100' : 'scale-75 opacity-20 grayscale'}`} style={{ filter: i < hearts ? 'drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3))' : 'none' }}>
+            🌸
+          </span>
+        ))}
+      </div>
 
       <div className="flex-1">
         <h2 className="text-title mb-32">
@@ -281,29 +281,40 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
         </h2>
 
         <div className="quiz-card mb-32">
-          {/* Book Source Badge inside Card */}
+          {/* JLPT Level Badge inside Card */}
           {questions.length > 0 && questions[currentIndex] && (
-            <div className="source-badge" data-testid="source-badge">
-              <Image
-                src={questions[currentIndex]["출처"] === "2" ? vol2 : vol1}
-                alt="Book Source"
-                fill
-                sizes="40px"
-                className="object-cover"
-              />
+            <div className="jlpt-badge-quiz smaller" data-testid="jlpt-badge">
+              {questions[currentIndex].jlpt}
             </div>
           )}
-          <div className="text-main-title text-es-red mb-8">
-            {currentQuestion["스페인어 단어"]}
+          <div className="text-main-title text-kv-kurenai mb-4">
+            {currentQuestion.word}
           </div>
+          {!stats.settings?.hideFurigana && currentQuestion.furigana && currentQuestion.word !== currentQuestion.furigana && (
+            <div className="text-title text-secondary mb-4">
+              {currentQuestion.furigana}
+            </div>
+          )}
+          {!stats.settings?.hideRomaji && currentQuestion.romaji && (
+            <div className="text-subtitle text-tertiary mb-8" style={{ color: '#9ca3af' }}>
+              {currentQuestion.romaji}
+            </div>
+          )}
           {initiallyWasMistake && (
             <div className="mistake-badge mb-12">
               Tricky Word
             </div>
           )}
-          {currentQuestion["예문"] && (
-            <div className="text-subtitle italic font-16">
-              &quot;{currentQuestion["예문"]}&quot;
+          {currentQuestion.sentences && currentQuestion.sentences.length > 0 && (
+            <div className="mt-8 flex flex-col items-center">
+              <div className="text-subtitle italic font-16">
+                &quot;{currentQuestion.sentences[0].japanese}&quot;
+              </div>
+              {!stats.settings?.hideFurigana && currentQuestion.sentences[0].furigana && (
+                <div className="text-small text-secondary italic mt-4">
+                  {currentQuestion.sentences[0].furigana}
+                </div>
+              )}
             </div>
           )}
           {/* 6.2 — Wall of Pain badge */}
@@ -334,7 +345,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
               onClick={() => handleCheck(option)}
               className={`duo-button duo-button-outline ${selectedOption === option
                 ? (isCorrect ? 'correct' : 'incorrect')
-                : (selectedOption && option === currentQuestion["한국어 의미"] ? 'correct' : '')
+                : (selectedOption && option === currentQuestion.meaning ? 'correct' : '')
                 }`}
               disabled={!!selectedOption}
             >
@@ -350,8 +361,8 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
             className="duo-button duo-button-outline btn-nolo w-full mt-24 text-subtitle"
             style={{ borderColor: '#afafaf', color: '#777' }}
           >
-            <span style={{ marginRight: "8px", fontSize: "20px" }}>🤔</span>
-            NO LO SÉ...
+            <span style={{ marginRight: "8px", fontSize: "20px" }}>🪭</span>
+            分かりません (I don&apos;t know)
           </button>
         )}
       </div>
@@ -375,16 +386,16 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
                     : isUnknown
                       ? "😅 That's okay! Here's the answer:"
                       : isCorrect
-                        ? initiallyWasMistake ? "✨ ¡Mastered!" : "✅ ¡Correcto!"
+                        ? initiallyWasMistake ? "✨ 極めました！ (Mastered!)" : "✅ 正解！ (Correct!)"
                         : "Correct solution:"}
                 </h3>
                 {(!isCorrect || isUnknown) && (
                   <p className="correct-solution">
-                    {questions[currentIndex]["한국어 의미"]}
+                    {questions[currentIndex].meaning}
                   </p>
                 )}
-                {/* 6.4 — DELE contextual sentence */}
-                {isCorrect && deleSentence && (
+                {/* 6.4 — JSON contextual sentence */}
+                {contextualSentence && (
                   <div
                     style={{
                       marginTop: "8px",
@@ -397,9 +408,10 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
                     }}
                   >
                     <div style={{ fontWeight: 700, marginBottom: "2px" }}>
-                      💬 &quot;{deleSentence.sentence}&quot;
+                      💬 &quot;{contextualSentence.japanese}&quot;
                     </div>
-                    <div style={{ opacity: 0.75 }}>({deleSentence.translation})</div>
+                    {contextualSentence.furigana && <div style={{ opacity: 0.8, fontSize: '10px' }}>{contextualSentence.furigana}</div>}
+                    <div style={{ opacity: 0.75 }}>({contextualSentence.meaning})</div>
                   </div>
                 )}
               </div>
@@ -408,9 +420,9 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
               onClick={handleNext}
               className={`duo-button w-auto px-40 py-12 ${isCorrect ? 'duo-button-primary' : ''}`}
               style={{
-                backgroundColor: isCorrect ? 'var(--duo-green)' : 'var(--es-red)',
+                backgroundColor: isCorrect ? 'var(--duo-green)' : 'var(--kv-kurenai)',
                 color: 'white',
-                boxShadow: isCorrect ? '0 4px 0 var(--duo-green-dark)' : '0 4px 0 var(--es-red)'
+                boxShadow: isCorrect ? '0 4px 0 var(--duo-green-dark)' : '0 4px 0 var(--duo-red-dark)'
               }}
             >
               NEXT

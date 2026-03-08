@@ -1,11 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { guessPOS } from '../../src/utils/vocab';
 
 test.describe('V2.0 Quiz Logic Tests', () => {
 
     test.beforeEach(async ({ page }) => {
         // Go to first unit quiz using direct URL
-        await page.goto('/holavoca/quiz/unit-1?sources=1');
+        await page.goto('/quiz/unit-1');
         // Wait for quiz to load
         await expect(page.locator('h2')).toContainText('What does this word mean?');
     });

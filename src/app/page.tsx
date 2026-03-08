@@ -4,39 +4,16 @@ import vocabData from '@/data/vocab.json';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { APP_VERSION } from '@/lib/constants';
+import { APP_VERSION, APP_NAME } from '@/lib/constants';
 import { getUnits, getTotalWordCount } from '@/utils/vocab';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useGamification } from '@/hooks/useGamification';
 import { useRank } from '@/hooks/useRank';
 import Leaderboard from '@/components/Leaderboard';
 import UserProfile from '@/components/UserProfile';
 import ReviewTab from '@/components/ReviewTab';
 import RankToast from '@/components/RankToast';
-import vol1 from '../../public/vol1.jpg';
-import vol2 from '../../public/vol2.jpg';
-import {
-  Github,
-  ThumbsUp,
-  Check,
-  Lock,
-  MessageSquare,
-  User,
-  Coffee,
-  ShoppingBag,
-  MapPin,
-  Activity,
-  Heart,
-  Star,
-  Book,
-  Music,
-  Camera,
-  Sun,
-  Award,
-  Shield,
-  Target
-} from 'lucide-react';
+import { Github } from 'lucide-react';
 
 // Gamification Helpers
 const getLevelTier = (idx: number) => {
@@ -51,9 +28,9 @@ const getLevelTitle = (idx: number) => {
 
 const getLevelColor = (idx: number, isLocked: boolean) => {
   if (isLocked) return '#afafaf';
-  if (idx < 5) return 'var(--es-red)';
-  if (idx < 10) return '#3b82f6'; // Blue for Intermediate
-  return 'var(--es-yellow)';      // Gold for Advanced
+  if (idx < 5) return 'var(--kv-kurenai)';
+  if (idx < 10) return 'var(--kv-ai-iro)';
+  return 'var(--kv-kintsugi-gold)';
 };
 
 const getMotivationalSticker = (idx: number) => {
@@ -66,47 +43,19 @@ const getMotivationalSticker = (idx: number) => {
 };
 
 export default function Home() {
-  const [selectedBooks, setSelectedBooks] = useState<string[]>(() => {
-    // Lazy initializer to avoid useEffect setState warning
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('selected_books');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          // Error ignored
-        }
-      }
-    }
-    return ['1'];
-  });
   const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile'>('learn');
   const { stats, user } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
 
-  // Updated units calculation to respect excludeEasyWords setting
-  const units = getUnits(selectedBooks, stats.settings?.excludeEasyWords);
-  const totalWords = getTotalWordCount(selectedBooks, stats.settings?.excludeEasyWords);
+  // Updated units calculation
+  const units = getUnits();
+  const totalWords = getTotalWordCount();
 
   const handleReviewMistakes = (e: React.MouseEvent, unitId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    router.push(`/quiz/${unitId}?mode=review&sources=${selectedBooks.join(',')}`);
-  };
-
-  const toggleBook = (bookId: string) => {
-    setSelectedBooks(prev => {
-      let newState;
-      if (prev.includes(bookId)) {
-        if (prev.length === 1) return prev;
-        newState = prev.filter(id => id !== bookId);
-      } else {
-        newState = [...prev, bookId];
-      }
-      sessionStorage.setItem('selected_books', JSON.stringify(newState));
-      return newState;
-    });
+    router.push(`/quiz/${unitId}?mode=review`);
   };
 
   const handleDownload = async () => {
@@ -148,9 +97,9 @@ export default function Home() {
     <main className="container min-h-screen bg-soft pb-140">
       {/* Premium Compact Header */}
       {/* Premium Compact Header - 2 Line Redesign */}
-      <header className="sticky-header spanish-header">
+      <header className="sticky-header japanese-header">
         <div className="header-left flex items-baseline gap-4">
-          <h1 className="font-22 font-900 m-0 text-es-red leading-1-1 tracking-tight" style={{ letterSpacing: '-0.5px' }}>HolaVoca</h1>
+          <h1 className="font-22 font-900 m-0 text-kv-kurenai leading-1-1 tracking-tight" style={{ letterSpacing: '-0.5px' }}>{APP_NAME}</h1>
           <span className="version-badge">{APP_VERSION.replace('v', '')}</span>
         </div>
 
@@ -160,24 +109,7 @@ export default function Home() {
             className="vocab-stash-pill mt-0 flex items-center gap-2 py-4 px-10 h-32 hover-scale"
             title="Download JSON"
           >
-            <strong className="text-es-red font-12">{totalWords.toLocaleString()}</strong>📚
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div
-              onClick={() => toggleBook('1')}
-              className={`book-cover-mini ${selectedBooks.includes('1') ? 'active' : ''}`}
-              style={{ width: '28px', height: '38px' }}
-            >
-              <Image src={vol1} alt="Book 1" className="w-full h-full object-cover" />
-            </div>
-            <div
-              onClick={() => toggleBook('2')}
-              className={`book-cover-mini ${selectedBooks.includes('2') ? 'active' : ''}`}
-              style={{ width: '28px', height: '38px' }}
-            >
-              <Image src={vol2} alt="Book 2" className="w-full h-full object-cover" />
-            </div>
+            <strong className="text-kv-kurenai font-12">{totalWords.toLocaleString()}</strong>⛩️
           </div>
         </div>
       </header>
@@ -243,20 +175,16 @@ export default function Home() {
             const unitStatusClass = isLocked ? 'locked' : (isMastered ? 'mastered' : (isCurrent ? 'current' : (isCompleted ? 'completed' : 'available')));
             const combinedClass = `${unitStatusClass} ${isLocked ? '' : tier}`;
 
-            const vol1FailCount = stats.mistakes ? unit.words.filter(w => w["출처"] === "1" && stats.mistakes[w["스페인어 단어"].toLowerCase().trim()]).length : 0;
-            const vol2FailCount = stats.mistakes ? unit.words.filter(w => w["출처"] === "2" && stats.mistakes[w["스페인어 단어"].toLowerCase().trim()]).length : 0;
-            const totalFailCount = vol1FailCount + vol2FailCount;
-            const showFailBadge = !isLocked && totalFailCount > 0;
+            const failCount = stats.mistakes ? unit.words.filter(w => stats.mistakes[w.word.toLowerCase().trim()]).length : 0;
+            const showFailBadge = !isLocked && failCount > 0;
 
             const getUnitIcon = (index: number, locked: boolean, completed: boolean, mastered: boolean) => {
-              if (locked) return <Lock size={24} className="text-white opacity-50" />;
-              if (mastered) return <ThumbsUp size={32} className="text-white" fill="currentColor" />;
-              if (completed) return <Check size={32} className="text-white" strokeWidth={4} />;
+              if (locked) return <div className="text-white opacity-50 relative w-32 h-32"><Image src="/images/torii.png" alt="Locked" fill className="object-contain grayscale" /></div>;
+              if (mastered) return <div className="text-white relative w-40 h-40"><Image src="/images/sakura.png" alt="Mastered" fill className="object-contain" /></div>;
+              if (completed) return <div className="text-white relative w-32 h-32"><Image src="/images/hanko.png" alt="Completed" fill className="object-contain" /></div>;
 
-              // Standard level icons
-              const icons = [MessageSquare, User, Coffee, ShoppingBag, MapPin, Activity, Heart, Star, Book, Music, Camera, Sun, Award, Shield, Target];
-              const Icon = icons[index % icons.length];
-              return <Icon size={24} className="text-white" />;
+              // Current node or available node
+              return <div className="text-white relative w-36 h-36"><Image src="/images/torii.png" alt="Available" fill className="object-contain" /></div>;
             };
 
             return (
@@ -265,7 +193,7 @@ export default function Home() {
                 style={{ transform: `translateX(${offset}px)` }}
               >
                 <Link
-                  href={isLocked ? '#' : `/quiz/${unit.id}?sources=${selectedBooks.join(',')}`}
+                  href={isLocked ? '#' : `/quiz/${unit.id}`}
                   onClick={(e) => isLocked && e.preventDefault()}
                   className="no-underline"
                 >
@@ -281,8 +209,7 @@ export default function Home() {
                         style={{ cursor: 'pointer' }}
                       >
                         <div className="fail-badge-circle" />
-                        {vol1FailCount > 0 && <span className="vol-count vol1-count">{vol1FailCount}</span>}
-                        {vol2FailCount > 0 && <span className="vol-count vol2-count">{vol2FailCount}</span>}
+                        <span className="vol-count vol1-count">{failCount}</span>
                       </div>
                     )}
 
@@ -362,10 +289,10 @@ export default function Home() {
             <span className="text-duo-blue font-14 font-700">💎 {stats.gems}</span>
           </div>
           <div className="separator-v"></div>
-          <div>My Learning Aura: <strong className="text-es-red font-15">{stats.xp.toLocaleString()} ✨</strong></div>
+          <div>My Learning Aura: <strong className="text-kv-kurenai font-15">{stats.xp.toLocaleString()} ✨</strong></div>
           <div className="separator-v"></div>
           <a
-            href="https://github.com/heroyik/holavoca"
+            href="https://github.com/heroyik/kamivoca"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub Repository"

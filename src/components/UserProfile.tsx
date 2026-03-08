@@ -16,6 +16,13 @@ interface UserProfileProps {
     stats: UserStats;
 }
 
+const AVATARS = [
+    '/images/avatars/samurai.png',
+    '/images/avatars/ninja.png',
+    '/images/avatars/geisha.png',
+    '/images/avatars/shiba_inu.png'
+];
+
 export default function UserProfile({ user, stats }: UserProfileProps) {
     const { unlockProgress, updateSettings, updateProfile, resetProgress } = useGamification();
     const [devClickCount, setDevClickCount] = useState(0);
@@ -48,7 +55,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
         if (auth) signOut(auth);
     };
 
-    const toggleSetting = (key: 'soundEnabled' | 'hapticsEnabled' | 'excludeEasyWords' | 'unlockAllLevels') => {
+    const toggleSetting = (key: 'soundEnabled' | 'hapticsEnabled' | 'hideRomaji' | 'hideFurigana' | 'unlockAllLevels') => {
         if (stats.settings) {
             updateSettings({ [key]: !stats.settings[key] });
         }
@@ -81,7 +88,20 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                             )}
                         </div>
                         <h2 className="font-24 font-900 text-main mb-4">{stats.displayName || user.displayName}</h2>
-                        <p className="text-secondary font-700 mb-24">Spanish Enthusiast 🇪🇸</p>
+                        <p className="text-secondary font-700 mb-16">日本語学習者 🇯🇵</p>
+
+                        {/* Avatar Selection */}
+                        <div className="flex justify-center gap-12 mb-24">
+                            {AVATARS.map((avatar, idx) => (
+                                <div 
+                                    key={idx} 
+                                    onClick={() => updateProfile({ photoURL: avatar })}
+                                    className={`relative w-48 h-48 rounded-full overflow-hidden cursor-pointer border-2 ${(stats.photoURL || user.photoURL) === avatar ? 'border-duo-green' : 'border-transparent'}`}
+                                >
+                                    <Image src={avatar} alt={`Avatar ${idx}`} fill className="object-cover" />
+                                </div>
+                            ))}
+                        </div>
 
                         <div className="stat-grid">
                             <div className="profile-stat-card">
@@ -97,7 +117,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                                 <span className="font-24 font-900 text-duo-blue">💎 {stats.gems}</span>
                             </div>
                             <div className="profile-stat-card">
-                                <span className="font-12 font-800 text-secondary uppercase">Crowns</span>
+                                <span className="font-12 font-800 text-secondary uppercase">Mastery (極)</span>
                                 <span className="font-24 font-900 text-duo-yellow">👑 {stats.masteredUnits?.length || 0}</span>
                             </div>
                         </div>
@@ -179,7 +199,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
 
                         <button
                             onClick={handleLogout}
-                            className="duo-button bg-danger shadow-danger mt-32"
+                            className="duo-button bg-kv-kurenai shadow-kv-kurenai mt-32"
                         >
                             LOG OUT
                         </button>
@@ -242,14 +262,29 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
 
                     <div className="settings-item">
                         <div className="flex flex-col">
-                            <span className="font-16 font-700">Exclude Easy Cognates</span>
-                            <span className="font-12 text-secondary">Hide words similar to English</span>
+                            <span className="font-16 font-700">Hide Romaji</span>
+                            <span className="font-12 text-secondary">Hide romaji in quizzes</span>
                         </div>
                         <label className="toggle-switch">
                             <input
                                 type="checkbox"
-                                checked={stats.settings?.excludeEasyWords ?? false}
-                                onChange={() => toggleSetting('excludeEasyWords')}
+                                checked={stats.settings?.hideRomaji ?? false}
+                                onChange={() => toggleSetting('hideRomaji')}
+                            />
+                            <span className="slider"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="flex flex-col">
+                            <span className="font-16 font-700">Hide Furigana</span>
+                            <span className="font-12 text-secondary">Hardcore mode flag</span>
+                        </div>
+                        <label className="toggle-switch">
+                            <input
+                                type="checkbox"
+                                checked={stats.settings?.hideFurigana ?? false}
+                                onChange={() => toggleSetting('hideFurigana')}
                             />
                             <span className="slider"></span>
                         </label>

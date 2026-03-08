@@ -6,17 +6,17 @@ test.describe('V2.0 Vocabulary & Level Tests (Phase 1-4)', () => {
 
   test('TC-VOC-01: Word coverage should be minimum 730 words', async () => {
     // Direct data check
-    const totalWords = vocabData.length;
+    const totalWords = vocabData.data.length;
     expect(totalWords).toBeGreaterThanOrEqual(720);
   });
 
   test('TC-VOC-02: Units should be partitioned into exactly 15 levels', async () => {
     // Use the actual utility function used in the app
-    const units = getUnits(['1', '2']);
+    const units = getUnits();
     expect(units.length).toBe(15);
 
     // Check for even distribution (approximate)
-    const avgSize = Math.ceil(vocabData.length / 15);
+    const avgSize = Math.ceil(vocabData.data.length / 15);
     units.forEach((unit, idx) => {
       expect(unit.words.length).toBeGreaterThan(0);
       // Last unit might be smaller, but others should be unitSize
@@ -27,10 +27,10 @@ test.describe('V2.0 Vocabulary & Level Tests (Phase 1-4)', () => {
   });
 
   test('TC-VOC-02: Words should be sorted by difficulty (heuristic)', async () => {
-    const units = getUnits(['1', '2']);
+    const units = getUnits();
 
     // Heuristic: Unit 1 average word length should be shorter than Unit 15
-    const getAvgLen = (words: any[]) => words.reduce((acc, w) => acc + w["스페인어 단어"].length, 0) / words.length;
+    const getAvgLen = (words: any[]) => words.reduce((acc, w) => acc + w.word.length, 0) / words.length;
 
     const unit1Avg = getAvgLen(units[0].words);
     const unit15Avg = getAvgLen(units[14].words);
@@ -49,7 +49,7 @@ test.describe('V2.0 Vocabulary & Level Tests (Phase 1-4)', () => {
     await vol2Btn.click();
 
     // The header has a pill with totalWords.toLocaleString()
-    const totalWords = vocabData.length.toLocaleString();
+    const totalWords = vocabData.data.length.toLocaleString();
     const stashPill = page.locator('.vocab-stash-pill strong');
     await expect(stashPill).toHaveText(totalWords);
   });
