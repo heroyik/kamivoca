@@ -176,16 +176,40 @@ export default function Home() {
             const unitStatusClass = isLocked ? 'locked' : (isMastered ? 'mastered' : (isCurrent ? 'current' : (isCompleted ? 'completed' : 'available')));
             const combinedClass = `${unitStatusClass} ${isLocked ? '' : tier}`;
 
-            const failCount = stats.mistakes ? unit.words.filter(w => stats.mistakes[w.word.toLowerCase().trim()]).length : 0;
+            const failCount = stats.mistakes
+              ? unit.words.reduce((sum, w) => {
+                  const rawKey = w.word.trim();
+                  const lowerKey = rawKey.toLowerCase();
+                  return sum + (stats.mistakes[rawKey] ?? stats.mistakes[lowerKey] ?? 0);
+                }, 0)
+              : 0;
             const showFailBadge = !isLocked && failCount > 0;
 
             const getUnitIcon = (index: number, locked: boolean, completed: boolean, mastered: boolean) => {
-              if (locked) return <div className="text-white opacity-50 relative w-32 h-32"><Image src={`${BASE_PATH}/images/torii.png`} alt="Locked" fill className="object-contain grayscale" /></div>;
-              if (mastered) return <div className="text-white relative w-40 h-40"><Image src={`${BASE_PATH}/images/sakura.png`} alt="Mastered" fill className="object-contain" /></div>;
-              if (completed) return <div className="text-white relative w-32 h-32"><Image src={`${BASE_PATH}/images/hanko.png`} alt="Completed" fill className="object-contain" /></div>;
+              if (locked) return <span style={{ fontSize: '36px', opacity: 0.6 }}>🔒</span>;
+              if (mastered) {
+                return (
+                  <Image
+                    src={`${BASE_PATH}/images/sakura.png`}
+                    alt="Mastered"
+                    width={44}
+                    height={44}
+                    className="object-contain"
+                  />
+                );
+              }
+              if (completed) return <span style={{ fontSize: '40px' }}>👍</span>;
 
               // Current node or available node
-              return <div className="text-white relative w-36 h-36"><Image src={`${BASE_PATH}/images/torii.png`} alt="Available" fill className="object-contain" /></div>;
+              return (
+                <Image
+                  src={`${BASE_PATH}/images/torii.png`}
+                  alt="Available"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+              );
             };
 
             return (
@@ -210,7 +234,7 @@ export default function Home() {
                         style={{ cursor: 'pointer' }}
                       >
                         <div className="fail-badge-circle" />
-                        <span className="vol-count vol1-count">{failCount}</span>
+                        <span className="fail-badge-count">{failCount}</span>
                       </div>
                     )}
 

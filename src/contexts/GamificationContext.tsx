@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, onSnapshot, increment, setDoc as fsSetDoc, updateDoc, deleteField } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, increment, setDoc as fsSetDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 export interface UserStats {
@@ -81,16 +81,19 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          setStats(prev => ({
-            ...prev,
-            ...parsed,
-            mistakes: parsed.mistakes || {},
-            unitStats: parsed.unitStats || {},
-            settings: {
-              ...defaultStats.settings,
-              ...(parsed.settings || {}),
-            }
-          }));
+          // Use setTimeout to avoid setState synchronously in effect (cascading renders)
+          setTimeout(() => {
+            setStats(prev => ({
+              ...prev,
+              ...parsed,
+              mistakes: parsed.mistakes || {},
+              unitStats: parsed.unitStats || {},
+              settings: {
+                ...defaultStats.settings,
+                ...(parsed.settings || {}),
+              }
+            }));
+          }, 0);
         } catch (e) {
           console.error("Failed to parse local stats", e);
         }
@@ -168,16 +171,9 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       
       const dataToSync = {
         ...newStats,
-        displayName: newStats.displayName || user.displayName,
-        photoURL: (function () {
-          const currentPhoto = newStats.photoURL;
-          const authPhoto = user.photoURL;
-          if (!currentPhoto) return authPhoto;
-          if (authPhoto && currentPhoto.includes('googleusercontent.com') && authPhoto.includes('googleusercontent.com')) {
-            return authPhoto;
-          }
-          return currentPhoto;
-        })()
+        displayName: user.displayName || newStats.displayName,
+        // Google auth photo always takes priority in Firestore (for leaderboard display)
+        photoURL: user.photoURL || newStats.photoURL || null,
       };
 
       if (isDeletion) {

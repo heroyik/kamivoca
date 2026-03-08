@@ -1,18 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import vocabData from "@/data/vocab.json";
 import { VocabEntry } from "@/utils/vocab";
-import { Trash2, Brain, Frown, Landmark } from "lucide-react";
+import { Trash2, Brain, Frown } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function ReviewTab() {
   const { stats, removeMistake, clearAllMistakes } = useGamification();
-  const { top20, loading: top20Loading, error: top20Error } = useGlobalTop20();
+  const { top20, loading: top20Loading, error: top20Error, refresh: refreshTop20 } = useGlobalTop20();
 
   const mistakes = stats.mistakes || {};
+  const mistakesKey = JSON.stringify(stats.mistakes || {});
   
   // Grouping logic to handle data inconsistency (duplicates in vocab and variant keys in mistakes)
   const groupedMistakesMap = new Map<string, { entry: VocabEntry; totalCount: number }>();
@@ -37,6 +38,11 @@ export default function ReviewTab() {
   });
 
   const reviewEntries = Array.from(groupedMistakesMap.values());
+
+  // Pull latest global fail totals whenever this tab is active and local mistakes changed.
+  useEffect(() => {
+    refreshTop20();
+  }, [refreshTop20, mistakesKey]);
 
   return (
     <div className="review-content">

@@ -38,6 +38,32 @@ export function categorizePOS(posString: string): POS {
 }
 
 /**
+ * Infer POS when source data only has "other".
+ * Priority: explicit POS tag -> heuristic from Japanese surface form.
+ */
+export function inferPOS(entry: Pick<VocabEntry, "pos" | "word" | "furigana">): POS {
+  const taggedPOS = categorizePOS(entry.pos || "");
+  if (taggedPOS !== "other") return taggedPOS;
+
+  const text = (entry.furigana || entry.word || "")
+    .trim()
+    .replace(/[\s・、。？！「」『』（）()]/g, "");
+
+  if (!text) return "other";
+
+  // Japanese verb endings and common auxiliary verb forms
+  if (/(する|できる|れる|られる|せる|させる)$/.test(text)) return "verb";
+  if (/[うくぐすつぬぶむる]$/.test(text)) return "verb";
+
+  // i-adjective and common adjective-style endings
+  if (/(ない|たい)$/.test(text)) return "adjective";
+  if (/(しい|い)$/.test(text)) return "adjective";
+
+  // Default bucket for quiz distractor matching
+  return "noun";
+}
+
+/**
  * KamiVoca uses a single combined JSON pipeline initially.
  * Eventually, this could merge multiple JSON files.
  */
@@ -112,7 +138,7 @@ export function getRandomWords(
   // If a target POS is provided, try to find distractors of the same POS
   if (targetPOS) {
     const posCandidates = candidates.filter(
-      (w) => categorizePOS(w.pos) === targetPOS
+      (w) => inferPOS(w) === targetPOS
     );
     if (posCandidates.length >= count) {
       candidates = posCandidates;

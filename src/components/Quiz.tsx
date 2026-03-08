@@ -2,15 +2,14 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSound } from "@/hooks/useSound";
-import { VocabEntry, categorizePOS } from "@/utils/vocab";
+import { VocabEntry, inferPOS } from "@/utils/vocab";
 import vocabData from "@/data/vocab.json"; // Import full vocab for distractors
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { X, Frown, Landmark } from "lucide-react";
+import { X, Frown } from "lucide-react";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import { useRank } from "@/hooks/useRank";
-import Image from "next/image";
 
 interface QuizProps {
   unitId: string;
@@ -47,7 +46,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
       other: []
     };
     (vocabData.data as VocabEntry[]).forEach((entry: VocabEntry) => {
-      const pos = categorizePOS(entry.pos);
+      const pos = inferPOS(entry);
       groups[pos].push(entry);
     });
     return groups;
@@ -81,26 +80,18 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
 
   const generateOptions = useCallback((currentEntry: VocabEntry) => {
     const correctAnswer = currentEntry.meaning;
-    const pos = categorizePOS(currentEntry.pos);
+    const pos = inferPOS(currentEntry);
 
-    // 1. Try to get 3 distractors from the same POS
-    const samePOSDistractors = vocabByPOS[pos]
-      .filter(v => v.meaning !== correctAnswer)
+    // Keep distractors in the same POS bucket only
+    const finalDistractors = Array.from(
+      new Set(
+        vocabByPOS[pos]
+          .filter((v) => v.meaning !== correctAnswer)
+          .map((v) => v.meaning)
+      )
+    )
       .sort(() => Math.random() - 0.5)
       .slice(0, 3);
-
-    let finalDistractors = samePOSDistractors.map(v => v.meaning);
-
-    // 2. Fallback if not enough same-POS words (unlikely with this dataset but safe)
-    if (finalDistractors.length < 3) {
-      const fallbackDistractors = (vocabData.data as VocabEntry[])
-        .filter((v: VocabEntry) => v.meaning !== correctAnswer && !finalDistractors.includes(v.meaning))
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3 - finalDistractors.length)
-        .map(v => v.meaning);
-
-      finalDistractors = [...finalDistractors, ...fallbackDistractors];
-    }
 
     return [correctAnswer, ...finalDistractors].sort(() => Math.random() - 0.5);
   }, [vocabByPOS]);
@@ -243,11 +234,6 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
   const painRank = wallOfPainMap.get(currentQuestion.word);
   const isUnknown = selectedOption === "UNKNOWN";
 
-  // 6.4 — JSON sentence mapped correctly
-  const contextualSentence = isCorrect && currentQuestion.sentences && currentQuestion.sentences.length > 0
-    ? currentQuestion.sentences[0]
-    : null;
-
   return (
     <div className="container flex flex-col min-h-screen p-20-120 relative">
       {/* Header */}
@@ -305,18 +291,6 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
               Tricky Word
             </div>
           )}
-          {currentQuestion.sentences && currentQuestion.sentences.length > 0 && (
-            <div className="mt-8 flex flex-col items-center">
-              <div className="text-subtitle italic font-16">
-                &quot;{currentQuestion.sentences[0].japanese}&quot;
-              </div>
-              {!stats.settings?.hideFurigana && currentQuestion.sentences[0].furigana && (
-                <div className="text-small text-secondary italic mt-4">
-                  {currentQuestion.sentences[0].furigana}
-                </div>
-              )}
-            </div>
-          )}
           {/* 6.2 — Wall of Pain badge */}
           {painRank && (
             <div
@@ -361,8 +335,8 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
             className="duo-button duo-button-outline btn-nolo w-full mt-24 text-subtitle"
             style={{ borderColor: '#afafaf', color: '#777' }}
           >
-            <span style={{ marginRight: "8px", fontSize: "20px" }}>🪭</span>
-            分かりません (I don&apos;t know)
+            <span style={{ marginRight: "8px", fontSize: "20px" }}>❓</span>
+            分かりません
           </button>
         )}
       </div>
@@ -393,26 +367,6 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
                   <p className="correct-solution">
                     {questions[currentIndex].meaning}
                   </p>
-                )}
-                {/* 6.4 — JSON contextual sentence */}
-                {contextualSentence && (
-                  <div
-                    style={{
-                      marginTop: "8px",
-                      background: "#f0fdf4",
-                      border: "1px solid #bbf7d0",
-                      borderRadius: "8px",
-                      padding: "8px 10px",
-                      fontSize: "12px",
-                      color: "#166534",
-                    }}
-                  >
-                    <div style={{ fontWeight: 700, marginBottom: "2px" }}>
-                      💬 &quot;{contextualSentence.japanese}&quot;
-                    </div>
-                    {contextualSentence.furigana && <div style={{ opacity: 0.8, fontSize: '10px' }}>{contextualSentence.furigana}</div>}
-                    <div style={{ opacity: 0.75 }}>({contextualSentence.meaning})</div>
-                  </div>
                 )}
               </div>
             </div>

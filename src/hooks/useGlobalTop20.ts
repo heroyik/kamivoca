@@ -25,10 +25,14 @@ function getDifficultyScore(word: string): number {
   return score;
 }
 
-function buildWordUnitMap(): Map<string, { book: string; unitNum: number; furigana?: string; romaji?: string }> {
+function normalizeWordKey(word: string): string {
+  return word.toLowerCase().trim();
+}
+
+function buildWordUnitMap(): Map<string, { word: string; meaning: string; book: string; unitNum: number; furigana?: string; romaji?: string }> {
   const uniqueWords = new Map<string, VocabEntry>();
   (vocabData.data as VocabEntry[]).forEach((w) => {
-    const key = w.word.toLowerCase().trim();
+    const key = normalizeWordKey(w.word);
     if (!uniqueWords.has(key)) uniqueWords.set(key, w);
   });
   const allWords = Array.from(uniqueWords.values()).sort((a, b) => {
@@ -39,9 +43,11 @@ function buildWordUnitMap(): Map<string, { book: string; unitNum: number; furiga
 
   const TOTAL_UNITS = 15;
   const unitSize = Math.ceil(allWords.length / TOTAL_UNITS);
-  const map = new Map<string, { book: string; unitNum: number; furigana?: string; romaji?: string }>();
+  const map = new Map<string, { word: string; meaning: string; book: string; unitNum: number; furigana?: string; romaji?: string }>();
   allWords.forEach((w, idx) => {
-    map.set(w.word, {
+    map.set(normalizeWordKey(w.word), {
+      word: w.word,
+      meaning: w.meaning,
       book: w.jlpt,
       unitNum: Math.floor(idx / unitSize) + 1,
       furigana: w.furigana,
@@ -62,27 +68,27 @@ export function useGlobalTop20() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchTop20 = useCallback(async () => {
-    if (sessionCache) { setTop20(sessionCache); setLoading(false); return; }
+    if (sessionCache) setTop20(sessionCache);
     if (!db) { setLoading(false); return; }
     try {
       setLoading(true);
       const snap = await getDocs(collection(db, "globalWordStats"));
       const all: GlobalWordStat[] = snap.docs.map((d) => {
         const data = d.data();
-        const wordStr: string = data.word ?? decodeURIComponent(d.id);
-        const meta = wordUnitMap.get(wordStr) ?? { book: "1", unitNum: 1 };
+        const rawWord: string = (data.word ?? decodeURIComponent(d.id) ?? "").trim();
+        const meta = wordUnitMap.get(normalizeWordKey(rawWord)) ?? { word: rawWord, meaning: "", book: "N5", unitNum: 1 };
         return {
-          word: wordStr,
-          meaning: data.meaning ?? "",
+          word: meta.word || rawWord,
+          meaning: data.meaning ?? meta.meaning ?? "",
           furigana: meta.furigana,
           romaji: meta.romaji,
-          totalCount: (data.seedCount ?? 0) + (data.failCount ?? 0),
+          totalCount: data.failCount ?? 0,
           book: meta.book,
           unitId: `unit-${meta.unitNum}`,
           unitNum: meta.unitNum,
         };
       });
-      all.sort((a, b) => b.totalCount - a.totalCount);
+      all.sort((a, b) => (b.totalCount - a.totalCount) || a.word.localeCompare(b.word));
       const result = all.slice(0, 20);
       sessionCache = result;
       setTop20(result);

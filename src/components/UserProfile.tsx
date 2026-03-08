@@ -66,44 +66,54 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
         <div className="profile-container pb-140">
             <div className="card-premium text-center p-32 mb-24">
                 {/* Unified Profile Header */}
-                <div
-                    onClick={() => setDevClickCount(prev => prev + 1)}
-                    className="avatar-container w-100 h-100 rounded-full relative mb-16 mx-auto overflow-hidden flex-center"
-                    style={{
-                        backgroundColor: (stats.photoURL || user?.photoURL) ? 'transparent' : getAvatarColor(user?.uid || 'guest'),
-                        color: 'white',
-                        fontWeight: 900,
-                        fontSize: '48px'
-                    }}
-                >
-                    {(stats.photoURL || user?.photoURL) ? (
-                        <Image
-                            src={(stats.photoURL || user?.photoURL || '').startsWith('http') 
-                                ? (stats.photoURL || user?.photoURL || '') 
-                                : `${BASE_PATH}${stats.photoURL || user?.photoURL}`}
-                            alt={stats.displayName || user?.displayName || 'User'}
-                            fill
-                            className="object-cover"
-                        />
-                    ) : (
-                        <span>{getInitial(stats.displayName || user?.displayName || undefined)}</span>
-                    )}
-                </div>
-                <h2 className="font-24 font-900 text-main mb-4">{stats.displayName || user?.displayName || 'Guest User'}</h2>
-                <p className="text-secondary font-700 mb-16">日本語学習者 🇯🇵</p>
+                {(() => {
+                    const googlePhoto = user?.photoURL;
+                    const localAvatar = (stats.photoURL && !stats.photoURL.startsWith('http')) ? stats.photoURL : null;
+                    const displayPhoto = googlePhoto || (stats.photoURL?.startsWith('http') ? stats.photoURL : null);
+                    const displayName = user?.displayName || stats.displayName || 'Guest User';
+                    return (
+                        <>
+                            <div
+                                onClick={() => setDevClickCount(prev => prev + 1)}
+                                className="avatar-container"
+                                style={{
+                                    backgroundColor: displayPhoto ? 'transparent' : getAvatarColor(user?.uid || 'guest'),
+                                    color: 'white',
+                                    fontWeight: 900,
+                                    fontSize: '48px'
+                                }}
+                            >
+                                {displayPhoto ? (
+                                    <Image
+                                        src={displayPhoto}
+                                        alt={displayName}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <span>{getInitial(displayName)}</span>
+                                )}
+                            </div>
+                            <h2 className="font-24 font-900 text-main mb-4">{displayName}</h2>
+                            <p className="text-secondary font-700 mb-16">日本語学習者 🇯🇵</p>
 
-                {/* Avatar Grid - Ensure accessible on mobile with start alignment if overflowing */}
-                <div className="avatar-grid flex justify-start sm:justify-center gap-12 py-16 px-16 overflow-x-auto no-scrollbar">
-                    {AVATARS.map((avatar, idx) => (
-                        <div 
-                            key={idx} 
-                            onClick={() => updateProfile({ photoURL: avatar })}
-                            className={`relative w-48 h-48 rounded-full overflow-hidden cursor-pointer border-2 ${(stats.photoURL || user?.photoURL) === avatar ? 'border-duo-green' : 'border-transparent'}`}
-                        >
-                            <Image src={`${BASE_PATH}${avatar}`} alt={`Avatar ${idx}`} fill className="object-cover" />
-                        </div>
-                    ))}
-                </div>
+                            {/* Avatar Grid - only show when no Google photo available */}
+                            {!googlePhoto && (
+                                <div className="avatar-grid flex justify-start sm:justify-center gap-12 py-16 px-16 overflow-x-auto no-scrollbar">
+                                    {AVATARS.map((avatar, idx) => (
+                                        <div
+                                            key={idx}
+                                            onClick={() => updateProfile({ photoURL: avatar })}
+                                            className={`relative w-48 h-48 rounded-full overflow-hidden cursor-pointer border-2 ${localAvatar === avatar ? 'border-duo-green' : 'border-transparent'}`}
+                                        >
+                                            <Image src={`${BASE_PATH}${avatar}`} alt={`Avatar ${idx}`} fill className="object-cover" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    );
+                })()}
 
                 <div className="stat-grid">
                     <div className="profile-stat-card">
@@ -202,7 +212,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
 
                         <button
                             onClick={handleLogout}
-                            className="duo-button bg-kv-kurenai shadow-kv-kurenai mt-32"
+                            className="duo-button bg-kv-kurenai shadow-kv-kurenai mt-32 text-white font-900 w-auto mx-auto block"
                         >
                             LOG OUT
                         </button>

@@ -5,7 +5,6 @@ import { db } from '@/lib/firebase';
 import { collection, query, orderBy, limit, onSnapshot, getDocs } from 'firebase/firestore';
 import Image from 'next/image';
 import { getAvatarColor, getInitial } from '@/utils/ui';
-import { BASE_PATH } from '@/lib/constants';
 
 interface LeaderboardEntry {
     id: string;
@@ -108,14 +107,14 @@ export default function Leaderboard() {
                             {index === 0 ? '👑' : index + 1}
                         </div>
                         <div className="user-avatar mr-12 relative" style={{
-                            backgroundColor: entry.photoURL ? 'transparent' : getAvatarColor(entry.id),
+                            backgroundColor: (entry.photoURL?.startsWith('http')) ? 'transparent' : getAvatarColor(entry.id),
                             color: 'white',
                             fontWeight: 900,
                             fontSize: '18px'
                         }}>
-                            {entry.photoURL ? (
+                            {entry.photoURL?.startsWith('http') ? (
                                 <Image
-                                    src={entry.photoURL.startsWith('http') ? entry.photoURL : `${BASE_PATH}${entry.photoURL}`}
+                                    src={entry.photoURL}
                                     alt={entry.displayName || "学習者"}
                                     fill
                                     className="object-cover rounded-full"
