@@ -1,4 +1,4 @@
-# 🇪🇸 HolaVoca (v2.1.0) - Spanish Vocabulary Learning App
+# 🇯🇵 KamiVoca (v1.0.0) - Japanese Vocabulary Learning App
 
 `Version 2.1.0`
 
@@ -33,7 +33,7 @@
 
 ---
 
-HolaVoca is a premium, gamified Spanish learning platform inspired by modern educational apps. It helps users master over 720+ Spanish words through a mobile-optimized **Snake Path** journey and a real-time competitive leaderboard.
+KamiVoca is a premium, gamified Japanese learning platform inspired by modern educational apps. It helps users master over 720+ Japanese words through a mobile-optimized **Snake Path** journey and a real-time competitive leaderboard.
 
 ### [v2.0.0] - 2026-02-25 — Official Release & Vocabulary Optimization
 
@@ -138,4 +138,4 @@ Before syncing your local changes to GitHub, you **MUST** complete these steps:
 3. **Audit .gitignore**: Ensure sensitive files (API keys, `.env.local`) are not tracked.
 
 ---
-¡Aprende español con HolaVoca! ✨🇪🇸
+¡Aprende japonés con KamiVoca! ✨🇯🇵
