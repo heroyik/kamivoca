@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 
 test('Verify Textbook Selection Feature', async ({ page }) => {
     // 1. Visit the site
-    await page.goto('/holavoca/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/kamivoca/', { waitUntil: 'domcontentloaded' });
 
     // 2. Check initial state (Vol 1 selected by default)
     // The pill contains the count (538)

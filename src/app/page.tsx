@@ -13,6 +13,7 @@ import Leaderboard from '@/components/Leaderboard';
 import UserProfile from '@/components/UserProfile';
 import ReviewTab from '@/components/ReviewTab';
 import RankToast from '@/components/RankToast';
+import Image from 'next/image';
 import { Github } from 'lucide-react';
 
 // Gamification Helpers

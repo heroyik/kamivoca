@@ -25,16 +25,16 @@ test.describe('Review Feature Refinement', () => {
 
   test.beforeEach(async ({ page }) => {
     // 1. Visit the app and clear storage
-    await page.goto('http://localhost:3000/holavoca/');
+    await page.goto('http://localhost:3000/kamivoca/');
     await page.evaluate(() => localStorage.clear());
 
     // 2. Set mock stats in localStorage to simulate a synced account
     await page.evaluate((stats) => {
-      localStorage.setItem('holavoca_stats', JSON.stringify(stats));
+      localStorage.setItem('kamivoca_stats', JSON.stringify(stats));
     }, MOCK_STATS);
 
     // 3. Reload to let useGamification pick up the data
-    await page.goto('http://localhost:3000/holavoca/');
+    await page.goto('http://localhost:3000/kamivoca/');
 
     // 4. Wait for the gamification hook to initialize by checking for XP display
     await expect(page.locator('text=My Learning Aura')).toBeVisible({ timeout: 10000 });
@@ -69,7 +69,7 @@ test.describe('Review Feature Refinement', () => {
     await expect(page.locator('.stat-value')).toHaveText('1');
 
     // Verify localStorage was updated
-    const stats = await page.evaluate(() => JSON.parse(localStorage.getItem('holavoca_stats') || '{}'));
+    const stats = await page.evaluate(() => JSON.parse(localStorage.getItem('kamivoca_stats') || '{}'));
     expect(stats.mistakes['adiós']).toBeUndefined();
     expect(stats.mistakes['abril']).toBe(3);
   });
@@ -86,7 +86,7 @@ test.describe('Review Feature Refinement', () => {
     await expect(page.locator('text=All Clear!')).toBeVisible();
 
     // Verify localStorage
-    const stats = await page.evaluate(() => JSON.parse(localStorage.getItem('holavoca_stats') || '{}'));
+    const stats = await page.evaluate(() => JSON.parse(localStorage.getItem('kamivoca_stats') || '{}'));
     expect(stats.mistakes).toEqual({});
   });
 });

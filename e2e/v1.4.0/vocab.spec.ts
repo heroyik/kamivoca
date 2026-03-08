@@ -42,7 +42,7 @@ test.describe('V2.0 Vocabulary & Level Tests (Phase 1-4)', () => {
   });
 
   test('Header should display the correct total word count', async ({ page }) => {
-    await page.goto('/holavoca');
+    await page.goto('/kamivoca');
 
     // Select Volume 2 to get full count (Volume 1 is default)
     const vol2Btn = page.locator('img[alt="Book 2"]');

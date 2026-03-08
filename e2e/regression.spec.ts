@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Regression Suite for UI Changes', () => {
   test.beforeEach(async ({ page }) => {
     page.on('console', msg => console.log(`BROWSER LOG: ${msg.text()}`));
-    await page.goto('/holavoca');
+    await page.goto('/kamivoca');
     console.log(`Navigated to: ${page.url()}`);
   });
 
@@ -12,8 +12,8 @@ test.describe('Regression Suite for UI Changes', () => {
     const header = page.locator('header.spanish-header');
     await expect(header).toBeVisible();
 
-    // Check Title "HolaVoca"
-    const title = header.getByRole('heading', { name: 'HolaVoca' });
+    // Check Title "KamiVoca"
+    const title = header.getByRole('heading', { name: 'KamiVoca' });
     await expect(title).toBeVisible();
     await expect(title).toHaveClass(/font-22/); // Check implementation detail (font size increase)
 

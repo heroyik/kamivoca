@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD013 MD033 -->
 # Kotoba Prime: Advanced Japanese Vocabulary App Strategy
 
-This document outlines the detailed strategy for cloning the `HolaVoca` architecture to create a brand-new, hip, and highly traditional Japanese vocabulary learning app.
+This document outlines the detailed strategy for cloning the `KamiVoca` architecture to create a brand-new, hip, and highly traditional Japanese vocabulary learning app.
 
 ## 1. App Naming Proposal
 
@@ -22,7 +22,7 @@ The user requested a "hip English name" that conveys the meaning of "Advanced Ja
 
 ## 2. Overall Design Look & Feel (Duolingo-Inspired Traditional Japanese)
 
-The entire design system of HolaVoca will be overhauled to reflect a deep, traditional Japanese atmosphere, while strictly adhering to the highly engaging, gamified UX/UI patterns popularized by **Duolingo**.
+The entire design system of KamiVoca will be overhauled to reflect a deep, traditional Japanese atmosphere, while strictly adhering to the highly engaging, gamified UX/UI patterns popularized by **Duolingo**.
 
 ### Duolingo-Inspired UX/UI Mechanics
 
@@ -63,7 +63,7 @@ The entire design system of HolaVoca will be overhauled to reflect a deep, tradi
 
 ## 3. Data & Progression Logic (The 15-Level System)
 
-Unlike HolaVoca, which utilizes Book 1 and Book 2 selection, **Kotoba Prime** will use a single, unified progression track based on aggregating JSON files.
+Unlike KamiVoca, which utilizes Book 1 and Book 2 selection, **Kotoba Prime** will use a single, unified progression track based on aggregating JSON files.
 
 ### 3.1. Data Aggregation
 
@@ -105,15 +105,15 @@ Instead of guessing difficulty based on stroke count, the JSON data processing p
    - **Level 1**: Absolute beginner expressions (Hiragana, Greetings).
    - **...**
    - **Level 15**: Highly advanced vocabulary, obscure Kanji, and N1+ expressions.
-3. Users **must pass** sequential levels to unlock the next, ensuring a smooth difficulty curve. The settings toggle `"Unlock all levels"` (from HolaVoca Phase 3) can be retained for advanced users who want to jump straight to Level 15.
+3. Users **must pass** sequential levels to unlock the next, ensuring a smooth difficulty curve. The settings toggle `"Unlock all levels"` (from KamiVoca Phase 3) can be retained for advanced users who want to jump straight to Level 15.
 
 ---
 
-## 4. Advanced Quiz & Engagement Features (Adapted from HolaVoca)
+## 4. Advanced Quiz & Engagement Features (Adapted from KamiVoca)
 
 ### 4.1. Pos-Based Distractors
 
-Similar to HolaVoca's distractor logic, Kotoba Prime will match Part of Speech (POS) for distractors.
+Similar to KamiVoca's distractor logic, Kotoba Prime will match Part of Speech (POS) for distractors.
 
 - Verbs ending in `~u` (U-verbs) or `~ru` (Ru-verbs) will have other verbs as distractors.
 - `Na-adjectives` will be distractors for other `Na-adjectives`.
@@ -233,7 +233,7 @@ Powers the **Global TOP 20 Hardest Words** feature in the Review tab.
 
 ## 7. Technical Implementation Steps for the Clone
 
-1. **Repository Setup**: Clone `holavoca` into a new repository (e.g., `kotoba-prime`).
+1. **Repository Setup**: Clone `kamivoca` into a new repository (e.g., `kotoba-prime`).
 2. **Data Pipeline**: Replace the hardcoded `vocab.json` fetching with a dynamic script that reads `voca_json/*.json` and runs the OPIc/JLPT difficulty sorting algorithm.
 3. **UI/UX Overhaul**:
    - Update `tailwind.config.ts` to include the new traditional Japanese color palette (`ai-iro`, `kurenai`, etc.).

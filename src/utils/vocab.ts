@@ -1,4 +1,4 @@
-import opicData from "@/data/voca_json/japanese_opic.json";
+import opicData from "@/data/vocab.json";
 
 export interface VocabEntry {
   id: number;
@@ -9,6 +9,7 @@ export interface VocabEntry {
   level: number;
   jlpt: string;
   pos: string;
+  synonyms?: string[];
   sentences?: {
     japanese: string;
     furigana: string;

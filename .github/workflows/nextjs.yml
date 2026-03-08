@@ -47,14 +47,14 @@ jobs:
           
           # 1. Build Version 1.3 (Stable Maintenance)
           git checkout -f v1.3-maintenance
-          export NEXT_PUBLIC_BASE_PATH="/holavoca"
+          export NEXT_PUBLIC_BASE_PATH="/kamivoca"
           npm run build
           cp -r out/* build_output/
           
           # 2. Build Version 2.0 (Develop Alpha)
           git reset --hard
           git checkout -f develop
-          export NEXT_PUBLIC_BASE_PATH="/holavoca/v2"
+          export NEXT_PUBLIC_BASE_PATH="/kamivoca/v2"
           npm run build
           cp -r out/* build_output/v2/
 

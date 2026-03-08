@@ -1,10 +1,10 @@
 # KamiVoca Implementation Plan
 
-이 문서는 기존 스페인어 학습 앱 `HolaVoca`의 아키텍처를 바탕으로 전통적이고 세련된 일본어 학습 앱 `KamiVoca(Kotoba Prime)`를 구축하기 위한 상세 실행 계획(Blueprint)입니다.
+이 문서는 기존 스페인어 학습 앱 `KamiVoca`의 아키텍처를 바탕으로 전통적이고 세련된 일본어 학습 앱 `KamiVoca(Kotoba Prime)`를 구축하기 위한 상세 실행 계획(Blueprint)입니다.
 
 > [!CAUTION]
 > **핵심 개발 원칙: 완전한 리소스 분리**
-> 기존 `HolaVoca`에서 사용하던 외부 API 키, Cloud 서비스 계정, 데이터베이스 인스턴스 등은 **절대로 KamiVoca와 공유하거나 재사용해서는 안 됩니다.** 모든 클라우드(Firebase 등) 및 서드파티 서비스는 완전하게 별개로 구축하여 연동합니다.
+> 기존 `KamiVoca`에서 사용하던 외부 API 키, Cloud 서비스 계정, 데이터베이스 인스턴스 등은 **절대로 KamiVoca와 공유하거나 재사용해서는 안 됩니다.** 모든 클라우드(Firebase 등) 및 서드파티 서비스는 완전하게 별개로 구축하여 연동합니다.
 
 ## User Review Required
 

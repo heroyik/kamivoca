@@ -54,7 +54,7 @@
 
 | Test ID | 테스트 항목 | 기대 결과 | 상태 |
 | --- | --- | --- | --- |
-| DB-01 | **프로젝트 완전 분리** | Firebase Console에서 기존 HolaVoca가 아닌 신규 KamiVoca 프로젝트로 데이터가 들어오는지 확인. | |
+| DB-01 | **프로젝트 완전 분리** | Firebase Console에서 기존 KamiVoca가 아닌 신규 KamiVoca 프로젝트로 데이터가 들어오는지 확인. | |
 | DB-02 | **유저 인증 및 스키마 검증** | 구글 로그인 후 Firestore의 `users/{userId}` 경로에 xp, 연속일수, 완료레벨, 오답 맵 데이터가 정상 기록되는지 확인. | |
 | DB-03 | **Global Stats Quota(Limit) 방어** | 중복된 오답이 빈번히 발생할 때 Firestore에 즉시 연속 개별 Write하지 않고 캐싱 혹은 배치 기반으로 한계 횟수를 초과하지 않는지 콘솔 Network 모니터링을 통해 체크. 최고 ID 스캔 시 스택 오버플로우 등의 크래시 불건 여부 검증. | |
 | DB-04 | **보안 규칙 검증** | 로그인하지 않은 사용자, 혹은 타인의 UserID 스키마에 Document R/W 요청 시 권한 에러(Permission Denied)가 발생하는지 확인. | |

@@ -4,7 +4,7 @@ import { useRef, useEffect, useCallback } from "react";
 
 type SoundType = "correct" | "incorrect" | "cheer";
 
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/holavoca";
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/kamivoca";
 
 const SOUND_FILES: Record<string, string> = {
   correct: `${BASE_PATH}/sounds/correct.mp3`,

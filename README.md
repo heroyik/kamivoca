@@ -51,10 +51,28 @@ A winding, interactive learning path that visually guides users through 15 diffi
 
 ---
 
-### 🗄️ Data Implementation
-- **Dataset**: Integrated Japanese OPIc dataset (200+ target words).
-- **Format**: Local JSON-based vocabulary with Firestore-backed global stats.
-- **Initialization**: Automated transformation and seeding pipeline for clean project starts.
+## 📊 Dataset Maintenance
+
+To add or update vocabulary, modify `voca_json/japanese_opic_dataset_integrated.json` and run the transformation script.
+
+### JSON Schema (`integrated.json`)
+
+| Field | Type | Description | Example |
+| :--- | :--- | :--- | :--- |
+| `japones` | `string` | Word with optional furigana in `()` | `"沐浴(もくよく)"` |
+| `coreana` | `string` | Korean meaning | `"목욕"` |
+| `level` | `string` | OPIc Level (AL, IH, IM3, ...) | `"IH"` |
+| `pos` | `string` | (Optional) noun, verb, adj, ... | `"noun"` |
+| `expresion_similar` | `string[]` | (Optional) Synonyms | `["足袋", "靴下"]` |
+| `conversacion` | `string[]` | (Optional) Sample dialogue lines | `["A: それ、どう？", ...]` |
+
+### Running the Pipeline
+
+After updating the data, run:
+```bash
+node scripts/transform_japanese_data.mjs
+```
+This will regenerate `src/data/vocab.json`, which is the primary source for the application.
 
 ---
 

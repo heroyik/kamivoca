@@ -3,8 +3,8 @@ import fs from 'fs';
 import path from 'path';
 
 test('should download vocabulary JSON when clicking the total word count pill', async ({ page }) => {
-  // 1. Navigate to the local dev server (basePath = /holavoca)
-  await page.goto('/holavoca/', { waitUntil: 'domcontentloaded' });
+  // 1. Navigate to the local dev server (basePath = /kamivoca)
+  await page.goto('/kamivoca/', { waitUntil: 'domcontentloaded' });
 
   // 2. Wait for the Download JSON button to appear (Firebase auth may take a moment)
   await page.waitForSelector('[title="Download JSON"]', { timeout: 20000 });

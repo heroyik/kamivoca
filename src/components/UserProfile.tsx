@@ -64,64 +64,65 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
     return (
         <div className="profile-container pb-140">
             <div className="card-premium text-center p-32 mb-24">
+                {/* Unified Profile Header */}
+                <div
+                    onClick={() => setDevClickCount(prev => prev + 1)}
+                    className="avatar-container w-100 h-100 rounded-full relative mb-16 mx-auto overflow-hidden flex-center"
+                    style={{
+                        backgroundColor: (stats.photoURL || user?.photoURL) ? 'transparent' : getAvatarColor(user?.uid || 'guest'),
+                        color: 'white',
+                        fontWeight: 900,
+                        fontSize: '48px'
+                    }}
+                >
+                    {(stats.photoURL || user?.photoURL) ? (
+                        <Image
+                            src={stats.photoURL || user?.photoURL || ''}
+                            alt={stats.displayName || user?.displayName || 'User'}
+                            fill
+                            className="object-cover"
+                        />
+                    ) : (
+                        <span>{getInitial(stats.displayName || user?.displayName || undefined)}</span>
+                    )}
+                </div>
+                <h2 className="font-24 font-900 text-main mb-4">{stats.displayName || user?.displayName || 'Guest User'}</h2>
+                <p className="text-secondary font-700 mb-16">日本語学習者 🇯🇵</p>
+
+                {/* Avatar Grid - Ensure accessible on mobile with start alignment if overflowing */}
+                <div className="avatar-grid flex justify-start sm:justify-center gap-12 py-16 px-16 overflow-x-auto no-scrollbar">
+                    {AVATARS.map((avatar, idx) => (
+                        <div 
+                            key={idx} 
+                            onClick={() => updateProfile({ photoURL: avatar })}
+                            className={`relative w-48 h-48 rounded-full overflow-hidden cursor-pointer border-2 ${(stats.photoURL || user?.photoURL) === avatar ? 'border-duo-green' : 'border-transparent'}`}
+                        >
+                            <Image src={avatar} alt={`Avatar ${idx}`} fill className="object-cover" />
+                        </div>
+                    ))}
+                </div>
+
+                <div className="stat-grid">
+                    <div className="profile-stat-card">
+                        <span className="font-12 font-800 text-secondary uppercase">Streak</span>
+                        <span className="font-24 font-900 text-duo-orange">🔥 {stats.streak}</span>
+                    </div>
+                    <div className="profile-stat-card">
+                        <span className="font-12 font-800 text-secondary uppercase">Total XP</span>
+                        <span className="font-24 font-900 text-duo-green">✨ {stats.xp}</span>
+                    </div>
+                    <div className="profile-stat-card">
+                        <span className="font-12 font-800 text-secondary uppercase">Gems</span>
+                        <span className="font-24 font-900 text-duo-blue">💎 {stats.gems}</span>
+                    </div>
+                    <div className="profile-stat-card">
+                        <span className="font-12 font-800 text-secondary uppercase">Mastery (極)</span>
+                        <span className="font-24 font-900 text-duo-yellow">👑 {stats.masteredUnits?.length || 0}</span>
+                    </div>
+                </div>
+
                 {user ? (
                     <>
-                        <div
-                            onClick={() => setDevClickCount(prev => prev + 1)}
-                            className="avatar-container w-100 h-100 rounded-full relative mb-16 overflow-hidden flex-center"
-                            style={{
-                                backgroundColor: (stats.photoURL || user.photoURL) ? 'transparent' : getAvatarColor(user.uid),
-                                color: 'white',
-                                fontWeight: 900,
-                                fontSize: '48px'
-                            }}
-                        >
-                            {(stats.photoURL || user.photoURL) ? (
-                                <Image
-                                    src={stats.photoURL || user.photoURL || ''}
-                                    alt={stats.displayName || user.displayName || 'User'}
-                                    fill
-                                    className="object-cover"
-                                />
-                            ) : (
-                                <span>{getInitial(stats.displayName || user.displayName || undefined)}</span>
-                            )}
-                        </div>
-                        <h2 className="font-24 font-900 text-main mb-4">{stats.displayName || user.displayName}</h2>
-                        <p className="text-secondary font-700 mb-16">日本語学習者 🇯🇵</p>
-
-                        {/* Avatar Selection */}
-                        <div className="flex justify-center gap-12 mb-24">
-                            {AVATARS.map((avatar, idx) => (
-                                <div 
-                                    key={idx} 
-                                    onClick={() => updateProfile({ photoURL: avatar })}
-                                    className={`relative w-48 h-48 rounded-full overflow-hidden cursor-pointer border-2 ${(stats.photoURL || user.photoURL) === avatar ? 'border-duo-green' : 'border-transparent'}`}
-                                >
-                                    <Image src={avatar} alt={`Avatar ${idx}`} fill className="object-cover" />
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="stat-grid">
-                            <div className="profile-stat-card">
-                                <span className="font-12 font-800 text-secondary uppercase">Streak</span>
-                                <span className="font-24 font-900 text-duo-orange">🔥 {stats.streak}</span>
-                            </div>
-                            <div className="profile-stat-card">
-                                <span className="font-12 font-800 text-secondary uppercase">Total XP</span>
-                                <span className="font-24 font-900 text-duo-green">✨ {stats.xp}</span>
-                            </div>
-                            <div className="profile-stat-card">
-                                <span className="font-12 font-800 text-secondary uppercase">Gems</span>
-                                <span className="font-24 font-900 text-duo-blue">💎 {stats.gems}</span>
-                            </div>
-                            <div className="profile-stat-card">
-                                <span className="font-12 font-800 text-secondary uppercase">Mastery (極)</span>
-                                <span className="font-24 font-900 text-duo-yellow">👑 {stats.masteredUnits?.length || 0}</span>
-                            </div>
-                        </div>
-
                         {/* Developer Tools */}
                         {user.email === 'heroyik@gmail.com' && devClickCount >= 5 && (
                             <div className="mt-32 p-16 bg-dev border-dev rounded-12 text-left">
@@ -196,7 +197,6 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                             </div>
                         )}
 
-
                         <button
                             onClick={handleLogout}
                             className="duo-button bg-kv-kurenai shadow-kv-kurenai mt-32"
@@ -205,11 +205,11 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                         </button>
                     </>
                 ) : (
-                    <div className="py-24">
+                    <div className="py-24 border-t-glass mt-24">
                         <div className="font-64 mb-16">🔑</div>
-                        <h2 className="font-24 font-900 text-main mb-16">Save Your Progress</h2>
-                        <p className="text-secondary font-700 mb-32">
-                            Sign in with Google to sync your XP, streak, and mastered crowns across devices!
+                        <h2 className="font-20 font-900 text-main mb-12">Save Your Progress</h2>
+                        <p className="text-secondary font-700 mb-24 px-16">
+                            Sign in with Google to sync your XP, streak, and crowns across devices!
                         </p>
                         <button
                             onClick={handleLogin}

@@ -1,20 +1,20 @@
 import { test, expect } from '@playwright/test';
 
-test('Verify HolaVoca v1.1 Deployment', async ({ page }) => {
+test('Verify KamiVoca v1.1 Deployment', async ({ page }) => {
     // Capture browser console logs
     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
 
     // 1. Visit the deployed site
-    console.log('Navigating to https://heroyik.github.io/holavoca/ ...');
+    console.log('Navigating to https://heroyik.github.io/kamivoca/ ...');
 
     // Increase timeout for this test specifically
     test.setTimeout(60000);
 
     // Use domcontentloaded to avoid waiting for long-polling requests
-    await page.goto('/holavoca/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.goto('/kamivoca/', { waitUntil: 'domcontentloaded', timeout: 60000 });
 
     // 2. Check title and revision
-    await expect(page).toHaveTitle(/HolaVoca/);
+    await expect(page).toHaveTitle(/KamiVoca/);
 
     // Check for Revision tag (Current version)
     const revisionTag = page.locator('.version-badge'); // Match the class used in page.tsx

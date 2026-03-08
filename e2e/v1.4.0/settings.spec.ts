@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('V2.0 Settings & Customization Tests', () => {
 
     test.beforeEach(async ({ page }) => {
-        await page.goto('/holavoca');
+        await page.goto('/kamivoca');
         // Switch to profile tab
         await page.getByText('PROFILE', { exact: true }).click();
         await expect(page.locator('.profile-container')).toBeVisible();

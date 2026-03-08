@@ -67,7 +67,6 @@ const kanaToRomaji = {
 
 function toRomaji(text) {
   if (!text) return '';
-  let result = '';
   // Handle sokuon (small tsu)
   let processed = text.replace(/っ(.)/g, (match, p1) => {
     const nextRomaji = kanaToRomaji[p1] || p1;
@@ -134,7 +133,8 @@ async function transform() {
       meaning: item.coreana,
       level: level,
       jlpt: jlpt,
-      pos: 'other', // Default as it's not in the source
+      pos: item.pos || 'other',
+      synonyms: item.expresion_similar || [],
       sentences: sentences
     };
   });

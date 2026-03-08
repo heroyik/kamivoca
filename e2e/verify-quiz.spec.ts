@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Verify Quiz Stability (4 options bug fix)', async ({ page }) => {
     // 1. Visit the site
-    await page.goto('/holavoca/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/kamivoca/', { waitUntil: 'domcontentloaded' });
 
     // 2. Click Unit 1 circle
     console.log('Starting Quiz...');
@@ -10,7 +10,7 @@ test('Verify Quiz Stability (4 options bug fix)', async ({ page }) => {
     const unit1 = page.locator('.unit-button').first();
     await unit1.click({ force: true });
 
-    // 3. Wait for quiz to load (it navigates to /holavoca/quiz/unit-1...)
+    // 3. Wait for quiz to load (it navigates to /kamivoca/quiz/unit-1...)
     await expect(page).toHaveURL(/.*quiz\/unit-1.*/, { timeout: 15000 });
 
     // 4. Check for 4 options

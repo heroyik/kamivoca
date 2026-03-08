@@ -10,7 +10,7 @@ test.describe('V2.0 UI & Galaxy S25 Responsiveness Tests', () => {
     });
 
     test('TC-UI-03: Galaxy S25 UI Integrity and Overlap Check', async ({ page }) => {
-        await page.goto('/holavoca');
+        await page.goto('/kamivoca');
 
         // 1. Header symmetry check
         const header = page.locator('.sticky-header');
@@ -33,7 +33,7 @@ test.describe('V2.0 UI & Galaxy S25 Responsiveness Tests', () => {
     test('TC-UI-01: Failed word count should appear on attempted units', async ({ page }) => {
         // This requires a mock state or simulating a failed quiz
         // Let's assume we can simulate it by clicking "No Lo Sé" in a quiz
-        await page.goto('/holavoca/quiz/unit-1?sources=1');
+        await page.goto('/kamivoca/quiz/unit-1?sources=1');
         await page.locator('.btn-nolo').click();
         await page.locator('button', { hasText: 'NEXT' }).click();
         // Finish quiz (assuming 10 words, this is just a quick look)
@@ -43,13 +43,13 @@ test.describe('V2.0 UI & Galaxy S25 Responsiveness Tests', () => {
         const styleTag = await page.locator('style').allInnerTexts();
         styleTag.some(s => s.includes('.fail-badge'));
         // Actually better to check if it's applied to the DOM in Home
-        await page.goto('/holavoca');
+        await page.goto('/kamivoca');
         // We expect at least one fail badge if there were previous failures in local storage
     });
 
     test('TC-QUIZ-04: Card overflow check for long words', async ({ page }) => {
         // Go to quiz
-        await page.goto('/holavoca/quiz/unit-1?sources=1');
+        await page.goto('/kamivoca/quiz/unit-1?sources=1');
         const quizCard = page.locator('.quiz-card');
         await expect(quizCard).toBeVisible({ timeout: 10000 });
         const box = await quizCard.boundingBox();
