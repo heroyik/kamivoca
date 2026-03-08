@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, query, orderBy, limit, onSnapshot, getDocs } from 'firebase/firestore';
 import Image from 'next/image';
 import { getAvatarColor, getInitial } from '@/utils/ui';
+import { BASE_PATH } from '@/lib/constants';
 
 interface LeaderboardEntry {
     id: string;
@@ -114,7 +115,7 @@ export default function Leaderboard() {
                         }}>
                             {entry.photoURL ? (
                                 <Image
-                                    src={entry.photoURL}
+                                    src={entry.photoURL.startsWith('http') ? entry.photoURL : `${BASE_PATH}${entry.photoURL}`}
                                     alt={entry.displayName || "学習者"}
                                     fill
                                     className="object-cover rounded-full"

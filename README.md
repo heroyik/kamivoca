@@ -85,7 +85,7 @@ This will regenerate `src/data/vocab.json`, which is the primary source for the 
 - **Backend-as-a-Service**: [Firebase](https://firebase.google.com/) (Auth, Firestore, Hosting)
   - Real-time cloud sync with offline support and unified Google Login.
 - **Design/Styling**: Vanilla CSS & Tailwind with the KamiVoca traditional palette.
-- **Icons & Media**: [Lucide React](https://lucide.dev/) & optimized local assets.
+- **Icons & Media**: [Lucide React](https://lucide.dev/) & optimized local assets. All local assets (images, sounds) use `BASE_PATH` (configured via `NEXT_PUBLIC_BASE_PATH`) to ensure proper loading on sub-paths like GitHub Pages.
 - **Audio Engine**: Custom **WebAudio API** integrator for multi-browser compatibility.
 
 ---

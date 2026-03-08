@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { getUnits } from '@/utils/vocab';
 import { getAvatarColor, getInitial } from '@/utils/ui';
 import { isUnsupportedIAB, redirectToExternalBrowser } from '@/utils/browser';
+import { BASE_PATH } from '@/lib/constants';
 
 interface UserProfileProps {
     user: User | null;
@@ -77,7 +78,9 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                 >
                     {(stats.photoURL || user?.photoURL) ? (
                         <Image
-                            src={stats.photoURL || user?.photoURL || ''}
+                            src={(stats.photoURL || user?.photoURL || '').startsWith('http') 
+                                ? (stats.photoURL || user?.photoURL || '') 
+                                : `${BASE_PATH}${stats.photoURL || user?.photoURL}`}
                             alt={stats.displayName || user?.displayName || 'User'}
                             fill
                             className="object-cover"
@@ -97,7 +100,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                             onClick={() => updateProfile({ photoURL: avatar })}
                             className={`relative w-48 h-48 rounded-full overflow-hidden cursor-pointer border-2 ${(stats.photoURL || user?.photoURL) === avatar ? 'border-duo-green' : 'border-transparent'}`}
                         >
-                            <Image src={avatar} alt={`Avatar ${idx}`} fill className="object-cover" />
+                            <Image src={`${BASE_PATH}${avatar}`} alt={`Avatar ${idx}`} fill className="object-cover" />
                         </div>
                     ))}
                 </div>

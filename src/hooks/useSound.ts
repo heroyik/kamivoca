@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
+import { BASE_PATH } from "@/lib/constants";
 
 type SoundType = "correct" | "incorrect" | "cheer";
-
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/kamivoca";
 
 const SOUND_FILES: Record<string, string> = {
   correct: `${BASE_PATH}/sounds/correct.mp3?v=2`,

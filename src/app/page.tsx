@@ -4,7 +4,7 @@ import vocabData from '@/data/vocab.json';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { APP_VERSION, APP_NAME } from '@/lib/constants';
+import { APP_VERSION, APP_NAME, BASE_PATH } from '@/lib/constants';
 import { getUnits, getTotalWordCount } from '@/utils/vocab';
 import Link from 'next/link';
 import { useGamification } from '@/hooks/useGamification';
@@ -180,12 +180,12 @@ export default function Home() {
             const showFailBadge = !isLocked && failCount > 0;
 
             const getUnitIcon = (index: number, locked: boolean, completed: boolean, mastered: boolean) => {
-              if (locked) return <div className="text-white opacity-50 relative w-32 h-32"><Image src="/images/torii.png" alt="Locked" fill className="object-contain grayscale" /></div>;
-              if (mastered) return <div className="text-white relative w-40 h-40"><Image src="/images/sakura.png" alt="Mastered" fill className="object-contain" /></div>;
-              if (completed) return <div className="text-white relative w-32 h-32"><Image src="/images/hanko.png" alt="Completed" fill className="object-contain" /></div>;
+              if (locked) return <div className="text-white opacity-50 relative w-32 h-32"><Image src={`${BASE_PATH}/images/torii.png`} alt="Locked" fill className="object-contain grayscale" /></div>;
+              if (mastered) return <div className="text-white relative w-40 h-40"><Image src={`${BASE_PATH}/images/sakura.png`} alt="Mastered" fill className="object-contain" /></div>;
+              if (completed) return <div className="text-white relative w-32 h-32"><Image src={`${BASE_PATH}/images/hanko.png`} alt="Completed" fill className="object-contain" /></div>;
 
               // Current node or available node
-              return <div className="text-white relative w-36 h-36"><Image src="/images/torii.png" alt="Available" fill className="object-contain" /></div>;
+              return <div className="text-white relative w-36 h-36"><Image src={`${BASE_PATH}/images/torii.png`} alt="Available" fill className="object-contain" /></div>;
             };
 
             return (
