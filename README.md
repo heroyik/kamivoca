@@ -22,7 +22,7 @@ A winding, interactive learning path that visually guides users through 15 diffi
 
 - **Bespoke Palette**: Crafted with traditional hues like Washi paper (`#F6F4EB`), Ai-iro Indigo (`#165E83`), Kurenai Crimson (`#CB1B45`), Matcha Green (`#B8D200`), and Kintsugi Gold (`#D4AF37`).
 - **Typography**: A blend of elegant Shodo-style Mincho headers and clean modern Gothic body text for readable Kanji.
-- **High-Tension Japanese Audio**: Features native Japanese female voice-overs (Mizuki voice) with high motivation levels for correct answers and encouraging feedback.
+- **High-Tension Japanese Audio**: Features native Japanese female voice-overs (Mizuki voice) converted to optimized MP3 format for superior web performance without quality loss.
 - **Audio Feedback**: Distinct sounds and haptics for correct answers (Satisfying "Ding!") and errors (Distinct "Bloop!").
 
 ---

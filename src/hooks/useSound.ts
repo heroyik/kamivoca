@@ -7,13 +7,13 @@ type SoundType = "correct" | "incorrect" | "cheer";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/kamivoca";
 
 const SOUND_FILES: Record<string, string> = {
-  correct: `${BASE_PATH}/sounds/correct.mp3?v=1`,
-  incorrect: `${BASE_PATH}/sounds/incorrect.mp3?v=1`,
-  cheer1: `${BASE_PATH}/sounds/cheer1.mp3?v=1`,
-  cheer2: `${BASE_PATH}/sounds/cheer2.mp3?v=1`,
-  cheer3: `${BASE_PATH}/sounds/cheer3.mp3?v=1`,
-  cheer4: `${BASE_PATH}/sounds/cheer4.mp3?v=1`,
-  cheer5: `${BASE_PATH}/sounds/cheer5.mp3?v=1`,
+  correct: `${BASE_PATH}/sounds/correct.mp3?v=2`,
+  incorrect: `${BASE_PATH}/sounds/incorrect.mp3?v=2`,
+  cheer1: `${BASE_PATH}/sounds/cheer1.mp3?v=2`,
+  cheer2: `${BASE_PATH}/sounds/cheer2.mp3?v=2`,
+  cheer3: `${BASE_PATH}/sounds/cheer3.mp3?v=2`,
+  cheer4: `${BASE_PATH}/sounds/cheer4.mp3?v=2`,
+  cheer5: `${BASE_PATH}/sounds/cheer5.mp3?v=2`,
 };
 
 /**
