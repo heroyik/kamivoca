@@ -4,7 +4,7 @@
 
 ---
 
-KamiVoca (*Kotoba Prime*) is a premium, gamified Japanese learning platform inspired by modern educational apps like Duolingo, but built with a deep, traditional Japanese atmosphere. It is designed to help users achieve god-tier (神) mastery of Japanese vocabulary through an immersive, mobile-optimized journey and a real-time competitive leaderboard.
+KamiVoca is a premium, gamified Japanese learning platform inspired by modern educational apps like Duolingo, but built with a deep, traditional Japanese atmosphere. It is designed to help users achieve god-tier (神) mastery of Japanese vocabulary through an immersive, mobile-optimized journey and a real-time competitive leaderboard.
 
 ---
 
@@ -42,6 +42,61 @@ A winding, interactive learning path that visually guides users through 15 diffi
 - **Contextual Learning**: Correct answers present contextual JLPT sentences (e.g., `"遠慮"` -> `✅ 正解! 💬 "ご遠慮ください。" (Please refrain from doing so.)`).
 - **POS-based Distractors**: Meaningful distractors matched by Part of Speech (U-verbs with U-verbs, Na-adjectives with Na-adjectives).
 - **Mistake Management ("分かりません")**: Dedicated "I don't know" action that funnels weak words to dynamic Re-Review sessions.
+
+### ✅ Recent Updates (2026-03)
+
+The following behavior changes were implemented to improve quiz quality, map visibility, and review consistency:
+
+1. **Quiz card sentence rendering removed**
+   - Removed direct rendering of `sentences[0].japanese` and `sentences[0].furigana` in the quiz card area.
+   - Removed contextual sentence box from the bottom feedback panel as well.
+   - Result: noisy lines like `"A: それ、どう？"` no longer appear during quiz solving.
+   - Affected file: `src/components/Quiz.tsx`
+
+2. **Distractor logic hardened by POS-only grouping**
+   - Choice generation now enforces same POS bucket for distractors instead of mixing fallback choices from any category.
+   - Added `inferPOS(...)` to handle current dataset reality where many entries are tagged as `pos: "other"`.
+   - `inferPOS(...)` flow:
+     - use explicit POS tag if available (`noun/verb/adjective`)
+     - else infer from Japanese surface endings (`する`, `れる`, `...う`, `...い`, `...しい`, etc.)
+     - default fallback bucket is `noun`
+   - Updated both quiz option generation and random-word helper to use `inferPOS`.
+   - Affected files:
+     - `src/utils/vocab.ts`
+     - `src/components/Quiz.tsx`
+
+3. **Map node icon visibility bug fixed**
+   - Root cause: map icons used `next/image` with `fill`, but parent wrappers had no guaranteed dimensions in utility CSS, causing invisible icons.
+   - Fix: switched node icons to fixed-size `Image` (`width`/`height`) for stable rendering.
+   - Affected file: `src/app/page.tsx`
+
+4. **Unit fail badge count now visibly rendered**
+   - Added explicit text style class for the red circular fail badge (`.fail-badge-count`) so numbers always appear.
+   - Replaced undefined legacy class usage (`vol-count`, `vol1-count`) with defined class.
+   - Affected files:
+     - `src/app/page.tsx`
+     - `src/app/globals.css`
+
+5. **Unit fail badge metric corrected**
+   - Previous behavior counted only distinct failed words in the unit.
+   - New behavior sums total mistake occurrences for words in the unit, so if failed/unknown count is 2, badge shows `2`.
+   - Added normalized key lookup handling (`raw` and lowercase trimmed keys).
+   - Affected file: `src/app/page.tsx`
+
+6. **Wall of Pain data logic revalidated and aligned**
+   - Global ranking now uses `failCount` only (actual global wrong/unknown accumulation), not `seedCount + failCount`.
+   - Added normalized word-key matching for better map/join reliability between Firestore and local vocab metadata.
+   - Session cache behavior changed:
+     - cached data can render immediately
+     - but fetch now always refreshes from Firestore when possible to avoid stale global rankings
+   - `ReviewTab` now explicitly refreshes global stats when mistakes change, so newly failed words can surface in Wall of Pain without waiting for a new session.
+   - Affected files:
+     - `src/hooks/useGlobalTop20.ts`
+     - `src/components/ReviewTab.tsx`
+
+7. **Lint validation**
+   - All touched TypeScript files were lint-checked after each fix cycle.
+   - CSS lint warning for `globals.css` remains expected under current ESLint config (file not targeted), with no runtime impact.
 
 ### 👥 Social & Engagement
 
