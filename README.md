@@ -97,6 +97,11 @@ The following behavior changes were implemented to improve quiz quality, map vis
 7. **Lint validation**
    - All touched TypeScript files were lint-checked after each fix cycle.
    - CSS lint warning for `globals.css` remains expected under current ESLint config (file not targeted), with no runtime impact.
+9. **ID Refactoring and Data Quality Enhancements**
+    - Refactored all vocabulary IDs to zero-padded strings (e.g., `"0001"`, `"0002"`) for stable lexicographical sorting and consistency across systems.
+    - Introduced **Visual Cognate Scores (`cog_score`)**: A numeric metric calculating the similarity between Japanese Kanji and Korean Hanja, enabling the app to highlight "easy cognates" for learners.
+    - **Global Synonym Correction**: Manually researched and updated the `synonyms` field for all 202 entries with 5 accurate, high-quality Japanese synonyms per word to ensure meaningful and challenging quizzes.
+    - Affected file: `src/data/vocab.json`, `src/utils/vocab.ts`
 
 8. **Persistent top header while scrolling**
    - Updated the top `KamiVoca` header behavior so it stays visible during vertical scroll.

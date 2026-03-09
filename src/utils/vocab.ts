@@ -9,6 +9,7 @@ export interface VocabEntry {
   level: number;
   jlpt: string;
   pos: string;
+  cog_score?: number;
   synonyms?: string[];
   sentences?: {
     japanese: string;
