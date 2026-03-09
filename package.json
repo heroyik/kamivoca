@@ -7,11 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "sync:firestore:vocab": "node scripts/sync-firestore-vocab.mjs",
+    "data:refresh": "node scripts/regenerate_dataset_contexts.mjs && node scripts/transform_japanese_data.mjs && node scripts/sync-firestore-vocab.mjs",
     "test": "playwright test",
     "test:ui": "playwright test --ui"
   },
   "dependencies": {
     "firebase": "^12.9.0",
+    "firebase-admin": "^13.7.0",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-auth": "^5.0.0-beta.30",

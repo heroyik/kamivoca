@@ -117,18 +117,13 @@ The following behavior changes were implemented to improve quiz quality, map vis
 
 ## 📊 Dataset Maintenance
 
-To add or update vocabulary, modify `voca_json/japanese_opic_dataset_integrated.json` and run the transformation script.
+To add or update vocabulary, modify the source JSON files and run the transformation script.
 
-### JSON Schema (`integrated.json`)
+### JSON Schema (`src/data/vocab.json`)
 
-| Field | Type | Description | Example |
-| :--- | :--- | :--- | :--- |
-| `japones` | `string` | Word with optional furigana in `()` | `"沐浴(もくよく)"` |
-| `coreana` | `string` | Korean meaning | `"목욕"` |
-| `level` | `string` | OPIc Level (AL, IH, IM3, ...) | `"IH"` |
-| `pos` | `string` | (Optional) noun, verb, adj, ... | `"noun"` |
-| `expresion_similar` | `string[]` | (Optional) Synonyms | `["足袋", "靴下"]` |
-| `conversacion` | `string[]` | (Optional) Sample dialogue lines | `["A: それ、どう？", ...]` |
+The application consumes `src/data/vocab.json`, which is a transformed version of the integrated dataset. This file is also used to synchronize the Firestore `vocabEntries` collection.
+
+---
 
 ### Running the Pipeline
 
@@ -138,7 +133,11 @@ After updating the data, run:
 node scripts/transform_japanese_data.mjs
 ```
 
-This will regenerate `src/data/vocab.json`, which is the primary source for the application.
+This will regenerate `src/data/vocab.json`. To sync this data to the cloud:
+
+```bash
+npm run sync:firestore:vocab
+```
 
 ---
 
@@ -150,6 +149,7 @@ This will regenerate `src/data/vocab.json`, which is the primary source for the 
 - **Design/Styling**: Vanilla CSS & Tailwind with the KamiVoca traditional palette.
 - **Icons & Media**: [Lucide React](https://lucide.dev/) & optimized local assets. All local assets (images, sounds) use `BASE_PATH` (configured via `NEXT_PUBLIC_BASE_PATH`) to ensure proper loading on sub-paths like GitHub Pages.
 - **Audio Engine**: Custom **WebAudio API** integrator for multi-browser compatibility.
+- **CI/CD Security**: GitHub Actions workflow is hardened using **GitHub Repository Secrets**. Hardcoded credentials are strictly prohibited in the codebase.
 
 ---
 
