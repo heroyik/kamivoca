@@ -1,7 +1,7 @@
 import opicData from "@/data/vocab.json";
 
 export interface VocabEntry {
-  id: number;
+  id: string;
   word: string;
   furigana: string;
   romaji: string;
@@ -83,7 +83,7 @@ export function getUnits(): LearningUnit[] {
   if (allWords.length === 0) return [];
 
   // Sort by ID to maintain a consistent order across the pilgrimage
-  const allWordsSorted = [...allWords].sort((a, b) => a.id - b.id);
+  const allWordsSorted = [...allWords].sort((a, b) => a.id.localeCompare(b.id));
 
   const TOTAL_UNITS = 15;
   const unitSize = Math.max(1, Math.ceil(allWordsSorted.length / TOTAL_UNITS));
@@ -128,7 +128,7 @@ export function getUnits(): LearningUnit[] {
 export function getRandomWords(
   count: number,
   targetPOS?: POS,
-  excludeWordIds?: number[],
+  excludeWordIds?: string[],
 ): VocabEntry[] {
   const allWords = getAllVocabData();
   const excludeArray = excludeWordIds || [];

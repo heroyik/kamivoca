@@ -2,7 +2,7 @@
   "totalWords": 202,
   "data": [
     {
-      "id": 1,
+      "id": "0001",
       "word": "沐浴",
       "furigana": "もくよく",
       "romaji": "mokuyoku",
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": "0002",
       "word": "足袋",
       "furigana": "たび",
       "romaji": "tabi",
@@ -100,7 +100,7 @@
       ]
     },
     {
-      "id": 3,
+      "id": "0003",
       "word": "靴下",
       "furigana": "くつした",
       "romaji": "kutsushita",
@@ -149,7 +149,7 @@
       ]
     },
     {
-      "id": 4,
+      "id": "0004",
       "word": "世話になってね",
       "furigana": "せわになってね",
       "romaji": "sewaninattene",
@@ -198,7 +198,7 @@
       ]
     },
     {
-      "id": 5,
+      "id": "0005",
       "word": "目がない",
       "furigana": "めがない",
       "romaji": "meganai",
@@ -247,7 +247,7 @@
       ]
     },
     {
-      "id": 6,
+      "id": "0006",
       "word": "口が悪い",
       "furigana": "くちわるい",
       "romaji": "kuchiwarui",
@@ -296,7 +296,7 @@
       ]
     },
     {
-      "id": 7,
+      "id": "0007",
       "word": "口が堅い",
       "furigana": "くちかたい",
       "romaji": "kuchikatai",
@@ -345,7 +345,7 @@
       ]
     },
     {
-      "id": 8,
+      "id": "0008",
       "word": "口が軽い",
       "furigana": "くちかるい",
       "romaji": "kuchikarui",
@@ -394,7 +394,7 @@
       ]
     },
     {
-      "id": 9,
+      "id": "0009",
       "word": "口がうまい",
       "furigana": "くちがうまい",
       "romaji": "kuchigaumai",
@@ -443,7 +443,7 @@
       ]
     },
     {
-      "id": 10,
+      "id": "0010",
       "word": "口が重い",
       "furigana": "くちおもい",
       "romaji": "kuchiomoi",
@@ -492,7 +492,7 @@
       ]
     },
     {
-      "id": 11,
+      "id": "0011",
       "word": "口を挟む",
       "furigana": "くちはさむ",
       "romaji": "kuchihasamu",
@@ -541,7 +541,7 @@
       ]
     },
     {
-      "id": 12,
+      "id": "0012",
       "word": "口を滑らせる",
       "furigana": "くちすべらせる",
       "romaji": "kuchisuberaseru",
@@ -590,7 +590,7 @@
       ]
     },
     {
-      "id": 13,
+      "id": "0013",
       "word": "口に合う",
       "furigana": "くちあう",
       "romaji": "kuchiau",
@@ -639,7 +639,7 @@
       ]
     },
     {
-      "id": 14,
+      "id": "0014",
       "word": "鼻が高い",
       "furigana": "はなたかい",
       "romaji": "hanatakai",
@@ -688,7 +688,7 @@
       ]
     },
     {
-      "id": 15,
+      "id": "0015",
       "word": "鼻につく",
       "furigana": "はなにつく",
       "romaji": "hananitsuku",
@@ -737,7 +737,7 @@
       ]
     },
     {
-      "id": 16,
+      "id": "0016",
       "word": "鼻で笑う",
       "furigana": "はなわらう",
       "romaji": "hanawarau",
@@ -786,7 +786,7 @@
       ]
     },
     {
-      "id": 17,
+      "id": "0017",
       "word": "鼻息が荒い",
       "furigana": "はないきあらい",
       "romaji": "hanaikiarai",
@@ -835,7 +835,7 @@
       ]
     },
     {
-      "id": 18,
+      "id": "0018",
       "word": "鼻が利く",
       "furigana": "はなきく",
       "romaji": "hanakiku",
@@ -884,7 +884,7 @@
       ]
     },
     {
-      "id": 19,
+      "id": "0019",
       "word": "目が点になる",
       "furigana": "めてんになる",
       "romaji": "metenninaru",
@@ -933,7 +933,7 @@
       ]
     },
     {
-      "id": 20,
+      "id": "0020",
       "word": "目が覚める",
       "furigana": "めさめる",
       "romaji": "mesameru",
@@ -982,7 +982,7 @@
       ]
     },
     {
-      "id": 21,
+      "id": "0021",
       "word": "目が回る",
       "furigana": "めまわる",
       "romaji": "memawaru",
@@ -1031,7 +1031,7 @@
       ]
     },
     {
-      "id": 22,
+      "id": "0022",
       "word": "目を通す",
       "furigana": "めとおす",
       "romaji": "metoosu",
@@ -1080,7 +1080,7 @@
       ]
     },
     {
-      "id": 23,
+      "id": "0023",
       "word": "目が離せない",
       "furigana": "めはなせない",
       "romaji": "mehanasenai",
@@ -1129,7 +1129,7 @@
       ]
     },
     {
-      "id": 24,
+      "id": "0024",
       "word": "目を引く",
       "furigana": "めひく",
       "romaji": "mehiku",
@@ -1178,7 +1178,7 @@
       ]
     },
     {
-      "id": 25,
+      "id": "0025",
       "word": "付ける",
       "furigana": "つける",
       "romaji": "tsukeru",
@@ -1227,7 +1227,7 @@
       ]
     },
     {
-      "id": 26,
+      "id": "0026",
       "word": "つけ加える",
       "furigana": "くわえる",
       "romaji": "kuwaeru",
@@ -1276,7 +1276,7 @@
       ]
     },
     {
-      "id": 27,
+      "id": "0027",
       "word": "つけ込む",
       "furigana": "こむ",
       "romaji": "komu",
@@ -1325,7 +1325,7 @@
       ]
     },
     {
-      "id": 28,
+      "id": "0028",
       "word": "耳につく",
       "furigana": "みみにつく",
       "romaji": "miminitsuku",
@@ -1374,7 +1374,7 @@
       ]
     },
     {
-      "id": 29,
+      "id": "0029",
       "word": "話をつける",
       "furigana": "はなしをつける",
       "romaji": "hanashiwotsukeru",
@@ -1423,7 +1423,7 @@
       ]
     },
     {
-      "id": 30,
+      "id": "0030",
       "word": "美化語",
       "furigana": "びかご",
       "romaji": "bikago",
@@ -1472,7 +1472,7 @@
       ]
     },
     {
-      "id": 31,
+      "id": "0031",
       "word": "上品",
       "furigana": "じょうひん",
       "romaji": "jiょuhin",
@@ -1521,7 +1521,7 @@
       ]
     },
     {
-      "id": 32,
+      "id": "0032",
       "word": "下品",
       "furigana": "げひん",
       "romaji": "gehin",
@@ -1570,7 +1570,7 @@
       ]
     },
     {
-      "id": 33,
+      "id": "0033",
       "word": "おしぼり",
       "furigana": "おしぼり",
       "romaji": "oshibori",
@@ -1619,7 +1619,7 @@
       ]
     },
     {
-      "id": 34,
+      "id": "0034",
       "word": "一番搾り",
       "furigana": "いちばんしぼり",
       "romaji": "ichibanshibori",
@@ -1668,7 +1668,7 @@
       ]
     },
     {
-      "id": 35,
+      "id": "0035",
       "word": "麦芽",
       "furigana": "ばくが",
       "romaji": "bakuga",
@@ -1717,7 +1717,7 @@
       ]
     },
     {
-      "id": 36,
+      "id": "0036",
       "word": "着ぐるみ",
       "furigana": "きぐるみ",
       "romaji": "kigurumi",
@@ -1766,7 +1766,7 @@
       ]
     },
     {
-      "id": 37,
+      "id": "0037",
       "word": "縫いぐるみ",
       "furigana": "ぬいぐるみ",
       "romaji": "nuigurumi",
@@ -1815,7 +1815,7 @@
       ]
     },
     {
-      "id": 38,
+      "id": "0038",
       "word": "退社する",
       "furigana": "たいしゃする",
       "romaji": "taishiゃsuru",
@@ -1864,7 +1864,7 @@
       ]
     },
     {
-      "id": 39,
+      "id": "0039",
       "word": "帰宅する",
       "furigana": "きたくする",
       "romaji": "kitakusuru",
@@ -1913,7 +1913,7 @@
       ]
     },
     {
-      "id": 40,
+      "id": "0040",
       "word": "退職する",
       "furigana": "たいしょくする",
       "romaji": "taishiょkusuru",
@@ -1962,7 +1962,7 @@
       ]
     },
     {
-      "id": 41,
+      "id": "0041",
       "word": "お問い合わせ",
       "furigana": "とあわせ",
       "romaji": "toawase",
@@ -2011,7 +2011,7 @@
       ]
     },
     {
-      "id": 42,
+      "id": "0042",
       "word": "登校する",
       "furigana": "とうこうする",
       "romaji": "toukousuru",
@@ -2060,7 +2060,7 @@
       ]
     },
     {
-      "id": 43,
+      "id": "0043",
       "word": "ショートフィン",
       "furigana": "ショートフィン",
       "romaji": "ショトフィン",
@@ -2109,7 +2109,7 @@
       ]
     },
     {
-      "id": 44,
+      "id": "0044",
       "word": "そうだ",
       "furigana": "そうだ",
       "romaji": "souda",
@@ -2158,7 +2158,7 @@
       ]
     },
     {
-      "id": 45,
+      "id": "0045",
       "word": "美味しそうだ",
       "furigana": "おいしそうだ",
       "romaji": "oishisouda",
@@ -2207,7 +2207,7 @@
       ]
     },
     {
-      "id": 46,
+      "id": "0046",
       "word": "てもらう",
       "furigana": "てもらう",
       "romaji": "temorau",
@@ -2256,7 +2256,7 @@
       ]
     },
     {
-      "id": 47,
+      "id": "0047",
       "word": "タメ口",
       "furigana": "ぐち",
       "romaji": "guchi",
@@ -2305,7 +2305,7 @@
       ]
     },
     {
-      "id": 48,
+      "id": "0048",
       "word": "出所",
       "furigana": "でどころ",
       "romaji": "dedokoro",
@@ -2354,7 +2354,7 @@
       ]
     },
     {
-      "id": 49,
+      "id": "0049",
       "word": "い形",
       "furigana": "けい",
       "romaji": "kei",
@@ -2403,7 +2403,7 @@
       ]
     },
     {
-      "id": 50,
+      "id": "0050",
       "word": "名形",
       "furigana": "なけい",
       "romaji": "nakei",
@@ -2452,7 +2452,7 @@
       ]
     },
     {
-      "id": 51,
+      "id": "0051",
       "word": "連休",
       "furigana": "れんきゅう",
       "romaji": "renkiゅu",
@@ -2501,7 +2501,7 @@
       ]
     },
     {
-      "id": 52,
+      "id": "0052",
       "word": "祝日",
       "furigana": "しゅくじつ",
       "romaji": "shiゅkujitsu",
@@ -2550,7 +2550,7 @@
       ]
     },
     {
-      "id": 53,
+      "id": "0053",
       "word": "休暇",
       "furigana": "きゅうか",
       "romaji": "kiゅuka",
@@ -2599,7 +2599,7 @@
       ]
     },
     {
-      "id": 54,
+      "id": "0054",
       "word": "お盆休み",
       "furigana": "ぼんやすみ",
       "romaji": "bonyasumi",
@@ -2648,7 +2648,7 @@
       ]
     },
     {
-      "id": 55,
+      "id": "0055",
       "word": "折れる",
       "furigana": "おれる",
       "romaji": "oreru",
@@ -2697,7 +2697,7 @@
       ]
     },
     {
-      "id": 56,
+      "id": "0056",
       "word": "折る",
       "furigana": "おる",
       "romaji": "oru",
@@ -2746,7 +2746,7 @@
       ]
     },
     {
-      "id": 57,
+      "id": "0057",
       "word": "折られる",
       "furigana": "おられる",
       "romaji": "orareru",
@@ -2795,7 +2795,7 @@
       ]
     },
     {
-      "id": 58,
+      "id": "0058",
       "word": "平日",
       "furigana": "へいじつ",
       "romaji": "heijitsu",
@@ -2844,7 +2844,7 @@
       ]
     },
     {
-      "id": 59,
+      "id": "0059",
       "word": "発表なし",
       "furigana": "はっぴょうなし",
       "romaji": "happiょunashi",
@@ -2893,7 +2893,7 @@
       ]
     },
     {
-      "id": 60,
+      "id": "0060",
       "word": "明らかにする",
       "furigana": "あきらかにする",
       "romaji": "akirakanisuru",
@@ -2942,7 +2942,7 @@
       ]
     },
     {
-      "id": 61,
+      "id": "0061",
       "word": "見込み",
       "furigana": "みこみ",
       "romaji": "mikomi",
@@ -2991,7 +2991,7 @@
       ]
     },
     {
-      "id": 62,
+      "id": "0062",
       "word": "見通し",
       "furigana": "みとおし",
       "romaji": "mitooshi",
@@ -3040,7 +3040,7 @@
       ]
     },
     {
-      "id": 63,
+      "id": "0063",
       "word": "予測",
       "furigana": "よそく",
       "romaji": "yosoku",
@@ -3089,7 +3089,7 @@
       ]
     },
     {
-      "id": 64,
+      "id": "0064",
       "word": "期待",
       "furigana": "きたい",
       "romaji": "kitai",
@@ -3138,7 +3138,7 @@
       ]
     },
     {
-      "id": 65,
+      "id": "0065",
       "word": "当てはまる",
       "furigana": "あてはまる",
       "romaji": "atehamaru",
@@ -3187,7 +3187,7 @@
       ]
     },
     {
-      "id": 66,
+      "id": "0066",
       "word": "宛てにできない",
       "furigana": "あてにできない",
       "romaji": "atenidekinai",
@@ -3236,7 +3236,7 @@
       ]
     },
     {
-      "id": 67,
+      "id": "0067",
       "word": "宛てにならない",
       "furigana": "あてにならない",
       "romaji": "ateninaranai",
@@ -3285,7 +3285,7 @@
       ]
     },
     {
-      "id": 68,
+      "id": "0068",
       "word": "当てにならない",
       "furigana": "あてにならない",
       "romaji": "ateninaranai",
@@ -3334,7 +3334,7 @@
       ]
     },
     {
-      "id": 69,
+      "id": "0069",
       "word": "円安",
       "furigana": "えんやす",
       "romaji": "enyasu",
@@ -3383,7 +3383,7 @@
       ]
     },
     {
-      "id": 70,
+      "id": "0070",
       "word": "円高",
       "furigana": "えんだか",
       "romaji": "endaka",
@@ -3432,7 +3432,7 @@
       ]
     },
     {
-      "id": 71,
+      "id": "0071",
       "word": "格安",
       "furigana": "かくやす",
       "romaji": "kakuyasu",
@@ -3481,7 +3481,7 @@
       ]
     },
     {
-      "id": 72,
+      "id": "0072",
       "word": "激安",
       "furigana": "げきやす",
       "romaji": "gekiyasu",
@@ -3530,7 +3530,7 @@
       ]
     },
     {
-      "id": 73,
+      "id": "0073",
       "word": "簡単にまとめる",
       "furigana": "かんたんにまとめる",
       "romaji": "kantannimatomeru",
@@ -3579,7 +3579,7 @@
       ]
     },
     {
-      "id": 74,
+      "id": "0074",
       "word": "整理する",
       "furigana": "せいりする",
       "romaji": "seirisuru",
@@ -3628,7 +3628,7 @@
       ]
     },
     {
-      "id": 75,
+      "id": "0075",
       "word": "整頓する",
       "furigana": "せいとんする",
       "romaji": "seitonsuru",
@@ -3677,7 +3677,7 @@
       ]
     },
     {
-      "id": 76,
+      "id": "0076",
       "word": "片付ける",
       "furigana": "かたづける",
       "romaji": "katazukeru",
@@ -3726,7 +3726,7 @@
       ]
     },
     {
-      "id": 77,
+      "id": "0077",
       "word": "説明する",
       "furigana": "せつめいする",
       "romaji": "setsumeisuru",
@@ -3775,7 +3775,7 @@
       ]
     },
     {
-      "id": 78,
+      "id": "0078",
       "word": "睦月",
       "furigana": "むつき",
       "romaji": "mutsuki",
@@ -3824,7 +3824,7 @@
       ]
     },
     {
-      "id": 79,
+      "id": "0079",
       "word": "如月",
       "furigana": "きさらぎ",
       "romaji": "kisaragi",
@@ -3873,7 +3873,7 @@
       ]
     },
     {
-      "id": 80,
+      "id": "0080",
       "word": "弥生",
       "furigana": "やよい",
       "romaji": "yayoi",
@@ -3922,7 +3922,7 @@
       ]
     },
     {
-      "id": 81,
+      "id": "0081",
       "word": "卯月",
       "furigana": "うづき",
       "romaji": "uzuki",
@@ -3971,7 +3971,7 @@
       ]
     },
     {
-      "id": 82,
+      "id": "0082",
       "word": "皐月",
       "furigana": "さつき",
       "romaji": "satsuki",
@@ -4020,7 +4020,7 @@
       ]
     },
     {
-      "id": 83,
+      "id": "0083",
       "word": "水無月",
       "furigana": "みなづき",
       "romaji": "minazuki",
@@ -4069,7 +4069,7 @@
       ]
     },
     {
-      "id": 84,
+      "id": "0084",
       "word": "文月",
       "furigana": "ふみづき",
       "romaji": "fumizuki",
@@ -4118,7 +4118,7 @@
       ]
     },
     {
-      "id": 85,
+      "id": "0085",
       "word": "葉月",
       "furigana": "はづき",
       "romaji": "hazuki",
@@ -4167,7 +4167,7 @@
       ]
     },
     {
-      "id": 86,
+      "id": "0086",
       "word": "長月",
       "furigana": "ながつき",
       "romaji": "nagatsuki",
@@ -4216,7 +4216,7 @@
       ]
     },
     {
-      "id": 87,
+      "id": "0087",
       "word": "神無月",
       "furigana": "かんなづき",
       "romaji": "kannazuki",
@@ -4265,7 +4265,7 @@
       ]
     },
     {
-      "id": 88,
+      "id": "0088",
       "word": "霜月",
       "furigana": "しもつき",
       "romaji": "shimotsuki",
@@ -4314,7 +4314,7 @@
       ]
     },
     {
-      "id": 89,
+      "id": "0089",
       "word": "師走",
       "furigana": "しわす",
       "romaji": "shiwasu",
@@ -4363,7 +4363,7 @@
       ]
     },
     {
-      "id": 90,
+      "id": "0090",
       "word": "親御さん",
       "furigana": "おやごさん",
       "romaji": "oyagosan",
@@ -4412,7 +4412,7 @@
       ]
     },
     {
-      "id": 91,
+      "id": "0091",
       "word": "両親",
       "furigana": "りょうしん",
       "romaji": "riょushin",
@@ -4461,7 +4461,7 @@
       ]
     },
     {
-      "id": 92,
+      "id": "0092",
       "word": "祖父",
       "furigana": "そふ",
       "romaji": "sofu",
@@ -4510,7 +4510,7 @@
       ]
     },
     {
-      "id": 93,
+      "id": "0093",
       "word": "祖母",
       "furigana": "そぼ",
       "romaji": "sobo",
@@ -4559,7 +4559,7 @@
       ]
     },
     {
-      "id": 94,
+      "id": "0094",
       "word": "お化け",
       "furigana": "ばけ",
       "romaji": "bake",
@@ -4608,7 +4608,7 @@
       ]
     },
     {
-      "id": 95,
+      "id": "0095",
       "word": "今度",
       "furigana": "こんど",
       "romaji": "kondo",
@@ -4657,7 +4657,7 @@
       ]
     },
     {
-      "id": 96,
+      "id": "0096",
       "word": "目立つようになった",
       "furigana": "めだつようになった",
       "romaji": "medatsuyouninatta",
@@ -4706,7 +4706,7 @@
       ]
     },
     {
-      "id": 97,
+      "id": "0097",
       "word": "飽き足りない",
       "furigana": "あたりない",
       "romaji": "atarinai",
@@ -4755,7 +4755,7 @@
       ]
     },
     {
-      "id": 98,
+      "id": "0098",
       "word": "伝う",
       "furigana": "つたう",
       "romaji": "tsutau",
@@ -4804,7 +4804,7 @@
       ]
     },
     {
-      "id": 99,
+      "id": "0099",
       "word": "得体",
       "furigana": "えたい",
       "romaji": "etai",
@@ -4853,7 +4853,7 @@
       ]
     },
     {
-      "id": 100,
+      "id": "0100",
       "word": "促進",
       "furigana": "そくしん",
       "romaji": "sokushin",
@@ -4902,7 +4902,7 @@
       ]
     },
     {
-      "id": 101,
+      "id": "0101",
       "word": "貼り紙",
       "furigana": "はがみ",
       "romaji": "hagami",
@@ -4951,7 +4951,7 @@
       ]
     },
     {
-      "id": 102,
+      "id": "0102",
       "word": "オス",
       "furigana": "オス",
       "romaji": "オス",
@@ -5000,7 +5000,7 @@
       ]
     },
     {
-      "id": 103,
+      "id": "0103",
       "word": "メス",
       "furigana": "メス",
       "romaji": "メス",
@@ -5049,7 +5049,7 @@
       ]
     },
     {
-      "id": 104,
+      "id": "0104",
       "word": "訪ねる",
       "furigana": "たずねる",
       "romaji": "tazuneru",
@@ -5098,7 +5098,7 @@
       ]
     },
     {
-      "id": 105,
+      "id": "0105",
       "word": "訪れる",
       "furigana": "おとずれる",
       "romaji": "otozureru",
@@ -5147,7 +5147,7 @@
       ]
     },
     {
-      "id": 106,
+      "id": "0106",
       "word": "向け",
       "furigana": "むけ",
       "romaji": "muke",
@@ -5196,7 +5196,7 @@
       ]
     },
     {
-      "id": 107,
+      "id": "0107",
       "word": "向き",
       "furigana": "むき",
       "romaji": "muki",
@@ -5245,7 +5245,7 @@
       ]
     },
     {
-      "id": 108,
+      "id": "0108",
       "word": "お買い得",
       "furigana": "かどく",
       "romaji": "kadoku",
@@ -5294,7 +5294,7 @@
       ]
     },
     {
-      "id": 109,
+      "id": "0109",
       "word": "正露丸",
       "furigana": "せいろがん",
       "romaji": "seirogan",
@@ -5343,7 +5343,7 @@
       ]
     },
     {
-      "id": 110,
+      "id": "0110",
       "word": "裏紙",
       "furigana": "うらがみ",
       "romaji": "uragami",
@@ -5392,7 +5392,7 @@
       ]
     },
     {
-      "id": 111,
+      "id": "0111",
       "word": "裏原宿",
       "furigana": "うらはらじゅく",
       "romaji": "uraharajiゅku",
@@ -5441,7 +5441,7 @@
       ]
     },
     {
-      "id": 112,
+      "id": "0112",
       "word": "落ち込む",
       "furigana": "おこむ",
       "romaji": "okomu",
@@ -5490,7 +5490,7 @@
       ]
     },
     {
-      "id": 113,
+      "id": "0113",
       "word": "乙女",
       "furigana": "おとめ",
       "romaji": "otome",
@@ -5539,7 +5539,7 @@
       ]
     },
     {
-      "id": 114,
+      "id": "0114",
       "word": "人気",
       "furigana": "にんき",
       "romaji": "ninki",
@@ -5588,7 +5588,7 @@
       ]
     },
     {
-      "id": 115,
+      "id": "0115",
       "word": "人気のない道",
       "furigana": "ひとけみち",
       "romaji": "hitokemichi",
@@ -5637,7 +5637,7 @@
       ]
     },
     {
-      "id": 116,
+      "id": "0116",
       "word": "質屋",
       "furigana": "しちや",
       "romaji": "shichiya",
@@ -5686,7 +5686,7 @@
       ]
     },
     {
-      "id": 117,
+      "id": "0117",
       "word": "かき氷",
       "furigana": "ごおり",
       "romaji": "goori",
@@ -5735,7 +5735,7 @@
       ]
     },
     {
-      "id": 118,
+      "id": "0118",
       "word": "かさばる",
       "furigana": "かさばる",
       "romaji": "kasabaru",
@@ -5784,7 +5784,7 @@
       ]
     },
     {
-      "id": 119,
+      "id": "0119",
       "word": "銘柄",
       "furigana": "めいがら",
       "romaji": "meigara",
@@ -5833,7 +5833,7 @@
       ]
     },
     {
-      "id": 120,
+      "id": "0120",
       "word": "しおり",
       "furigana": "しおり",
       "romaji": "shiori",
@@ -5882,7 +5882,7 @@
       ]
     },
     {
-      "id": 121,
+      "id": "0121",
       "word": "お気に入り",
       "furigana": "きいり",
       "romaji": "kiiri",
@@ -5931,7 +5931,7 @@
       ]
     },
     {
-      "id": 122,
+      "id": "0122",
       "word": "飾り",
       "furigana": "かざり",
       "romaji": "kazari",
@@ -5980,7 +5980,7 @@
       ]
     },
     {
-      "id": 123,
+      "id": "0123",
       "word": "神の使い",
       "furigana": "かみつかい",
       "romaji": "kamitsukai",
@@ -6029,7 +6029,7 @@
       ]
     },
     {
-      "id": 124,
+      "id": "0124",
       "word": "一戸建て",
       "furigana": "いっこだて",
       "romaji": "ikkodate",
@@ -6078,7 +6078,7 @@
       ]
     },
     {
-      "id": 125,
+      "id": "0125",
       "word": "後片付け",
       "furigana": "あとかたづけ",
       "romaji": "atokatazuke",
@@ -6127,7 +6127,7 @@
       ]
     },
     {
-      "id": 126,
+      "id": "0126",
       "word": "適切",
       "furigana": "てきせつ",
       "romaji": "tekisetsu",
@@ -6176,7 +6176,7 @@
       ]
     },
     {
-      "id": 127,
+      "id": "0127",
       "word": "カリカリ",
       "furigana": "カリカリ",
       "romaji": "カリカリ",
@@ -6225,7 +6225,7 @@
       ]
     },
     {
-      "id": 128,
+      "id": "0128",
       "word": "トロトロ",
       "furigana": "トロトロ",
       "romaji": "トロトロ",
@@ -6274,7 +6274,7 @@
       ]
     },
     {
-      "id": 129,
+      "id": "0129",
       "word": "奥行き",
       "furigana": "おくゆき",
       "romaji": "okuyuki",
@@ -6323,7 +6323,7 @@
       ]
     },
     {
-      "id": 130,
+      "id": "0130",
       "word": "焼きムラ",
       "furigana": "やきムラ",
       "romaji": "yakiムラ",
@@ -6372,7 +6372,7 @@
       ]
     },
     {
-      "id": 131,
+      "id": "0131",
       "word": "おまけに",
       "furigana": "おまけに",
       "romaji": "omakeni",
@@ -6421,7 +6421,7 @@
       ]
     },
     {
-      "id": 132,
+      "id": "0132",
       "word": "汚れがあった",
       "furigana": "よごれがあった",
       "romaji": "yogoregaatta",
@@ -6470,7 +6470,7 @@
       ]
     },
     {
-      "id": 133,
+      "id": "0133",
       "word": "親指を立てたサイン",
       "furigana": "おやゆびたてたサイン",
       "romaji": "oyayubitatetaサイン",
@@ -6519,7 +6519,7 @@
       ]
     },
     {
-      "id": 134,
+      "id": "0134",
       "word": "溶ける",
       "furigana": "とける",
       "romaji": "tokeru",
@@ -6568,7 +6568,7 @@
       ]
     },
     {
-      "id": 135,
+      "id": "0135",
       "word": "乗せる",
       "furigana": "のせる",
       "romaji": "noseru",
@@ -6617,7 +6617,7 @@
       ]
     },
     {
-      "id": 136,
+      "id": "0136",
       "word": "大麦",
       "furigana": "おおむぎ",
       "romaji": "oomugi",
@@ -6666,7 +6666,7 @@
       ]
     },
     {
-      "id": 137,
+      "id": "0137",
       "word": "苦い",
       "furigana": "にがい",
       "romaji": "nigai",
@@ -6715,7 +6715,7 @@
       ]
     },
     {
-      "id": 138,
+      "id": "0138",
       "word": "期間限定",
       "furigana": "きかんげんてい",
       "romaji": "kikangentei",
@@ -6764,7 +6764,7 @@
       ]
     },
     {
-      "id": 139,
+      "id": "0139",
       "word": "希少価値",
       "furigana": "きしょうかち",
       "romaji": "kishiょukachi",
@@ -6813,7 +6813,7 @@
       ]
     },
     {
-      "id": 140,
+      "id": "0140",
       "word": "押し出す",
       "furigana": "おだす",
       "romaji": "odasu",
@@ -6862,7 +6862,7 @@
       ]
     },
     {
-      "id": 141,
+      "id": "0141",
       "word": "看板商品",
       "furigana": "かんばんしょうひん",
       "romaji": "kanbanshiょuhin",
@@ -6911,7 +6911,7 @@
       ]
     },
     {
-      "id": 142,
+      "id": "0142",
       "word": "普遍的",
       "furigana": "ふへんてき",
       "romaji": "fuhenteki",
@@ -6960,7 +6960,7 @@
       ]
     },
     {
-      "id": 143,
+      "id": "0143",
       "word": "疎通",
       "furigana": "そつう",
       "romaji": "sotsuu",
@@ -7009,7 +7009,7 @@
       ]
     },
     {
-      "id": 144,
+      "id": "0144",
       "word": "会うたびに",
       "furigana": "あうたびに",
       "romaji": "autabini",
@@ -7058,7 +7058,7 @@
       ]
     },
     {
-      "id": 145,
+      "id": "0145",
       "word": "公私混同",
       "furigana": "こうしこんどう",
       "romaji": "koushikondou",
@@ -7107,7 +7107,7 @@
       ]
     },
     {
-      "id": 146,
+      "id": "0146",
       "word": "しんどい",
       "furigana": "しんどい",
       "romaji": "shindoi",
@@ -7156,7 +7156,7 @@
       ]
     },
     {
-      "id": 147,
+      "id": "0147",
       "word": "恐縮",
       "furigana": "きょうしゅく",
       "romaji": "kiょushiゅku",
@@ -7205,7 +7205,7 @@
       ]
     },
     {
-      "id": 148,
+      "id": "0148",
       "word": "職場恋愛",
       "furigana": "しょくばれんあい",
       "romaji": "shiょkubarenai",
@@ -7254,7 +7254,7 @@
       ]
     },
     {
-      "id": 149,
+      "id": "0149",
       "word": "こびりつきにくい",
       "furigana": "こびりつきにくい",
       "romaji": "kobiritsukinikui",
@@ -7303,7 +7303,7 @@
       ]
     },
     {
-      "id": 150,
+      "id": "0150",
       "word": "傾く",
       "furigana": "かたむく",
       "romaji": "katamuku",
@@ -7352,7 +7352,7 @@
       ]
     },
     {
-      "id": 151,
+      "id": "0151",
       "word": "二重丸",
       "furigana": "にじゅうまる",
       "romaji": "nijiゅumaru",
@@ -7401,7 +7401,7 @@
       ]
     },
     {
-      "id": 152,
+      "id": "0152",
       "word": "うっかりしまう",
       "furigana": "うっかりしまう",
       "romaji": "ukkarishimau",
@@ -7450,7 +7450,7 @@
       ]
     },
     {
-      "id": 153,
+      "id": "0153",
       "word": "気後れ",
       "furigana": "きおくれ",
       "romaji": "kiokure",
@@ -7499,7 +7499,7 @@
       ]
     },
     {
-      "id": 154,
+      "id": "0154",
       "word": "語り合う",
       "furigana": "かたあう",
       "romaji": "kataau",
@@ -7548,7 +7548,7 @@
       ]
     },
     {
-      "id": 155,
+      "id": "0155",
       "word": "掘り出し物",
       "furigana": "ほだもの",
       "romaji": "hodamono",
@@ -7597,7 +7597,7 @@
       ]
     },
     {
-      "id": 156,
+      "id": "0156",
       "word": "温めましょうか",
       "furigana": "あたためましょうか",
       "romaji": "atatamemashiょuka",
@@ -7646,7 +7646,7 @@
       ]
     },
     {
-      "id": 157,
+      "id": "0157",
       "word": "チンしましょうか",
       "furigana": "チンしましょうか",
       "romaji": "チンshimashiょuka",
@@ -7695,7 +7695,7 @@
       ]
     },
     {
-      "id": 158,
+      "id": "0158",
       "word": "お金を稼ぐ",
       "furigana": "かねかせぐ",
       "romaji": "kanekasegu",
@@ -7744,7 +7744,7 @@
       ]
     },
     {
-      "id": 159,
+      "id": "0159",
       "word": "お金を貯める",
       "furigana": "かねためる",
       "romaji": "kanetameru",
@@ -7793,7 +7793,7 @@
       ]
     },
     {
-      "id": 160,
+      "id": "0160",
       "word": "傘を盗まれてしまいました",
       "furigana": "かさぬすまれてしまいました",
       "romaji": "kasanusumareteshimaimashita",
@@ -7842,7 +7842,7 @@
       ]
     },
     {
-      "id": 161,
+      "id": "0161",
       "word": "混ぜて飲む",
       "furigana": "まのむ",
       "romaji": "manomu",
@@ -7891,7 +7891,7 @@
       ]
     },
     {
-      "id": 162,
+      "id": "0162",
       "word": "ちゃんぽんして飲む",
       "furigana": "のむ",
       "romaji": "nomu",
@@ -7940,7 +7940,7 @@
       ]
     },
     {
-      "id": 163,
+      "id": "0163",
       "word": "外れる",
       "furigana": "はずれる",
       "romaji": "hazureru",
@@ -7989,7 +7989,7 @@
       ]
     },
     {
-      "id": 164,
+      "id": "0164",
       "word": "可笑しくて死にそう",
       "furigana": "おかしにそう",
       "romaji": "okashinisou",
@@ -8038,7 +8038,7 @@
       ]
     },
     {
-      "id": 165,
+      "id": "0165",
       "word": "残りわずか",
       "furigana": "のこりわずか",
       "romaji": "nokoriwazuka",
@@ -8087,7 +8087,7 @@
       ]
     },
     {
-      "id": 166,
+      "id": "0166",
       "word": "わずか",
       "furigana": "わずか",
       "romaji": "wazuka",
@@ -8136,7 +8136,7 @@
       ]
     },
     {
-      "id": 167,
+      "id": "0167",
       "word": "真夏",
       "furigana": "まなつ",
       "romaji": "manatsu",
@@ -8185,7 +8185,7 @@
       ]
     },
     {
-      "id": 168,
+      "id": "0168",
       "word": "苦情",
       "furigana": "くじょう",
       "romaji": "kujiょu",
@@ -8234,7 +8234,7 @@
       ]
     },
     {
-      "id": 169,
+      "id": "0169",
       "word": "クレーム",
       "furigana": "クレーム",
       "romaji": "クレム",
@@ -8283,7 +8283,7 @@
       ]
     },
     {
-      "id": 170,
+      "id": "0170",
       "word": "喘息",
       "furigana": "ぜんそく",
       "romaji": "zensoku",
@@ -8332,7 +8332,7 @@
       ]
     },
     {
-      "id": 171,
+      "id": "0171",
       "word": "特徴",
       "furigana": "とくちょう",
       "romaji": "tokuchiょu",
@@ -8381,7 +8381,7 @@
       ]
     },
     {
-      "id": 172,
+      "id": "0172",
       "word": "神々しい",
       "furigana": "こうごうしい",
       "romaji": "kougoushii",
@@ -8430,7 +8430,7 @@
       ]
     },
     {
-      "id": 173,
+      "id": "0173",
       "word": "清々しい",
       "furigana": "すがすがしい",
       "romaji": "sugasugashii",
@@ -8479,7 +8479,7 @@
       ]
     },
     {
-      "id": 174,
+      "id": "0174",
       "word": "太々しい",
       "furigana": "ふてぶてしい",
       "romaji": "futebuteshii",
@@ -8528,7 +8528,7 @@
       ]
     },
     {
-      "id": 175,
+      "id": "0175",
       "word": "さわやかだ",
       "furigana": "さわやかだ",
       "romaji": "sawayakada",
@@ -8577,7 +8577,7 @@
       ]
     },
     {
-      "id": 176,
+      "id": "0176",
       "word": "ハラハラ",
       "furigana": "ハラハラ",
       "romaji": "ハラハラ",
@@ -8626,7 +8626,7 @@
       ]
     },
     {
-      "id": 177,
+      "id": "0177",
       "word": "見ごたえ",
       "furigana": "みごたえ",
       "romaji": "migotae",
@@ -8675,7 +8675,7 @@
       ]
     },
     {
-      "id": 178,
+      "id": "0178",
       "word": "イマイチ",
       "furigana": "イマイチ",
       "romaji": "イマイチ",
@@ -8724,7 +8724,7 @@
       ]
     },
     {
-      "id": 179,
+      "id": "0179",
       "word": "泣ける",
       "furigana": "なける",
       "romaji": "nakeru",
@@ -8773,7 +8773,7 @@
       ]
     },
     {
-      "id": 180,
+      "id": "0180",
       "word": "泣き笑い",
       "furigana": "なわらい",
       "romaji": "nawarai",
@@ -8822,7 +8822,7 @@
       ]
     },
     {
-      "id": 181,
+      "id": "0181",
       "word": "セルフ",
       "furigana": "セルフ",
       "romaji": "セルフ",
@@ -8871,7 +8871,7 @@
       ]
     },
     {
-      "id": 182,
+      "id": "0182",
       "word": "台詞",
       "furigana": "せりふ",
       "romaji": "serifu",
@@ -8920,7 +8920,7 @@
       ]
     },
     {
-      "id": 183,
+      "id": "0183",
       "word": "示す",
       "furigana": "しめす",
       "romaji": "shimesu",
@@ -8969,7 +8969,7 @@
       ]
     },
     {
-      "id": 184,
+      "id": "0184",
       "word": "主役を務める",
       "furigana": "しゅやくつとめる",
       "romaji": "shiゅyakutsutomeru",
@@ -9018,7 +9018,7 @@
       ]
     },
     {
-      "id": 185,
+      "id": "0185",
       "word": "宛にならない",
       "furigana": "あてにならない",
       "romaji": "ateninaranai",
@@ -9067,7 +9067,7 @@
       ]
     },
     {
-      "id": 186,
+      "id": "0186",
       "word": "鼻を明かす",
       "furigana": "はなをあかす",
       "romaji": "hanawoakasu",
@@ -9116,7 +9116,7 @@
       ]
     },
     {
-      "id": 187,
+      "id": "0187",
       "word": "目を瞑る",
       "furigana": "めをつむる",
       "romaji": "mewotsumuru",
@@ -9165,7 +9165,7 @@
       ]
     },
     {
-      "id": 188,
+      "id": "0188",
       "word": "義母",
       "furigana": "ぎぼ",
       "romaji": "gibo",
@@ -9214,7 +9214,7 @@
       ]
     },
     {
-      "id": 189,
+      "id": "0189",
       "word": "義父",
       "furigana": "ぎふ",
       "romaji": "gifu",
@@ -9263,7 +9263,7 @@
       ]
     },
     {
-      "id": 190,
+      "id": "0190",
       "word": "飽き足らない",
       "furigana": "あきたらない",
       "romaji": "akitaranai",
@@ -9312,7 +9312,7 @@
       ]
     },
     {
-      "id": 191,
+      "id": "0191",
       "word": "時々",
       "furigana": "ときどき",
       "romaji": "tokidoki",
@@ -9361,7 +9361,7 @@
       ]
     },
     {
-      "id": 192,
+      "id": "0192",
       "word": "色々",
       "furigana": "いろいろ",
       "romaji": "iroiro",
@@ -9410,7 +9410,7 @@
       ]
     },
     {
-      "id": 193,
+      "id": "0193",
       "word": "日々",
       "furigana": "ひび",
       "romaji": "hibi",
@@ -9459,7 +9459,7 @@
       ]
     },
     {
-      "id": 194,
+      "id": "0194",
       "word": "後悔",
       "furigana": "こうかい",
       "romaji": "koukai",
@@ -9508,7 +9508,7 @@
       ]
     },
     {
-      "id": 195,
+      "id": "0195",
       "word": "緊張を解く",
       "furigana": "きんちょうをとく",
       "romaji": "kinchiょuwotoku",
@@ -9557,7 +9557,7 @@
       ]
     },
     {
-      "id": 196,
+      "id": "0196",
       "word": "町興し",
       "furigana": "まちおこし",
       "romaji": "machiokoshi",
@@ -9606,7 +9606,7 @@
       ]
     },
     {
-      "id": 197,
+      "id": "0197",
       "word": "復興",
       "furigana": "ふっこう",
       "romaji": "fukkou",
@@ -9655,7 +9655,7 @@
       ]
     },
     {
-      "id": 198,
+      "id": "0198",
       "word": "常夏",
       "furigana": "とこなつ",
       "romaji": "tokonatsu",
@@ -9704,7 +9704,7 @@
       ]
     },
     {
-      "id": 199,
+      "id": "0199",
       "word": "真っ二つ",
       "furigana": "まっぷたつ",
       "romaji": "mapputatsu",
@@ -9753,7 +9753,7 @@
       ]
     },
     {
-      "id": 200,
+      "id": "0200",
       "word": "演技力",
       "furigana": "えんぎりょく",
       "romaji": "engiriょku",
@@ -9802,7 +9802,7 @@
       ]
     },
     {
-      "id": 201,
+      "id": "0201",
       "word": "財政力",
       "furigana": "ざいせいりょく",
       "romaji": "zaiseiriょku",
@@ -9851,7 +9851,7 @@
       ]
     },
     {
-      "id": 202,
+      "id": "0202",
       "word": "結束力",
       "furigana": "けっそくりょく",
       "romaji": "kessokuriょku",
