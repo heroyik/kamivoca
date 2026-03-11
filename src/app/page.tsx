@@ -95,9 +95,7 @@ export default function Home() {
   };
 
   return (
-    <main className="container min-h-screen bg-soft pb-140 pt-68">
-      {/* Premium Compact Header */}
-      {/* Premium Compact Header - 2 Line Redesign */}
+    <main className="container min-h-screen pb-140 pt-68" style={{ position: 'relative', zIndex: 10 }}>
       <header className="sticky-header japanese-header">
         <div className="header-left flex items-baseline gap-4">
           <h1 className="font-22 font-900 m-0 text-kv-kurenai leading-1-1 tracking-tight" style={{ letterSpacing: '-0.5px' }}>{APP_NAME}</h1>
