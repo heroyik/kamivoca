@@ -1,6 +1,6 @@
-# 🇯🇵 KamiVoca (v1.0.0) - Advanced Japanese Vocabulary App
+# 🇯🇵 KamiVoca (v2.0.0) - Advanced Japanese Vocabulary App
 
-`Version 1.0.0`
+`Version 2.0.0`
 
 ---
 
@@ -118,16 +118,12 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - This fix resolved a major GitHub build error where the data IDs (numeric) conflicted with the interface (string).
     - Affected files: `src/data/vocab.json`, `src/utils/vocab.ts`, `scripts/transform_japanese_data.mjs`
 
-11. **Romaji support completely removed**
-    - The `romaji` field was removed from `vocab.json` and the `VocabEntry` interface for a more immersive Japanese-only experience.
-    - Removed "Hide Romaji" setting and related UI logic from Quizzes, Review, and User Profile.
-    - Utility scripts (`transform_japanese_data.mjs`, `cognate-detector.mjs`) refactored to remove romaji dependency.
-    - Result: A cleaner dataset and UI focused purely on Kanji and Furigana.
-    - Affected files:
-      - `src/data/vocab.json`, `src/utils/vocab.ts`
-      - `src/contexts/GamificationContext.tsx`
-      - `src/components/Quiz.tsx`, `src/components/ReviewTab.tsx`, `src/components/UserProfile.tsx`
-      - `scripts/transform_japanese_data.mjs`, `scripts/cognate-detector.mjs`
+12. **Global Even Level Distribution & Playwright E2E Testing**
+    - Refactored the 15-level distribution logic to be completely even globally (92-93 words per level) while maintaining JLPT (N5-N1) order.
+    - Preserved the `opic` field in `vocab.json` for better cross-framework compatibility.
+    - Integrated Playwright for comprehensive E2E testing, including custom mobile viewports for **Galaxy S25** and **iPhone 16 Pro**.
+    - Verified furigana rendering in example sentences via automated web tests.
+    - Affected files: `scripts/transform_japanese_data.mjs`, `src/data/vocab.json`, `playwright.config.ts`, `tests/vocab-levels.spec.ts`
 
 ### 👥 Social & Engagement
 
