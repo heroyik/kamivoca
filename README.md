@@ -125,6 +125,12 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - Verified furigana rendering in example sentences via automated web tests.
     - Affected files: `scripts/transform_japanese_data.mjs`, `src/data/vocab.json`, `playwright.config.ts`, `tests/vocab-levels.spec.ts`
 
+13. **Dynamic Weather Effects**
+    - Integrated the Open-Meteo API to fetch real-time weather data based on the user's location.
+    - Added a performant Canvas-based particle system (`WeatherBackground.tsx`) to render dynamic effects like Rain, Snow, and Thunder behind the main application UI.
+    - Verified mobile responsiveness and performance using Playwright on Galaxy S25 viewport settings.
+    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `src/app/layout.tsx`, `tests/weather-screenshot.spec.ts`
+
 ### 👥 Social & Engagement
 
 - **Home (巡礼)**: Core learning path and Pilgrimage maps.

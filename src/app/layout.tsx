@@ -18,6 +18,7 @@ export const viewport: Viewport = {
 
 import { GamificationProvider } from "@/contexts/GamificationContext";
 import AudioPrewarmer from "@/components/AudioPrewarmer";
+import { WeatherBackground } from "@/components/WeatherBackground";
 
 export default function RootLayout({
   children,
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className={inter.className}>
         <GamificationProvider>
+          <WeatherBackground />
           <AudioPrewarmer />
           {children}
         </GamificationProvider>
