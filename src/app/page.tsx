@@ -14,6 +14,7 @@ import UserProfile from '@/components/UserProfile';
 import ReviewTab from '@/components/ReviewTab';
 import RankToast from '@/components/RankToast';
 import Image from 'next/image';
+import { WeatherBackground } from '@/components/WeatherBackground';
 import { Github } from 'lucide-react';
 
 // Gamification Helpers
@@ -117,6 +118,8 @@ export default function Home() {
 
       {activeTab === 'learn' && (
         <div className="learn-container">
+          {/* Weather effect — only visible on the home/learn screen */}
+          <WeatherBackground />
           {/* Live rank badge relocated from header to avoid overlap on small screens */}
           {user && rank !== null && (
             <div
