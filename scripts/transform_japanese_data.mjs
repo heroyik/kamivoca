@@ -85,7 +85,7 @@ async function transform() {
     const normalizedPos = String(item.PoS || item.pos || 'other').toLowerCase();
 
     return {
-      id: index + 1,
+      id: String(index + 1).padStart(4, '0'),
       word: word,
       furigana: furigana,
       meaning: item.korean,
