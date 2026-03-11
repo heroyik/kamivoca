@@ -1,3 +1,4 @@
+/* cspell:ignore voca opic */
 import fs from 'fs';
 import path from 'path';
 
@@ -54,13 +55,13 @@ async function transform() {
   const dataset = JSON.parse(rawData);
   
   const transformedData = dataset.map((item, index) => {
-    const { word, furigana } = extractFurigana(item.japones);
+    const { word, furigana } = extractFurigana(item.japanese);
     const { level, jlpt } = mapOPIcToJLPT(item.level);
     
     // Process sentences
     const sentences = [];
-    if (item.conversacion && item.conversacion.length > 0) {
-      item.conversacion.forEach(line => {
+    if (item.conversations && item.conversations.length > 0) {
+      item.conversations.forEach(line => {
         if (line.startsWith('A:') || line.startsWith('B:')) {
           const s = extractFurigana(line);
           sentences.push({
@@ -70,8 +71,8 @@ async function transform() {
           });
         }
       });
-    } else if (item.ejemplos) {
-      item.ejemplos.forEach(ex => {
+    } else if (item.examples) {
+      item.examples.forEach(ex => {
         const s = extractFurigana(ex);
         sentences.push({
           japanese: s.word,
@@ -87,11 +88,11 @@ async function transform() {
       id: index + 1,
       word: word,
       furigana: furigana,
-      meaning: item.coreana,
+      meaning: item.korean,
       level: level,
       jlpt: jlpt,
       pos: normalizedPos,
-      synonyms: item.expresion_similar || [],
+      synonyms: item.similar_expression || [],
       sentences: sentences
     };
   });

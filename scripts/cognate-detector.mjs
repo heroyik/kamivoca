@@ -1,3 +1,4 @@
+/* cspell:ignore Hanja hanja yoku */
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -159,8 +160,8 @@ const results = vocab.map(entry => {
     .replace(/\s/g, ''); 
   
   const krPhonetic = hangulToPhonetic(krCore);
-  const jpRomaji = toRomaji(entry.furigana);
-  const jpPhonetic = normalizeJapanese(jpRomaji);
+  const jpPhoneticBase = toRomaji(entry.furigana);
+  const jpPhonetic = normalizeJapanese(jpPhoneticBase);
   const phoneticScore = calculateSimilarity(krPhonetic, jpPhonetic);
   
   const hanjaReading = getHanjaReading(entry.word);
