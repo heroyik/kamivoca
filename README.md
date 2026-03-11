@@ -131,6 +131,10 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - Verified mobile responsiveness and performance using Playwright on Galaxy S25 viewport settings.
     - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `src/app/layout.tsx`, `tests/weather-screenshot.spec.ts`
 
+14. **UI Version Fix**
+    - Updated `APP_VERSION` string in `src/lib/constants.ts` to `2.0.0` to ensure the UI visually matches the package.json version update.
+    - Affected files: `src/lib/constants.ts`
+
 ### 👥 Social & Engagement
 
 - **Home (巡礼)**: Core learning path and Pilgrimage maps.
