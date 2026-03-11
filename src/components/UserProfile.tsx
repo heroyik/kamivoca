@@ -56,7 +56,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
         if (auth) signOut(auth);
     };
 
-    const toggleSetting = (key: 'soundEnabled' | 'hapticsEnabled' | 'hideRomaji' | 'hideFurigana' | 'unlockAllLevels') => {
+    const toggleSetting = (key: 'soundEnabled' | 'hapticsEnabled' | 'hideFurigana' | 'unlockAllLevels') => {
         if (stats.settings) {
             updateSettings({ [key]: !stats.settings[key] });
         }
@@ -273,20 +273,6 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                         </label>
                     </div>
 
-                    <div className="settings-item">
-                        <div className="flex flex-col">
-                            <span className="font-16 font-700">Hide Romaji</span>
-                            <span className="font-12 text-secondary">Hide romaji in quizzes</span>
-                        </div>
-                        <label className="toggle-switch">
-                            <input
-                                type="checkbox"
-                                checked={stats.settings?.hideRomaji ?? false}
-                                onChange={() => toggleSetting('hideRomaji')}
-                            />
-                            <span className="slider"></span>
-                        </label>
-                    </div>
 
                     <div className="settings-item">
                         <div className="flex flex-col">

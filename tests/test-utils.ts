@@ -28,7 +28,6 @@ export const defaultTestStats: UserStats = {
   settings: {
     soundEnabled: true,
     hapticsEnabled: true,
-    hideRomaji: false,
     hideFurigana: false,
     unlockAllLevels: false,
   },

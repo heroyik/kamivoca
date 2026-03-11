@@ -23,7 +23,6 @@ export interface UserStats {
   settings?: {
     soundEnabled: boolean;
     hapticsEnabled: boolean;
-    hideRomaji: boolean;
     hideFurigana: boolean;
     unlockAllLevels: boolean;
   };
@@ -63,7 +62,6 @@ const defaultStats: UserStats = {
   settings: {
     soundEnabled: true,
     hapticsEnabled: true,
-    hideRomaji: false,
     hideFurigana: false,
     unlockAllLevels: false,
   },
@@ -139,7 +137,6 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
                 settings: {
                   soundEnabled: cloudData.settings?.soundEnabled ?? prev.settings?.soundEnabled ?? defaultStats.settings!.soundEnabled,
                   hapticsEnabled: cloudData.settings?.hapticsEnabled ?? prev.settings?.hapticsEnabled ?? defaultStats.settings!.hapticsEnabled,
-                  hideRomaji: cloudData.settings?.hideRomaji ?? prev.settings?.hideRomaji ?? defaultStats.settings!.hideRomaji,
                   hideFurigana: cloudData.settings?.hideFurigana ?? prev.settings?.hideFurigana ?? defaultStats.settings!.hideFurigana,
                   unlockAllLevels: cloudData.settings?.unlockAllLevels ?? prev.settings?.unlockAllLevels ?? defaultStats.settings!.unlockAllLevels,
                 },

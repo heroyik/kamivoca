@@ -110,6 +110,16 @@ The following behavior changes were implemented to improve quiz quality, map vis
    - Affected files:
      - `src/app/globals.css`
      - `src/app/page.tsx`
+10. **Romaji support completely removed**
+    - The `romaji` field was removed from `vocab.json` and the `VocabEntry` interface for a more immersive Japanese-only experience.
+    - Removed "Hide Romaji" setting and related UI logic from Quizzes, Review, and User Profile.
+    - Utility scripts (`transform_japanese_data.mjs`, `cognate-detector.mjs`) refactored to remove romaji dependency.
+    - Result: A cleaner dataset and UI focused purely on Kanji and Furigana.
+    - Affected files:
+      - `src/data/vocab.json`, `src/utils/vocab.ts`
+      - `src/contexts/GamificationContext.tsx`
+      - `src/components/Quiz.tsx`, `src/components/ReviewTab.tsx`, `src/components/UserProfile.tsx`
+      - `scripts/transform_japanese_data.mjs`, `scripts/cognate-detector.mjs`
 
 ### 👥 Social & Engagement
 

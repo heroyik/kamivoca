@@ -97,9 +97,6 @@ export default function ReviewTab() {
                   {!stats.settings?.hideFurigana && entry.furigana && entry.word !== entry.furigana && (
                     <div className="text-small text-secondary mb-4">{entry.furigana}</div>
                   )}
-                  {!stats.settings?.hideRomaji && entry.romaji && (
-                    <div className="font-12 mb-8" style={{ color: '#9ca3af' }}>{entry.romaji}</div>
-                  )}
                   <div className="text-small">{entry.meaning}</div>
                 </div>
                 <div className="flex-center gap-12">
@@ -214,9 +211,6 @@ export default function ReviewTab() {
                         <div style={{ marginBottom: "2px" }}>{entry.word}</div>
                         {!stats.settings?.hideFurigana && entry.furigana && entry.word !== entry.furigana && (
                           <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px", fontWeight: 400 }}>{entry.furigana}</div>
-                        )}
-                        {!stats.settings?.hideRomaji && entry.romaji && (
-                          <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px", fontWeight: 400 }}>{entry.romaji}</div>
                         )}
                       </div>
 

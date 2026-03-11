@@ -281,11 +281,6 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
               {currentQuestion.furigana}
             </div>
           )}
-          {!stats.settings?.hideRomaji && currentQuestion.romaji && (
-            <div className="text-subtitle text-tertiary mb-8" style={{ color: '#9ca3af' }}>
-              {currentQuestion.romaji}
-            </div>
-          )}
           {initiallyWasMistake && (
             <div className="mistake-badge mb-12">
               Tricky Word

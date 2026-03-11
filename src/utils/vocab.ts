@@ -4,7 +4,6 @@ export interface VocabEntry {
   id: string;
   word: string;
   furigana: string;
-  romaji: string;
   meaning: string;
   level: number;
   jlpt: string;

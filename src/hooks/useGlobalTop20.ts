@@ -10,7 +10,6 @@ export interface GlobalWordStat {
   word: string;
   meaning: string;
   furigana?: string;
-  romaji?: string;
   totalCount: number;
   book: string;   // "1" or "2"
   unitId: string; // "unit-X"
@@ -29,7 +28,7 @@ function normalizeWordKey(word: string): string {
   return word.toLowerCase().trim();
 }
 
-function buildWordUnitMap(): Map<string, { word: string; meaning: string; book: string; unitNum: number; furigana?: string; romaji?: string }> {
+function buildWordUnitMap(): Map<string, { word: string; meaning: string; book: string; unitNum: number; furigana?: string }> {
   const uniqueWords = new Map<string, VocabEntry>();
   (vocabData.data as VocabEntry[]).forEach((w) => {
     const key = normalizeWordKey(w.word);
@@ -43,7 +42,7 @@ function buildWordUnitMap(): Map<string, { word: string; meaning: string; book: 
 
   const TOTAL_UNITS = 15;
   const unitSize = Math.ceil(allWords.length / TOTAL_UNITS);
-  const map = new Map<string, { word: string; meaning: string; book: string; unitNum: number; furigana?: string; romaji?: string }>();
+  const map = new Map<string, { word: string; meaning: string; book: string; unitNum: number; furigana?: string }>();
   allWords.forEach((w, idx) => {
     map.set(normalizeWordKey(w.word), {
       word: w.word,
@@ -51,7 +50,6 @@ function buildWordUnitMap(): Map<string, { word: string; meaning: string; book: 
       book: w.jlpt,
       unitNum: Math.floor(idx / unitSize) + 1,
       furigana: w.furigana,
-      romaji: w.romaji,
     });
   });
   return map;
@@ -81,7 +79,6 @@ export function useGlobalTop20() {
           word: meta.word || rawWord,
           meaning: data.meaning ?? meta.meaning ?? "",
           furigana: meta.furigana,
-          romaji: meta.romaji,
           totalCount: data.failCount ?? 0,
           book: meta.book,
           unitId: `unit-${meta.unitNum}`,

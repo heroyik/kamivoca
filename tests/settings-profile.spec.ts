@@ -6,16 +6,16 @@ test.describe('Settings & Profile', () => {
     await seedTestState(page, defaultTestStats);
   });
 
-  test('should toggle Japanese study aids (Furigana/Romaji)', async ({ page }) => {
+  test('should toggle Japanese study aids (Furigana)', async ({ page }) => {
     await page.click('div.nav-item:has-text("PROFILE")');
     
-    // Toggle Hide Romaji - find the parent item and then the toggle
-    const romajiToggle = page.locator('.settings-item', { hasText: 'Hide Romaji' }).locator('.slider');
-    await romajiToggle.click();
+    // Toggle Hide Furigana
+    const furiganaToggle = page.locator('.settings-item', { hasText: 'Hide Furigana' }).locator('.slider');
+    await furiganaToggle.click();
     
     // Check localStorage persistence
     const stats = await page.evaluate(() => JSON.parse(localStorage.getItem('kamivoca_stats') || '{}'));
-    expect(stats.settings.hideRomaji).toBe(true);
+    expect(stats.settings.hideFurigana).toBe(true);
   });
 
   test('should persist avatar selection', async ({ page }) => {
