@@ -47,11 +47,12 @@ A winding, interactive learning path that visually guides users through 15 diffi
 
 The following behavior changes were implemented to improve quiz quality, map visibility, and review consistency:
 
-1. **Quiz card sentence rendering removed**
-   - Removed direct rendering of `sentences[0].japanese` and `sentences[0].furigana` in the quiz card area.
-   - Removed contextual sentence box from the bottom feedback panel as well.
-   - Result: noisy lines like `"A: それ、どう？"` no longer appear during quiz solving.
-   - Affected file: `src/components/Quiz.tsx`
+1. **Restructured Example Sentences with Ruby Furigana**
+   - Re-introduced example sentences in a structured `example: string[]` format.
+   - Implemented `FuriganaSentence` component in `Quiz.tsx` to automatically render `Text(Furigana)` patterns into standard HTML `<ruby>` tags.
+   - Integrated these examples into the quiz feedback bar for contextual learning immediately after answering.
+   - Removed the noisy previous `sentences` logic that occasionally showed unnatural dialogue markers.
+   - Affected files: `src/data/vocab.json`, `src/utils/vocab.ts`, `src/components/Quiz.tsx`, `scripts/transform_japanese_data.mjs`
 
 2. **Distractor logic hardened by POS-only grouping**
    - Choice generation now enforces same POS bucket for distractors instead of mixing fallback choices from any category.

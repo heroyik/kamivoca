@@ -2,98 +2,62 @@
 import fs from 'fs';
 import path from 'path';
 
-const INPUT_FILE = 'voca_json/japanese_opic_dataset_integrated.json';
+const INPUT_FILE = 'voca_json/VOCA_word_furigana_separated.json';
 const OUTPUT_FILE = 'src/data/vocab.json';
-
-// Helper to extract word and furigana
-// Example: "沐浴(もくよく)" -> { word: "沐浴", furigana: "もくよく" }
-// Example: "世話(せわ)になってね" -> { word: "世話になってね", furigana: "せわになってね" }
-function extractFurigana(text) {
-  if (!text) return { word: '', furigana: '' };
-  
-  const regex = /(.*?)\((.*?)\)/g;
-  let word = '';
-  let furigana = '';
-  let lastIndex = 0;
-  let match;
-  
-  while ((match = regex.exec(text)) !== null) {
-    word += text.substring(lastIndex, match.index) + match[1];
-    furigana += text.substring(lastIndex, match.index) + match[2];
-    lastIndex = regex.lastIndex;
-  }
-  
-  word += text.substring(lastIndex);
-  furigana += text.substring(lastIndex);
-  
-  // If no parentheses found, furigana is the word itself (if it's hiragana/katakana)
-  if (!word) {
-    word = text;
-    furigana = text;
-  }
-  
-  return { word, furigana };
-}
-
-function mapOPIcToJLPT(opic) {
-  const mapping = {
-    'AL': { level: 15, jlpt: 'N1' },
-    'IH': { level: 13, jlpt: 'N2' },
-    'IM3': { level: 11, jlpt: 'N2' },
-    'IM2': { level: 9, jlpt: 'N3' },
-    'IM1': { level: 7, jlpt: 'N3' },
-    'IL': { level: 5, jlpt: 'N4' },
-    'NH': { level: 3, jlpt: 'N5' },
-    'NM': { level: 2, jlpt: 'N5' },
-    'NL': { level: 1, jlpt: 'N5' },
-  };
-  return mapping[opic] || { level: 1, jlpt: 'N5' };
-}
 
 async function transform() {
   const rawData = fs.readFileSync(INPUT_FILE, 'utf8');
   const dataset = JSON.parse(rawData);
   
-  const transformedData = dataset.map((item, index) => {
-    const { word, furigana } = extractFurigana(item.japanese);
-    const { level, jlpt } = mapOPIcToJLPT(item.level);
-    
-    // Process sentences
-    const sentences = [];
-    if (item.conversations && item.conversations.length > 0) {
-      item.conversations.forEach(line => {
-        if (line.startsWith('A:') || line.startsWith('B:')) {
-          const s = extractFurigana(line);
-          sentences.push({
-            japanese: s.word,
-            furigana: s.furigana,
-            meaning: '' // No translation available per line
-          });
-        }
-      });
-    } else if (item.examples) {
-      item.examples.forEach(ex => {
-        const s = extractFurigana(ex);
-        sentences.push({
-          japanese: s.word,
-          furigana: s.furigana,
-          meaning: '' // No translation available per line
-        });
-      });
+  // Group by JLPT
+  const groups = {
+    'N5': [],
+    'N4': [],
+    'N3': [],
+    'N2': [],
+    'N1': []
+  };
+
+  dataset.forEach(item => {
+    const jlpt = item.jlpt || 'N5';
+    if (groups[jlpt]) {
+      groups[jlpt].push(item);
+    } else {
+      groups['N5'].push(item);
     }
+  });
 
-    const normalizedPos = String(item.PoS || item.pos || 'other').toLowerCase();
+  // Sort items into a single sequence based on JLPT order
+  const sortedSequence = [
+    ...groups['N5'],
+    ...groups['N4'],
+    ...groups['N3'],
+    ...groups['N2'],
+    ...groups['N1']
+  ];
 
+  const totalItems = sortedSequence.length;
+  const itemsPerLevel = totalItems / 15;
+
+  const transformedData = sortedSequence.map((item, index) => {
+    // Determine level globally (1-15) based on position in the sorted list
+    const level = Math.min(Math.floor(index / itemsPerLevel) + 1, 15);
+    
     return {
-      id: String(index + 1).padStart(4, '0'),
-      word: word,
-      furigana: furigana,
-      meaning: item.korean,
+      id: item.id,
+      word: item.word,
+      furigana: item.furigana,
+      meaning: item.meaning,
       level: level,
-      jlpt: jlpt,
-      pos: normalizedPos
+      jlpt: item.jlpt || 'N5',
+      pos: item.pos,
+      opic: item.opic,
+      example: item.example || []
     };
   });
+
+  // Sort by ID to maintain consistency
+  transformedData.sort((a, b) => a.id.localeCompare(b.id));
 
   const output = {
     data: transformedData

@@ -19,6 +19,30 @@ interface QuizProps {
   isReview?: boolean;
 }
 
+function FuriganaSentence({ text }: { text: string }) {
+  // Regex to match "Word(Furigana)"
+  // Specifically looks for something like 漢字(かんじ) or 食べる(たべる)
+  // We use a splitting regex to keep the matches
+  const parts = text.split(/([^\s(]+\([^\s)]+\))/g);
+  
+  return (
+    <span>
+      {parts.map((part, i) => {
+        const match = part.match(/^(.+)\((.+)\)$/);
+        if (match) {
+          return (
+            <ruby key={i}>
+              {match[1]}
+              <rt>{match[2]}</rt>
+            </ruby>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </span>
+  );
+}
+
 export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }: QuizProps) {
   const router = useRouter();
   const { addXP, addGem, addMistake, completeUnit, user, stats, removeMistake } = useGamification();
@@ -364,6 +388,31 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
                   </p>
                 )}
               </div>
+              
+              {/* Example Sentences Section */}
+              {questions[currentIndex].example && questions[currentIndex].example!.length > 0 && (
+                <div className="mt-12 flex flex-col gap-8">
+                  {questions[currentIndex].example?.map((ex, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`example-sentence-box ${isCorrect ? 'bg-green-soft' : 'bg-red-soft'}`}
+                      style={{
+                        fontSize: "15px",
+                        lineHeight: "1.6",
+                        padding: "8px 12px",
+                        borderRadius: "8px",
+                        background: isCorrect ? "rgba(255, 255, 255, 0.4)" : "rgba(0, 0, 0, 0.05)",
+                        border: "1px solid",
+                        borderColor: isCorrect ? "rgba(88, 167, 0, 0.2)" : "rgba(234, 61, 61, 0.1)",
+                        color: "inherit",
+                        maxWidth: "100%"
+                      }}
+                    >
+                      <FuriganaSentence text={ex} />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <button
               onClick={handleNext}

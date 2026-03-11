@@ -8,6 +8,8 @@ export interface VocabEntry {
   level: number;
   jlpt: string;
   pos: string;
+  opic: string;
+  example?: string[];
 }
 
 export type POS = "noun" | "verb" | "adjective" | "other";
