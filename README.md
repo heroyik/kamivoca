@@ -94,23 +94,30 @@ The following behavior changes were implemented to improve quiz quality, map vis
      - `src/hooks/useGlobalTop20.ts`
      - `src/components/ReviewTab.tsx`
 
-7. **Lint validation**
-   - All touched TypeScript files were lint-checked after each fix cycle.
-   - CSS lint warning for `globals.css` remains expected under current ESLint config (file not targeted), with no runtime impact.
-9. **ID Refactoring and Data Quality Enhancements**
-    - Refactored all vocabulary IDs to zero-padded strings (e.g., `"0001"`, `"0002"`) for stable lexicographical sorting and consistency across systems.
-    - Introduced **Visual Cognate Scores (`cog_score`)**: A numeric metric calculating the similarity between Japanese Kanji and Korean Hanja, enabling the app to highlight "easy cognates" for learners.
-    - **Global Synonym Correction**: Manually researched and updated the `synonyms` field for all 202 entries with 5 accurate, high-quality Japanese synonyms per word to ensure meaningful and challenging quizzes.
-    - Affected file: `src/data/vocab.json`, `src/utils/vocab.ts`
-
-8. **Persistent top header while scrolling**
+7. **Persistent top header while scrolling**
    - Updated the top `KamiVoca` header behavior so it stays visible during vertical scroll.
    - Switched header positioning from sticky to fixed for more consistent behavior across mobile browsers.
    - Added top padding to the main content container to prevent overlap with the fixed header.
    - Affected files:
      - `src/app/globals.css`
      - `src/app/page.tsx`
-10. **Romaji support completely removed**
+
+8. **Lint validation and Build Fixes**
+    - All touched TypeScript files were lint-checked and verified.
+    - Fixed a critical GitHub build error caused by ID type mismatches between the data and interfaces.
+
+9. **Schema Cleanup and Optimization**
+    - Removed unused keys: `cog_score`, `synonyms`, and `sentences` from `vocab.json` and `VocabEntry` interface.
+    - These fields were identified as redundant or not utilized by the current application UI/logic, reducing the overall dataset size.
+    - Simplified the `vocab.json` root structure by removing the redundant `totalWords` key (now dynamically calculated).
+    - Affected files: `src/data/vocab.json`, `src/utils/vocab.ts`, `scripts/transform_japanese_data.mjs`
+
+10. **ID Refactoring and Data Quality Enhancements**
+    - Refactored all vocabulary IDs to zero-padded strings (e.g., `"0001"`, `"0002"`) to resolve TypeScript type mismatches and ensure stable lexicographical sorting.
+    - This fix resolved a major GitHub build error where the data IDs (numeric) conflicted with the interface (string).
+    - Affected files: `src/data/vocab.json`, `src/utils/vocab.ts`, `scripts/transform_japanese_data.mjs`
+
+11. **Romaji support completely removed**
     - The `romaji` field was removed from `vocab.json` and the `VocabEntry` interface for a more immersive Japanese-only experience.
     - Removed "Hide Romaji" setting and related UI logic from Quizzes, Review, and User Profile.
     - Utility scripts (`transform_japanese_data.mjs`, `cognate-detector.mjs`) refactored to remove romaji dependency.

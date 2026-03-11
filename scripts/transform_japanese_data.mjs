@@ -91,14 +91,11 @@ async function transform() {
       meaning: item.korean,
       level: level,
       jlpt: jlpt,
-      pos: normalizedPos,
-      synonyms: item.similar_expression || [],
-      sentences: sentences
+      pos: normalizedPos
     };
   });
 
   const output = {
-    totalWords: transformedData.length,
     data: transformedData
   };
 
