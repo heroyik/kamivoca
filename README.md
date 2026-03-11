@@ -118,26 +118,25 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - This fix resolved a major GitHub build error where the data IDs (numeric) conflicted with the interface (string).
     - Affected files: `src/data/vocab.json`, `src/utils/vocab.ts`, `scripts/transform_japanese_data.mjs`
 
-12. **Global Even Level Distribution & Playwright E2E Testing**
+11. **Global Even Level Distribution & Playwright E2E Testing**
     - Refactored the 15-level distribution logic to be completely even globally (92-93 words per level) while maintaining JLPT (N5-N1) order.
     - Preserved the `opic` field in `vocab.json` for better cross-framework compatibility.
     - Integrated Playwright for comprehensive E2E testing, including custom mobile viewports for **Galaxy S25** and **iPhone 16 Pro**.
     - Verified furigana rendering in example sentences via automated web tests.
     - Affected files: `scripts/transform_japanese_data.mjs`, `src/data/vocab.json`, `playwright.config.ts`, `tests/vocab-levels.spec.ts`
 
-13. **Dynamic Weather Effects**
+12. **Dynamic Weather Effects**
     - Integrated the Open-Meteo API to fetch real-time weather data based on the user's location.
     - Added a performant Canvas-based particle system (`WeatherBackground.tsx`) to render dynamic effects like Rain, Snow, and Thunder behind the main application UI.
     - Verified mobile responsiveness and performance using Playwright on Galaxy S25 viewport settings.
     - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `src/app/layout.tsx`, `tests/weather-screenshot.spec.ts`
 
-14. **UI Version Fix**
+13. **UI Version Fix**
     - Updated `APP_VERSION` string in `src/lib/constants.ts` to `2.0.0` to ensure the UI visually matches the package.json version update.
     - Affected files: `src/lib/constants.ts`
 
-15. **Test File Cleanup**
+14. **Test File Cleanup**
     - Removed all temporary test scripts and Playwright test files used during debugging to keep the repository clean.
-
 
 ### 👥 Social & Engagement
 
