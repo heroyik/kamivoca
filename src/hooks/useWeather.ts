@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 
 export type WeatherType = 'CLEAR' | 'CLOUDY' | 'RAIN' | 'SNOW' | 'THUNDER' | 'LOADING';
 export type TimeOfDay = 'dawn' | 'day' | 'dusk' | 'night';
+export type UpdateStep = 'IDLE' | 'GEOLOCATING' | 'FETCHING_WEATHER' | 'FETCHING_LOCATION' | 'COMPLETED' | 'FAILED';
 
 interface WeatherData {
   type: WeatherType;
@@ -14,6 +15,7 @@ interface WeatherData {
   sunrise?: string; // "HH:MM" in local time
   sunset?: string;  // "HH:MM" in local time
   locationName?: string;
+  updateStep: UpdateStep;
 }
 
 /** Parse ISO datetime string (e.g. "2026-03-12T06:23") → total minutes since midnight */
@@ -88,10 +90,10 @@ export function useWeather(): WeatherData {
       }
 
       if (cachedData) {
-        return { ...cachedData, type: 'LOADING' };
+        return { ...cachedData, type: 'LOADING', updateStep: 'IDLE' };
       }
     }
-    return { type: 'LOADING', timeOfDay: fallbackTimeOfDay() };
+    return { type: 'LOADING', timeOfDay: fallbackTimeOfDay(), updateStep: 'IDLE' };
   });
 
   useEffect(() => {
@@ -118,6 +120,7 @@ export function useWeather(): WeatherData {
 
 
     const fetchWeather = async (lat: number, lon: number) => {
+      setWeather(prev => ({ ...prev, updateStep: 'FETCHING_WEATHER' }));
       try {
         // Fetch weather data
         const weatherPromise = fetch(
@@ -129,6 +132,7 @@ export function useWeather(): WeatherData {
         ).then(res => res.json());
 
         // Fetch location name (reverse geocoding)
+        setWeather(prev => ({ ...prev, updateStep: 'FETCHING_LOCATION' }));
         const locationPromise = fetch(
           `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
         ).then(res => res.json());
@@ -164,6 +168,7 @@ export function useWeather(): WeatherData {
           sunrise: sunriseISO ? formatHHMM(sunriseISO) : undefined,
           sunset:  sunsetISO  ? formatHHMM(sunsetISO)  : undefined,
           locationName,
+          updateStep: 'COMPLETED',
         };
 
         localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(updatedWeather));
@@ -174,17 +179,18 @@ export function useWeather(): WeatherData {
         const cached = localStorage.getItem(WEATHER_CACHE_KEY);
         if (cached) {
           try {
-            setWeather(JSON.parse(cached));
+            setWeather({ ...JSON.parse(cached), updateStep: 'FAILED' });
           } catch {
-            setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+            setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay(), updateStep: 'FAILED' });
           }
         } else {
-          setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+          setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay(), updateStep: 'FAILED' });
         }
       }
     };
 
     if ('geolocation' in navigator) {
+      setTimeout(() => setWeather(prev => ({ ...prev, updateStep: 'GEOLOCATING' })), 0);
       navigator.geolocation.getCurrentPosition(
         (position) => fetchWeather(position.coords.latitude, position.coords.longitude),
         (error) => {
@@ -192,18 +198,18 @@ export function useWeather(): WeatherData {
           const cached = localStorage.getItem(WEATHER_CACHE_KEY);
           if (cached) {
             try {
-              setWeather(JSON.parse(cached));
+              setWeather({ ...JSON.parse(cached), updateStep: 'FAILED' });
             } catch {
-              setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+              setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay(), updateStep: 'FAILED' });
             }
           } else {
-            setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+            setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay(), updateStep: 'FAILED' });
           }
         },
         { timeout: 10000 }
       );
     } else {
-      setTimeout(() => setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() }), 0);
+      setTimeout(() => setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay(), updateStep: 'FAILED' }), 0);
     }
   }, []);
 

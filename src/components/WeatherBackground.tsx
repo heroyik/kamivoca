@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { useWeather, TimeOfDay } from '@/hooks/useWeather';
+import { useWeather, TimeOfDay, UpdateStep } from '@/hooks/useWeather';
 
 interface Particle {
   x: number;
@@ -191,7 +191,7 @@ const Moon: React.FC = () => {
 
 /* ─── Main WeatherBackground ─── */
 export const WeatherBackground: React.FC = () => {
-  const { type, timeOfDay, sunrise, sunset, maxTemp, minTemp, locationName } = useWeather();
+  const { type, timeOfDay, sunrise, sunset, maxTemp, minTemp, locationName, updateStep } = useWeather();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
   const frameId  = useRef<number>(0);
@@ -424,6 +424,9 @@ export const WeatherBackground: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Weather Update Progress Visualization */}
+      <WeatherUpdateProgress step={updateStep} timeOfDay={timeOfDay} />
     </>
   );
 };
@@ -449,5 +452,63 @@ const ThunderOverlay: React.FC = () => {
       opacity: active ? 1 : 0, transition: 'opacity 60ms',
       pointerEvents: 'none',
     }} />
+  );
+};
+
+/* ─── Weather Update Progress Visualization ─── */
+const WeatherUpdateProgress: React.FC<{ step: UpdateStep; timeOfDay: TimeOfDay }> = ({ step, timeOfDay }) => {
+  if (step === 'COMPLETED' || step === 'IDLE') return null;
+
+  const labels: Record<UpdateStep, string> = {
+    IDLE: '',
+    GEOLOCATING: 'Locating...',
+    FETCHING_WEATHER: 'Fetching Weather...',
+    FETCHING_LOCATION: 'Detecting City...',
+    COMPLETED: 'Done',
+    FAILED: 'Update Failed'
+  };
+
+  const isNight = timeOfDay === 'night';
+  const textColor = isNight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)';
+  const barColor = isNight ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)';
+  const progressColor = isNight ? '#fff' : '#4da6ff';
+
+  // Simple progress % based on step
+  const progressMap: Record<UpdateStep, number> = {
+    IDLE: 0,
+    GEOLOCATING: 20,
+    FETCHING_WEATHER: 50,
+    FETCHING_LOCATION: 80,
+    COMPLETED: 100,
+    FAILED: 100
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', bottom: '24px', left: '50%',
+      transform: 'translateX(-50%)', zIndex: 50,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
+      pointerEvents: 'none', width: '120px'
+    }}>
+      <div style={{
+        fontSize: '10px', fontWeight: 800, color: textColor,
+        textTransform: 'uppercase', letterSpacing: '1px',
+        textShadow: isNight ? '0 1px 4px rgba(0,0,0,0.4)' : 'none'
+      }}>
+        {labels[step]}
+      </div>
+      <div style={{
+        width: '100%', height: '3px', background: barColor,
+        borderRadius: '2px', overflow: 'hidden', backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)'
+      }}>
+        <div style={{
+          width: `${progressMap[step]}%`, height: '100%',
+          background: step === 'FAILED' ? '#ff4d4d' : progressColor,
+          transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: step === 'FAILED' ? 'none' : `0 0 8px ${progressColor}`
+        }} />
+      </div>
+    </div>
   );
 };
