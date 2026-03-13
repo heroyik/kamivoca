@@ -149,6 +149,12 @@ The following behavior changes were implemented to improve quiz quality, map vis
 15. **Test File Cleanup**
     - Removed all temporary test scripts and Playwright test files used during debugging to keep the repository clean.
 
+16. **Weather Data Persistence & Caching**
+    - Implemented `localStorage` caching for weather information (location, sunrise/sunset, high/low temperatures).
+    - Added a robust fallback mechanism that displays cached data if geolocation or API calls fail.
+    - Optimized React component lifecycle to prevent redundant state updates and improve performance.
+    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `src/app/page.tsx`
+
 ### 👥 Social & Engagement
 
 - **Home (巡礼)**: Core learning path and Pilgrimage maps.

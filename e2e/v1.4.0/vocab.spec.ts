@@ -30,7 +30,7 @@ test.describe('V2.0 Vocabulary & Level Tests (Phase 1-4)', () => {
     const units = getUnits();
 
     // Heuristic: Unit 1 average word length should be shorter than Unit 15
-    const getAvgLen = (words: any[]) => words.reduce((acc, w) => acc + w.word.length, 0) / words.length;
+    const getAvgLen = (words: { word: string }[]) => words.reduce((acc, w) => acc + w.word.length, 0) / words.length;
 
     const unit1Avg = getAvgLen(units[0].words);
     const unit15Avg = getAvgLen(units[14].words);

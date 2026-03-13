@@ -197,9 +197,7 @@ export const WeatherBackground: React.FC = () => {
   const frameId  = useRef<number>(0);
 
   // Solar and Lunar Date
-  const [dates, setDates] = React.useState({ solar: '', lunar: '' });
-
-  useEffect(() => {
+  const [dates] = React.useState(() => {
     const now = new Date();
     // Use en-US for English formatting
     const solarStr = new Intl.DateTimeFormat('en-US', {
@@ -214,8 +212,8 @@ export const WeatherBackground: React.FC = () => {
       day: 'numeric'
     }).format(now);
 
-    setDates({ solar: solarStr, lunar: `Lunar ${lunarStr}` });
-  }, []);
+    return { solar: solarStr, lunar: `Lunar ${lunarStr}` };
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -48,7 +48,12 @@ export function useRank(myUid: string | null, myXP: number) {
   }, [myUid, myXP]);
 
   useEffect(() => {
-    fetchRank();
+    // Calling fetchRank asynchronously via micro-task to avoid cascading render warning
+    // as it might be called repeatedly during initialization in some React versions.
+    const runFetch = async () => {
+      await fetchRank();
+    };
+    runFetch();
   }, [fetchRank]);
 
   const clearDelta = useCallback(() => setRankDelta(null), []);

@@ -36,7 +36,7 @@ const getGlobalContext = (): AudioContext | null => {
   if (typeof window === "undefined") return null;
   if (!globalCtx) {
     const AudioContextClass = (window.AudioContext || 
-      (window as any).webkitAudioContext) as typeof AudioContext;
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext) as typeof AudioContext;
     if (!AudioContextClass) return null;
     globalCtx = new AudioContextClass();
   }

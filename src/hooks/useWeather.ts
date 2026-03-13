@@ -55,34 +55,67 @@ function fallbackTimeOfDay(): TimeOfDay {
   return 'night';
 }
 
+const WEATHER_CACHE_KEY = 'kv-weather-data';
+
 export function useWeather(): WeatherData {
-  const [weather, setWeather] = useState<WeatherData>({ type: 'LOADING', timeOfDay: fallbackTimeOfDay() });
+  const [weather, setWeather] = useState<WeatherData>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const overrideWeather = params.get('weather')?.toUpperCase() as WeatherType | null;
+      const overrideTime    = params.get('time')?.toLowerCase()    as TimeOfDay   | null;
+      const validWeatherTypes: WeatherType[] = ['CLEAR', 'CLOUDY', 'RAIN', 'SNOW', 'THUNDER'];
+      const validTimes: TimeOfDay[]          = ['dawn', 'day', 'dusk', 'night'];
+
+      const cached = localStorage.getItem(WEATHER_CACHE_KEY);
+      let cachedData: WeatherData | null = null;
+      if (cached) {
+        try {
+          cachedData = JSON.parse(cached);
+        } catch {
+          // ignore
+        }
+      }
+
+      const resolvedTime = (overrideTime && validTimes.includes(overrideTime))
+        ? overrideTime
+        : (cachedData?.timeOfDay ?? fallbackTimeOfDay());
+
+      if (overrideWeather && validWeatherTypes.includes(overrideWeather)) {
+        return { ...cachedData, type: overrideWeather, timeOfDay: resolvedTime } as WeatherData;
+      }
+      if (overrideTime && validTimes.includes(overrideTime)) {
+        return { ...cachedData, type: 'CLEAR', timeOfDay: overrideTime } as WeatherData;
+      }
+
+      if (cachedData) {
+        return { ...cachedData, type: 'LOADING' };
+      }
+    }
+    return { type: 'LOADING', timeOfDay: fallbackTimeOfDay() };
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Dev overrides: ?weather=RAIN|SNOW|...  &  ?time=night|day|...  (both independent)
+    // We still check for overrides here to decide if we should SKIP fetching
     const params = new URLSearchParams(window.location.search);
     const overrideWeather = params.get('weather')?.toUpperCase() as WeatherType | null;
     const overrideTime    = params.get('time')?.toLowerCase()    as TimeOfDay   | null;
     const validWeatherTypes: WeatherType[] = ['CLEAR', 'CLOUDY', 'RAIN', 'SNOW', 'THUNDER'];
     const validTimes: TimeOfDay[]          = ['dawn', 'day', 'dusk', 'night'];
 
-    const resolvedTime: TimeOfDay =
-      overrideTime && validTimes.includes(overrideTime)
-        ? overrideTime
-        : fallbackTimeOfDay();
-
+    // If we have a valid weather override, we don't need to fetch anything
     if (overrideWeather && validWeatherTypes.includes(overrideWeather)) {
-      setWeather({ type: overrideWeather, timeOfDay: resolvedTime });
+      return;
+    }
+    
+    // If we only have time override, we might still want to fetch weather (unless we are okay with CLEAR default)
+    // For now, let's say overrides skip fetch to be simple and avoid re-renders.
+    if (overrideTime && validTimes.includes(overrideTime) && !params.get('weather')) {
+      // Just keep the initial CLEAR state with overridden time
       return;
     }
 
-    // ?time only (no weather override) → use CLEAR + overridden time
-    if (overrideTime && validTimes.includes(overrideTime)) {
-      setWeather({ type: 'CLEAR', timeOfDay: overrideTime });
-      return;
-    }
 
     const fetchWeather = async (lat: number, lon: number) => {
       try {
@@ -122,7 +155,7 @@ export function useWeather(): WeatherData {
         // Get city or locality name
         const locationName = locData.city || locData.locality || locData.principalSubdivision || 'Unknown Location';
 
-        setWeather({
+        const updatedWeather: WeatherData = {
           type,
           temperature: temp,
           maxTemp: data.daily?.temperature_2m_max?.[0],
@@ -131,10 +164,23 @@ export function useWeather(): WeatherData {
           sunrise: sunriseISO ? formatHHMM(sunriseISO) : undefined,
           sunset:  sunsetISO  ? formatHHMM(sunsetISO)  : undefined,
           locationName,
-        });
-      } catch (error) {
+        };
+
+        localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(updatedWeather));
+        setWeather(updatedWeather);
+      } catch (error: Error) {
         console.error('Failed to fetch weather/location:', error);
-        setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+        // Fallback to cache if available, otherwise minimal default
+        const cached = localStorage.getItem(WEATHER_CACHE_KEY);
+        if (cached) {
+          try {
+            setWeather(JSON.parse(cached));
+          } catch {
+            setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+          }
+        } else {
+          setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+        }
       }
     };
 
@@ -143,12 +189,21 @@ export function useWeather(): WeatherData {
         (position) => fetchWeather(position.coords.latitude, position.coords.longitude),
         (error) => {
           console.warn('Geolocation denied or failed:', error);
-          setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+          const cached = localStorage.getItem(WEATHER_CACHE_KEY);
+          if (cached) {
+            try {
+              setWeather(JSON.parse(cached));
+            } catch {
+              setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+            }
+          } else {
+            setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+          }
         },
         { timeout: 10000 }
       );
     } else {
-      setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
+      setTimeout(() => setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() }), 0);
     }
   }, []);
 

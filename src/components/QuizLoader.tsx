@@ -4,7 +4,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { getUnits } from "@/utils/vocab";
 import Quiz from "./Quiz";
 import { useGamification } from "@/hooks/useGamification";
-import { useState, useEffect } from "react";
 
 interface QuizLoaderProps {
     unitId: string;
@@ -14,7 +13,6 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { stats, isInitialized } = useGamification();
-    const [hasStarted, setHasStarted] = useState(false);
 
     const sourcesStr = searchParams.get("sources");
     const mode = searchParams.get("mode");
@@ -35,12 +33,7 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
         });
     }
 
-    // Effect to track if the quiz has actually started with words
-    useEffect(() => {
-        if (unitWords.length > 0) {
-            setHasStarted(true);
-        }
-    }, [unitWords.length]);
+    const hasMistakes = unitWords.length > 0;
 
     if (!isInitialized) {
         return <div className="flex-center min-h-screen font-800">Initializing...</div>;
@@ -50,7 +43,7 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
         return <div className="flex-center" style={{ height: '100vh' }}>Unit not found or loading...</div>;
     }
 
-    if (isReviewMode && unitWords.length === 0 && !hasStarted) {
+    if (isReviewMode && !hasMistakes) {
         return (
             <div className="flex-center flex-col gap-16" style={{ height: '100vh' }}>
                 <div className="font-64">✨</div>

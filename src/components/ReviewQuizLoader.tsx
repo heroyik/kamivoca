@@ -16,7 +16,7 @@ export default function ReviewQuizLoader() {
     const [shuffledWords, setShuffledWords] = useState<VocabEntry[]>([]);
 
     useEffect(() => {
-        let words = (vocabData.data as VocabEntry[]).filter(v => 
+        const words = (vocabData.data as VocabEntry[]).filter(v => 
             missedWordList.includes(v.word)
         );
         const shuffled = [...words].sort(() => Math.random() - 0.5);
