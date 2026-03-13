@@ -191,10 +191,30 @@ const Moon: React.FC = () => {
 
 /* ─── Main WeatherBackground ─── */
 export const WeatherBackground: React.FC = () => {
-  const { type, timeOfDay, sunrise, sunset } = useWeather();
+  const { type, timeOfDay, sunrise, sunset, maxTemp, minTemp } = useWeather();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
   const frameId  = useRef<number>(0);
+
+  // Solar and Lunar Date
+  const [dates, setDates] = React.useState({ solar: '', lunar: '' });
+
+  useEffect(() => {
+    const now = new Date();
+    const solarStr = new Intl.DateTimeFormat('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short'
+    }).format(now);
+
+    const lunarStr = new Intl.DateTimeFormat('ko-KR-u-ca-chinese', {
+      month: 'numeric',
+      day: 'numeric'
+    }).format(now);
+
+    setDates({ solar: solarStr, lunar: `음력 ${lunarStr}` });
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -339,37 +359,55 @@ export const WeatherBackground: React.FC = () => {
         {type === 'THUNDER' && <ThunderOverlay />}
       </div>
 
-      {/* Sunrise / Sunset badge */}
-      {(sunrise || sunset) && (
-        <div style={{
-          position: 'fixed', bottom: '72px', right: '12px',
-          zIndex: 20, display: 'flex', flexDirection: 'column',
-          alignItems: 'flex-end', gap: '4px', pointerEvents: 'none',
-        }}>
-          {sunrise && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '4px',
-              fontSize: '11px', fontWeight: 700, letterSpacing: '0.3px',
-              color: badgeClr, background: badgeBg, borderRadius: '8px',
-              padding: '3px 8px', backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)',
-            }}>
-              🌅 {sunrise}
-            </div>
-          )}
-          {sunset && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '4px',
-              fontSize: '11px', fontWeight: 700, letterSpacing: '0.3px',
-              color: badgeClr, background: badgeBg, borderRadius: '8px',
-              padding: '3px 8px', backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)',
-            }}>
-              🌇 {sunset}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Weather and Date Information Widgets */}
+      <div style={{
+        position: 'fixed', bottom: '72px', right: '12px',
+        zIndex: 20, display: 'flex', flexDirection: 'column',
+        alignItems: 'flex-end', gap: '6px', pointerEvents: 'none',
+      }}>
+        {/* Date Badge */}
+        {dates.solar && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+            fontSize: '11px', fontWeight: 700, letterSpacing: '0.3px',
+            color: badgeClr, background: badgeBg, borderRadius: '10px',
+            padding: '5px 10px', backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+          }}>
+            <div>📅 {dates.solar}</div>
+            <div style={{ opacity: 0.8, fontSize: '10px' }}>{dates.lunar}</div>
+          </div>
+        )}
+
+        {/* Temperature Badge */}
+        {(maxTemp !== undefined || minTemp !== undefined) && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            fontSize: '11px', fontWeight: 700, letterSpacing: '0.3px',
+            color: badgeClr, background: badgeBg, borderRadius: '8px',
+            padding: '4px 10px', backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+          }}>
+            {maxTemp !== undefined && <span style={{ color: '#ff4d4d' }}>H: {Math.round(maxTemp)}°</span>}
+            {minTemp !== undefined && <span style={{ color: '#4da6ff' }}>L: {Math.round(minTemp)}°</span>}
+          </div>
+        )}
+
+        {/* Sunrise / Sunset Badge */}
+        {(sunrise || sunset) && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            fontSize: '11px', fontWeight: 700, letterSpacing: '0.3px',
+            color: badgeClr, background: badgeBg, borderRadius: '8px',
+            padding: '4px 10px', backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+          }}>
+            {sunrise && <span>🌅 {sunrise}</span>}
+            {sunset && <span>🌇 {sunset}</span>}
+          </div>
+        )}
+      </div>
     </>
   );
 };

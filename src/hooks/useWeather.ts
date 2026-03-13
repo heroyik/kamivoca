@@ -8,6 +8,8 @@ export type TimeOfDay = 'dawn' | 'day' | 'dusk' | 'night';
 interface WeatherData {
   type: WeatherType;
   temperature?: number;
+  maxTemp?: number;
+  minTemp?: number;
   timeOfDay: TimeOfDay;
   sunrise?: string; // "HH:MM" in local time
   sunset?: string;  // "HH:MM" in local time
@@ -87,7 +89,7 @@ export function useWeather(): WeatherData {
           `https://api.open-meteo.com/v1/forecast` +
           `?latitude=${lat}&longitude=${lon}` +
           `&current_weather=true` +
-          `&daily=sunrise,sunset` +
+          `&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min` +
           `&timezone=auto`
         );
         const data = await response.json();
@@ -111,6 +113,8 @@ export function useWeather(): WeatherData {
         setWeather({
           type,
           temperature: temp,
+          maxTemp: data.daily?.temperature_2m_max?.[0],
+          minTemp: data.daily?.temperature_2m_min?.[0],
           timeOfDay: tod,
           sunrise: sunriseISO ? formatHHMM(sunriseISO) : undefined,
           sunset:  sunsetISO  ? formatHHMM(sunsetISO)  : undefined,

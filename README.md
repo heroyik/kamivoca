@@ -125,11 +125,13 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - Verified furigana rendering in example sentences via automated web tests.
     - Affected files: `scripts/transform_japanese_data.mjs`, `src/data/vocab.json`, `playwright.config.ts`, `tests/vocab-levels.spec.ts`
 
-12. **Dynamic Weather Effects**
-    - Integrated the Open-Meteo API to fetch real-time weather data based on the user's location.
-    - Added a performant Canvas-based particle system (`WeatherBackground.tsx`) to render dynamic effects like Rain, Snow, and Thunder behind the main application UI.
-    - Verified mobile responsiveness and performance using Playwright on Galaxy S25 viewport settings.
-    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `src/app/layout.tsx`, `tests/weather-screenshot.spec.ts`
+12. **Dynamic Weather Effects & Date Display**
+    - Integrated Open-Meteo API to fetch real-time weather, including **high/low temperature ranges**.
+    - Implemented **Solar (Gregorian) and Lunar (Lunar/Chinese)** date display using native `Intl.DateTimeFormat`.
+    - Added a performant Canvas-based particle system (`WeatherBackground.tsx`) to render dynamic effects like Rain, Snow, and Thunder.
+    - Designed premium blurred-glass badges for a clean, non-intrusive UI in the pilgrimage background.
+    - Verified mobile responsiveness and performance on **Galaxy S25** and **iPhone** viewports.
+    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `src/app/layout.tsx`
 
 13. **UI Version Fix**
     - Updated `APP_VERSION` string in `src/lib/constants.ts` to `2.0.0` to ensure the UI visually matches the package.json version update.
