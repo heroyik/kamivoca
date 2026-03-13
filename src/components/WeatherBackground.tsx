@@ -328,8 +328,9 @@ export const WeatherBackground: React.FC = () => {
   const badgeBg  = timeOfDay === 'night' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)';
   const badgeClr = timeOfDay === 'night' ? 'rgba(255,255,255,0.78)' : 'rgba(0,0,0,0.55)';
 
-  // Hide sun/moon when raining (clouds cover sky)
-  const showCelestial = type !== 'RAIN' && type !== 'THUNDER' && type !== 'CLOUDY';
+  // Show sun/moon even if cloudy (partly cloudy/overcast in mapping),
+  // only hide during heavy rain or thunder where sky is fully covered.
+  const showCelestial = type !== 'RAIN' && type !== 'THUNDER';
 
   return (
     <>

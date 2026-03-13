@@ -140,6 +140,7 @@ The following behavior changes were implemented to improve quiz quality, map vis
 14. **Weather Display Refinement (Location & Positioning)**
     - Implemented real-time **Reverse Geocoding** using the BigDataCloud API to fetch and display the user's current city name.
     - Optimized weather widget positioning to `top: 210px`, ensuring zero overlap with celestial bodies (Sun/Moon) across all devices.
+    - Specifically refined celestial visibility logic to show the **Sun and Moon even in cloudy weather**, preserving a premium visual experience.
     - Added English city name display in a new elegant blurred-glass chip.
     - Verified layout stability on a high-fidelity **Galaxy S25** simulation.
     - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `README.md`
