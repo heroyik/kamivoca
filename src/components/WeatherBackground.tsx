@@ -201,19 +201,20 @@ export const WeatherBackground: React.FC = () => {
 
   useEffect(() => {
     const now = new Date();
-    const solarStr = new Intl.DateTimeFormat('ko-KR', {
+    // Use en-US for English formatting
+    const solarStr = new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       weekday: 'short'
     }).format(now);
 
-    const lunarStr = new Intl.DateTimeFormat('ko-KR-u-ca-chinese', {
+    const lunarStr = new Intl.DateTimeFormat('en-US-u-ca-chinese', {
       month: 'numeric',
       day: 'numeric'
     }).format(now);
 
-    setDates({ solar: solarStr, lunar: `음력 ${lunarStr}` });
+    setDates({ solar: solarStr, lunar: `Lunar ${lunarStr}` });
   }, []);
 
   useEffect(() => {
@@ -359,9 +360,9 @@ export const WeatherBackground: React.FC = () => {
         {type === 'THUNDER' && <ThunderOverlay />}
       </div>
 
-      {/* Weather and Date Information Widgets */}
+      {/* Weather and Date Information Widgets - Top Right Positioning */}
       <div style={{
-        position: 'fixed', bottom: '72px', right: '12px',
+        position: 'fixed', top: '78px', right: '12px',
         zIndex: 20, display: 'flex', flexDirection: 'column',
         alignItems: 'flex-end', gap: '6px', pointerEvents: 'none',
       }}>
@@ -373,9 +374,10 @@ export const WeatherBackground: React.FC = () => {
             color: badgeClr, background: badgeBg, borderRadius: '10px',
             padding: '5px 10px', backdropFilter: 'blur(6px)',
             WebkitBackdropFilter: 'blur(6px)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            border: `0.5px solid ${timeOfDay === 'night' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`
           }}>
-            <div>📅 {dates.solar}</div>
+            <div>{dates.solar}</div>
             <div style={{ opacity: 0.8, fontSize: '10px' }}>{dates.lunar}</div>
           </div>
         )}
