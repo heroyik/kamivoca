@@ -168,7 +168,7 @@ export function useWeather(): WeatherData {
 
         localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify(updatedWeather));
         setWeather(updatedWeather);
-      } catch (error: Error) {
+      } catch (error: unknown) {
         console.error('Failed to fetch weather/location:', error);
         // Fallback to cache if available, otherwise minimal default
         const cached = localStorage.getItem(WEATHER_CACHE_KEY);
