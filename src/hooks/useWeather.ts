@@ -13,6 +13,7 @@ interface WeatherData {
   timeOfDay: TimeOfDay;
   sunrise?: string; // "HH:MM" in local time
   sunset?: string;  // "HH:MM" in local time
+  locationName?: string;
 }
 
 /** Parse ISO datetime string (e.g. "2026-03-12T06:23") → total minutes since midnight */
@@ -85,14 +86,22 @@ export function useWeather(): WeatherData {
 
     const fetchWeather = async (lat: number, lon: number) => {
       try {
-        const response = await fetch(
+        // Fetch weather data
+        const weatherPromise = fetch(
           `https://api.open-meteo.com/v1/forecast` +
           `?latitude=${lat}&longitude=${lon}` +
           `&current_weather=true` +
           `&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min` +
           `&timezone=auto`
-        );
-        const data = await response.json();
+        ).then(res => res.json());
+
+        // Fetch location name (reverse geocoding)
+        const locationPromise = fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+        ).then(res => res.json());
+
+        const [data, locData] = await Promise.all([weatherPromise, locationPromise]);
+
         const code: number = data.current_weather.weathercode;
         const temp: number = data.current_weather.temperature;
 
@@ -110,6 +119,9 @@ export function useWeather(): WeatherData {
         else if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) type = 'SNOW';
         else if (code >= 95) type = 'THUNDER';
 
+        // Get city or locality name
+        const locationName = locData.city || locData.locality || locData.principalSubdivision || 'Unknown Location';
+
         setWeather({
           type,
           temperature: temp,
@@ -118,9 +130,10 @@ export function useWeather(): WeatherData {
           timeOfDay: tod,
           sunrise: sunriseISO ? formatHHMM(sunriseISO) : undefined,
           sunset:  sunsetISO  ? formatHHMM(sunsetISO)  : undefined,
+          locationName,
         });
       } catch (error) {
-        console.error('Failed to fetch weather:', error);
+        console.error('Failed to fetch weather/location:', error);
         setWeather({ type: 'CLEAR', timeOfDay: fallbackTimeOfDay() });
       }
     };

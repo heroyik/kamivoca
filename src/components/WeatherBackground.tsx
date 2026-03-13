@@ -191,7 +191,7 @@ const Moon: React.FC = () => {
 
 /* ─── Main WeatherBackground ─── */
 export const WeatherBackground: React.FC = () => {
-  const { type, timeOfDay, sunrise, sunset, maxTemp, minTemp } = useWeather();
+  const { type, timeOfDay, sunrise, sunset, maxTemp, minTemp, locationName } = useWeather();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
   const frameId  = useRef<number>(0);
@@ -360,12 +360,27 @@ export const WeatherBackground: React.FC = () => {
         {type === 'THUNDER' && <ThunderOverlay />}
       </div>
 
-      {/* Weather and Date Information Widgets - Top Right Positioning */}
+      {/* Weather and Date Information Widgets - Positioning Refined to avoid moon/sun overlap */}
       <div style={{
-        position: 'fixed', top: '78px', right: '12px',
+        position: 'fixed', top: '210px', right: '12px',
         zIndex: 20, display: 'flex', flexDirection: 'column',
         alignItems: 'flex-end', gap: '6px', pointerEvents: 'none',
       }}>
+        {/* Location Badge */}
+        {locationName && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            fontSize: '11px', fontWeight: 800, letterSpacing: '0.5px',
+            color: badgeClr, background: 'rgba(0,0,0,0.08)', borderRadius: '8px',
+            padding: '3px 10px', backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            border: `0.5px solid ${timeOfDay === 'night' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}`,
+            textTransform: 'uppercase'
+          }}>
+            📍 {locationName}
+          </div>
+        )}
+
         {/* Date Badge */}
         {dates.solar && (
           <div style={{
