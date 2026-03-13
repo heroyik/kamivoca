@@ -17,7 +17,7 @@ interface Particle {
 // Time-of-day sky gradient overlays
 const TIME_OVERLAYS: Record<TimeOfDay, string> = {
   dawn:  'linear-gradient(to bottom, rgba(255,140,80,0.22), rgba(255,200,140,0.10))',
-  day:   'linear-gradient(to bottom, rgba(30,140,255,0.18), rgba(100,195,255,0.10))',
+  day:   'linear-gradient(to bottom, rgba(0,120,255,0.35), rgba(80,180,255,0.20))',
   dusk:  'linear-gradient(to bottom, rgba(200,70,50,0.22), rgba(255,130,60,0.12))',
   night: 'linear-gradient(to bottom, rgba(8,12,48,0.58), rgba(4,8,28,0.44))',
 };

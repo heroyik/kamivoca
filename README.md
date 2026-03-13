@@ -1,6 +1,6 @@
-# 🇯🇵 KamiVoca (v2.0.0) - Advanced Japanese Vocabulary App
+# 🇯🇵 KamiVoca (v2.1.0) - Advanced Japanese Vocabulary App
 
-`Version 2.0.0`
+`Version 2.1.0`
 
 ---
 
@@ -141,9 +141,10 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - Implemented real-time **Reverse Geocoding** using the BigDataCloud API to fetch and display the user's current city name.
     - Optimized weather widget positioning to `top: 210px`, ensuring zero overlap with celestial bodies (Sun/Moon) across all devices.
     - Specifically refined celestial visibility logic to show the **Sun and Moon even in cloudy weather**, preserving a premium visual experience.
+    - Refined the **Daytime Background** with a more vibrant, deep blue gradient for better atmosphere.
     - Added English city name display in a new elegant blurred-glass chip.
     - Verified layout stability on a high-fidelity **Galaxy S25** simulation.
-    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `README.md`
+    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `README.md`, `src/lib/constants.ts`, `package.json`
 
 15. **Test File Cleanup**
     - Removed all temporary test scripts and Playwright test files used during debugging to keep the repository clean.
