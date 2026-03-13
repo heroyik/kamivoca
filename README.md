@@ -137,7 +137,14 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - Updated `APP_VERSION` string in `src/lib/constants.ts` to `2.0.0` to ensure the UI visually matches the package.json version update.
     - Affected files: `src/lib/constants.ts`
 
-14. **Test File Cleanup**
+14. **Weather Display Refinement (Location & Positioning)**
+    - Implemented real-time **Reverse Geocoding** using the BigDataCloud API to fetch and display the user's current city name.
+    - Optimized weather widget positioning to `top: 210px`, ensuring zero overlap with celestial bodies (Sun/Moon) across all devices.
+    - Added English city name display in a new elegant blurred-glass chip.
+    - Verified layout stability on a high-fidelity **Galaxy S25** simulation.
+    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `README.md`
+
+15. **Test File Cleanup**
     - Removed all temporary test scripts and Playwright test files used during debugging to keep the repository clean.
 
 ### 👥 Social & Engagement
