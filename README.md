@@ -45,9 +45,27 @@ A winding, interactive learning path that visually guides users through 15 diffi
 
 ### ✅ Recent Updates (2026-03)
 
-The following behavior changes were implemented to improve quiz quality, map visibility, and review consistency:
+The following behavior changes were implemented to improve leaderboard realism, provide administrative tools, and enhance profile aesthetics:
 
-1. **Restructured Example Sentences with Ruby Furigana**
+1. **Hall of Fame Seeding (Rank 2-10)**
+   - Populated the global leaderboard with 9 high-quality, diverse user profiles (Chinese, Vietnamese, American, Spanish, Korean).
+   - Seeding range: **1000 - 3000 XP**, ensuring a competitive but realistic mid-tier for the Hall of Fame.
+   - Generated **bespoke 3D avatars** using Gemini AI for 8 users, capturing their cultural essence in a premium tech style.
+   - Implemented `seed-ranks.mjs` using `firebase-admin` and the service account secret for safe, automated database population.
+   - **Migration to Firestore**: Migrated all local vocabulary datasets to Firestore to ensure persistent and scalable data management.
+   - Affected files: `scripts/seed-ranks.mjs`, `public/images/avatars/`, Firestore collections (`vocabEntries`, `fullVocaEntries`, `users`, `datasetMeta`).
+
+2. **Leaderboard Image Support for Local Paths**
+   - Updated `Leaderboard.tsx` to support both external (Firebase/Google) `http` URLs and local relative paths (starting with `/`).
+   - This ensures that local assets like generated avatars render correctly alongside authenticated user photos.
+   - Affected file: `src/components/Leaderboard.tsx`
+
+3. **gcloud CLI Provisioning (macOS Monterey)**
+   - Documented the recommended installation path for `google-cloud-sdk` via **MacPorts** (`port`) to ensure compatibility with older macOS versions.
+   - Command: `sudo port install google-cloud-sdk`
+   - Verified installation version: `Google Cloud SDK 559.0.0`
+
+4. **Restructured Example Sentences with Ruby Furigana**
    - Re-introduced example sentences in a structured `example: string[]` format.
    - Implemented `FuriganaSentence` component in `Quiz.tsx` to automatically render `Text(Furigana)` patterns into standard HTML `<ruby>` tags.
    - Integrated these examples into the quiz feedback bar for contextual learning immediately after answering.
@@ -200,8 +218,14 @@ node scripts/transform_japanese_data.mjs
 This will regenerate `src/data/vocab.json`. To sync this data to the cloud:
 
 ```bash
+# Sync standard vocabulary
 npm run sync:firestore:vocab
+
+# Sync detailed vocabulary (with furigana separation)
+npm run sync:firestore:full-voca
 ```
+
+These scripts use the **Firebase Admin SDK** and require the service account key in `secrets/`.
 
 ---
 

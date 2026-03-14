@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "sync:firestore:vocab": "node scripts/sync-firestore-vocab.mjs",
-    "data:refresh": "node scripts/regenerate_dataset_contexts.mjs && node scripts/transform_japanese_data.mjs && node scripts/sync-firestore-vocab.mjs",
+    "sync:firestore:full-voca": "node scripts/sync-full-voca.mjs",
+    "data:refresh": "node scripts/regenerate_dataset_contexts.mjs && node scripts/transform_japanese_data.mjs && node scripts/sync-firestore-vocab.mjs && node scripts/sync-full-voca.mjs",
     "test": "playwright test",
     "test:ui": "playwright test --ui"
   },

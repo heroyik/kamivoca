@@ -107,12 +107,12 @@ export default function Leaderboard() {
                             {index === 0 ? '👑' : index + 1}
                         </div>
                         <div className="user-avatar mr-12 relative" style={{
-                            backgroundColor: (entry.photoURL?.startsWith('http')) ? 'transparent' : getAvatarColor(entry.id),
+                            backgroundColor: (entry.photoURL?.startsWith('http') || entry.photoURL?.startsWith('/')) ? 'transparent' : getAvatarColor(entry.id),
                             color: 'white',
                             fontWeight: 900,
                             fontSize: '18px'
                         }}>
-                            {entry.photoURL?.startsWith('http') ? (
+                            {(entry.photoURL?.startsWith('http') || entry.photoURL?.startsWith('/')) ? (
                                 <Image
                                     src={entry.photoURL}
                                     alt={entry.displayName || "学習者"}

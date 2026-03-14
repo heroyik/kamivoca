@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * scripts/sync-firestore-vocab.mjs
+ * scripts/sync-full-voca.mjs
  *
- * Full sync of local dataset -> Firestore (Admin SDK).
+ * Full sync of local dataset (furigana separated) -> Firestore (Admin SDK).
  *
  * Source:
- * - src/data/vocab.json
+ * - voca_json/VOCA_word_furigana_separated.json
  *
  * Target:
- * - collection: vocabEntries
- * - metadata doc: datasetMeta/vocab
+ * - collection: fullVocaEntries
+ * - metadata doc: datasetMeta/fullVoca
  */
 
 import crypto from "crypto";
@@ -19,7 +19,7 @@ import { fileURLToPath } from "url";
 import admin from "firebase-admin";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const datasetPath = resolve(__dirname, "../src/data/vocab.json");
+const datasetPath = resolve(__dirname, "../voca_json/VOCA_word_furigana_separated.json");
 const serviceAccountPath = resolve(__dirname, "../secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json");
 
 // 1. Initialize Firebase Admin
@@ -44,7 +44,7 @@ function chunk(arr, size) {
 
 async function main() {
   const projectId = serviceAccount.project_id;
-  console.log(`\n🔄 Initializing sync via Admin SDK -> ${projectId}`);
+  console.log(`\n🔄 Initializing sync (Full Voca) via Admin SDK -> ${projectId}`);
 
   // 2. Load Local Data
   if (!existsSync(datasetPath)) {
@@ -53,9 +53,8 @@ async function main() {
   }
 
   const raw = readFileSync(datasetPath, "utf-8");
-  const localRaw = JSON.parse(raw);
-  const local = localRaw.data;
-  if (!Array.isArray(local)) throw new Error("Dataset 'data' field must be an array.");
+  const local = JSON.parse(raw);
+  if (!Array.isArray(local)) throw new Error("Dataset must be an array.");
 
   const localMap = new Map();
   for (const entry of local) {
@@ -69,8 +68,8 @@ async function main() {
 
   // 3. Fetch Remote State
   console.log("🔍 Fetching remote entries...");
-  const vocabCol = db.collection("vocabEntries");
-  const remoteSnap = await vocabCol.select().get(); // Only need IDs
+  const fullVocaCol = db.collection("fullVocaEntries");
+  const remoteSnap = await fullVocaCol.select().get(); // Only need IDs
   const remoteIds = new Set(remoteSnap.docs.map((d) => d.id));
   const localIds = new Set(localMap.keys());
 
@@ -84,7 +83,7 @@ async function main() {
   for (const part of chunk(upserts, 400)) {
     const batch = db.batch();
     for (const { id, entry } of part) {
-      const docRef = vocabCol.doc(id);
+      const docRef = fullVocaCol.doc(id);
       batch.set(docRef, {
         ...entry,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -101,7 +100,7 @@ async function main() {
   for (const part of chunk(deletes, 400)) {
     const batch = db.batch();
     for (const id of part) {
-      batch.delete(vocabCol.doc(id));
+      batch.delete(fullVocaCol.doc(id));
     }
     await batch.commit();
     delCount += part.length;
@@ -111,10 +110,10 @@ async function main() {
 
   // 6. Update Metadata
   const datasetHash = crypto.createHash("sha256").update(raw).digest("hex");
-  const metaRef = db.collection("datasetMeta").doc("vocab");
+  const metaRef = db.collection("datasetMeta").doc("fullVoca");
   await metaRef.set({
-    source: "src/data/vocab.json",
-    collection: "vocabEntries",
+    source: "voca_json/VOCA_word_furigana_separated.json",
+    collection: "fullVocaEntries",
     totalCount: localMap.size,
     hashSha256: datasetHash,
     syncedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -123,8 +122,8 @@ async function main() {
   console.log(`\n✅ Sync Summary:`);
   console.log(`   - Upserted: ${upserts.length}`);
   console.log(`   - Deleted:  ${deletes.length}`);
-  console.log(`   - Metadata: datasetMeta/vocab updated`);
-  console.log("\n🎉 Firestore sync completed.\n");
+  console.log(`   - Metadata: datasetMeta/fullVoca updated`);
+  console.log("\n🎉 Full Firestore sync completed.\n");
   process.exit(0);
 }
 
