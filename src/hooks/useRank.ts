@@ -34,6 +34,7 @@ export function useRank(myUid: string | null, myXP: number) {
         : myIdx + 1;
 
       setTotal(snap.size);
+      console.log("[useRank] Snapshot size:", snap.size, "Looking for UID:", myUid);
       const prev = prevRankRef.current;
       if (prev !== null && myRank < prev) {
         setRankDelta(prev - myRank); // improved by this many spots
@@ -41,6 +42,7 @@ export function useRank(myUid: string | null, myXP: number) {
         setRankDelta(null);
       }
       prevRankRef.current = myRank;
+      console.log("[useRank] Calculated rank:", myRank);
       setRank(myRank);
     } catch (e) {
       console.warn("[useRank] fetch failed:", e);

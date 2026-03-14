@@ -1,4 +1,4 @@
-# 🇯🇵 KamiVoca (v2.1.0) - Advanced Japanese Vocabulary App
+# 🇯🇵 KamiVoca (v2.2.0) - Advanced Japanese Vocabulary App
 
 `Version 2.1.0`
 
@@ -47,11 +47,11 @@ A winding, interactive learning path that visually guides users through 15 diffi
 
 The following behavior changes were implemented to improve leaderboard realism, provide administrative tools, and enhance profile aesthetics:
 
-1. **Hall of Fame Seeding (Rank 2-10)**
-   - Populated the global leaderboard with 9 high-quality, diverse user profiles (Chinese, Vietnamese, American, Spanish, Korean).
-   - Seeding range: **1000 - 3000 XP**, ensuring a competitive but realistic mid-tier for the Hall of Fame.
-   - Generated **bespoke 3D avatars** using Gemini AI for 8 users, capturing their cultural essence in a premium tech style.
-   - Implemented `seed-ranks.mjs` using `firebase-admin` and the service account secret for safe, automated database population.
+1. **Hall of Fame & Wall of Pain (Auth Fixes)**
+   - **Seeding**: Fully populated `globalWordStats` to enable the "Wall of Pain" feature.
+   - **Auth Sync**: Optimized Firestore listeners in `GamificationContext.tsx` to prevent memory leaks and ensure immediate UI updates after login.
+   - **UI Robustness**: Implemented `onError` fallbacks for all profile images, ensuring themed initials appear if images are missing or blocked.
+   - **Enhanced Logging**: Added diagnostic logs to `UserProfile.tsx` to monitor authentication transitions in real-time.
    - **Migration to Firestore**: Migrated all local vocabulary datasets to Firestore to ensure persistent and scalable data management.
    - Affected files: `scripts/seed-ranks.mjs`, `public/images/avatars/`, Firestore collections (`vocabEntries`, `fullVocaEntries`, `users`, `datasetMeta`).
 

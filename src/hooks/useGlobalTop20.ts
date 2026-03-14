@@ -85,6 +85,11 @@ export function useGlobalTop20() {
           unitNum: meta.unitNum,
         };
       });
+      if (all.length === 0) {
+        console.warn("[useGlobalTop20] No data found in globalWordStats");
+        setTop20([]);
+        return;
+      }
       all.sort((a, b) => (b.totalCount - a.totalCount) || a.word.localeCompare(b.word));
       const result = all.slice(0, 20);
       sessionCache = result;

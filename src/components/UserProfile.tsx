@@ -28,6 +28,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
     const { unlockProgress, updateSettings, updateProfile, resetProgress } = useGamification();
     const [devClickCount, setDevClickCount] = useState(0);
     const [selectedLevel, setSelectedLevel] = useState(1);
+    const [imageError, setImageError] = useState(false);
     const [adminName, setAdminName] = useState(stats.displayName || user?.displayName || '');
     const [adminPhoto, setAdminPhoto] = useState(stats.photoURL || user?.photoURL || '');
 
@@ -71,24 +72,31 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                     const localAvatar = (stats.photoURL && !stats.photoURL.startsWith('http')) ? stats.photoURL : null;
                     const displayPhoto = googlePhoto || (stats.photoURL?.startsWith('http') ? stats.photoURL : null);
                     const displayName = user?.displayName || stats.displayName || 'Guest User';
+                    
+                    console.log("[UserProfile] Render - User:", user?.uid, "Display Photo:", displayPhoto);
+                    
                     return (
                         <>
                             <div
                                 onClick={() => setDevClickCount(prev => prev + 1)}
                                 className="avatar-container"
                                 style={{
-                                    backgroundColor: displayPhoto ? 'transparent' : getAvatarColor(user?.uid || 'guest'),
+                                    backgroundColor: (displayPhoto && !imageError) ? 'transparent' : getAvatarColor(user?.uid || 'guest'),
                                     color: 'white',
                                     fontWeight: 900,
                                     fontSize: '48px'
                                 }}
                             >
-                                {displayPhoto ? (
+                                {displayPhoto && !imageError ? (
                                     <Image
                                         src={displayPhoto}
                                         alt={displayName}
                                         fill
                                         className="object-cover"
+                                        onError={() => {
+                                            console.warn("[UserProfile] Profile image failed to load, falling back to initials");
+                                            setImageError(true);
+                                        }}
                                     />
                                 ) : (
                                     <span>{getInitial(displayName)}</span>

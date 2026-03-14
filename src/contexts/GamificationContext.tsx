@@ -71,6 +71,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [stats, setStats] = useState<UserStats>(defaultStats);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // Client-side hydration
   useEffect(() => {
@@ -113,11 +114,22 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     }
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      console.log("[GamificationProvider] Auth State Changed:", currentUser?.uid || "Guest");
       setUser(currentUser);
+      
+      // Cleanup previous snapshot listener if it exists
+      if (unsubscribeRef.current) {
+        console.log("[GamificationProvider] Cleaning up old Firestore listener");
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+
       if (currentUser && db) {
         const userDocRef = doc(db, "users", currentUser.uid);
-        const unsubStats = onSnapshot(userDocRef, (snapshot) => {
+        console.log("[GamificationProvider] Starting Firestore sync for:", currentUser.uid);
+        unsubscribeRef.current = onSnapshot(userDocRef, (snapshot) => {
           if (snapshot.exists()) {
+            console.log("[GamificationProvider] User document found in Firestore");
             setStats(prev => {
               if (snapshot.metadata.hasPendingWrites) return prev;
 
@@ -146,18 +158,25 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
               return newStats;
             });
           } else {
-            // Document doesn't exist yet (new user)
+            console.log("[GamificationProvider] User document NOT found (new user)");
             setIsInitialized(true);
           }
+        }, (error) => {
+          console.error("[GamificationProvider] Snapshot error:", error);
+          setIsInitialized(true);
         });
-        return () => unsubStats();
       } else {
-        // No user or no DB
+        console.log("[GamificationProvider] No user or DB available (Guest mode)");
         setIsInitialized(true);
       }
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    };
   }, []);
 
   const syncStatsToCloud = async (newStats: UserStats, isDeletion: boolean = false) => {

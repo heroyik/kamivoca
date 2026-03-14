@@ -13,6 +13,7 @@ interface LeaderboardEntry {
     xp: number;
     gems?: number;
     broken?: boolean;
+    imageError?: boolean;
 }
 
 export default function Leaderboard() {
@@ -36,9 +37,10 @@ export default function Leaderboard() {
             }
 
             timeoutId = setTimeout(() => {
+                console.warn("[Leaderboard] Query timed out, falling back...");
                 setLeaders([]);
                 setLoading(false);
-            }, 5000);
+            }, 10000); // Increased to 10s for stability
 
             try {
                 const q = query(
@@ -47,8 +49,10 @@ export default function Leaderboard() {
                     limit(10)
                 );
 
+                console.log("[Leaderboard] Starting onSnapshot query...");
                 unsubscribe = onSnapshot(q, (snapshot) => {
                     clearTimeout(timeoutId);
+                    console.log("[Leaderboard] Snapshot received, size:", snapshot.size);
                     const entries = snapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data()
@@ -56,8 +60,9 @@ export default function Leaderboard() {
                     setLeaders(entries);
                     setLoading(false);
                 }, async (err) => {
-                    console.error("Leaderboard error:", err);
+                    console.error("[Leaderboard] Query failed:", err);
                     if (err.code === 'failed-precondition' || err.message.includes('index')) {
+                        console.log("[Leaderboard] Falling back to generic query...");
                         try {
                             const fallbackQ = query(collection(firestore, "users"), limit(50));
                             const snapshot = await getDocs(fallbackQ);
@@ -71,8 +76,10 @@ export default function Leaderboard() {
                             clearTimeout(timeoutId);
                             return;
                         } catch (fallbackErr) {
-                            console.error("Fallback query failed:", fallbackErr);
+                            console.error("[Leaderboard] Fallback query failed:", fallbackErr);
                         }
+                    } else {
+                        console.error("[Leaderboard] Unhandled error:", err.code, err.message);
                     }
                     setLeaders([]);
                     setLoading(false);
@@ -107,17 +114,21 @@ export default function Leaderboard() {
                             {index === 0 ? '👑' : index + 1}
                         </div>
                         <div className="user-avatar mr-12 relative" style={{
-                            backgroundColor: (entry.photoURL?.startsWith('http') || entry.photoURL?.startsWith('/')) ? 'transparent' : getAvatarColor(entry.id),
+                            backgroundColor: (entry.photoURL?.startsWith('http') || entry.photoURL?.startsWith('/')) && !entry.imageError ? 'transparent' : getAvatarColor(entry.id),
                             color: 'white',
                             fontWeight: 900,
                             fontSize: '18px'
                         }}>
-                            {(entry.photoURL?.startsWith('http') || entry.photoURL?.startsWith('/')) ? (
+                            {(entry.photoURL?.startsWith('http') || entry.photoURL?.startsWith('/')) && !entry.imageError ? (
                                 <Image
                                     src={entry.photoURL}
                                     alt={entry.displayName || "学習者"}
                                     fill
                                     className="object-cover rounded-full"
+                                    onError={() => {
+                                        console.warn(`[Leaderboard] Image failed for ${entry.displayName}`);
+                                        setLeaders(prev => prev.map(l => l.id === entry.id ? { ...l, imageError: true } : l));
+                                    }}
                                 />
                             ) : (
                                 <span>{getInitial(entry.displayName)}</span>
