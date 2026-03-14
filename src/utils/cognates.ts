@@ -172,10 +172,14 @@ function getJapaneseCore(entry: VocabEntry) {
     word: wordCore,
     furigana: furiganaCore,
     hasKanjiCore: /[一-龯々]/.test(wordCore),
+    strippedSuru: wordCore !== entry.word || furiganaCore !== (entry.furigana || entry.word),
   };
 }
 
-function matchesCoreKoreanCognate(entry: VocabEntry, meaningTokens: string[]) {
+// Explicit easy-cognate rule:
+// 1. Same/similar Sino-Korean core, e.g. 予測 -> 예측, 期待 -> 기대
+// 2. Same/similar core after removing する, e.g. 整頓する -> 정돈, 登校する -> 등교
+function matchesSameOrSimilarHanjaCognate(entry: VocabEntry, meaningTokens: string[]) {
   const japaneseCore = getJapaneseCore(entry);
   if (!japaneseCore.hasKanjiCore) return false;
 
@@ -201,7 +205,7 @@ export function isEasyCognate(entry: VocabEntry) {
   if (!hasJapaneseRoot(entry)) return false;
 
   const meaningTokens = getMeaningTokens(entry.meaning);
-  if (matchesCoreKoreanCognate(entry, meaningTokens)) {
+  if (matchesSameOrSimilarHanjaCognate(entry, meaningTokens)) {
     return true;
   }
 
