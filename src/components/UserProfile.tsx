@@ -52,7 +52,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
         }
     };
 
-    const toggleSetting = (key: 'soundEnabled' | 'hapticsEnabled' | 'hideFurigana' | 'unlockAllLevels') => {
+    const toggleSetting = (key: 'soundEnabled' | 'hapticsEnabled' | 'hideFurigana' | 'unlockAllLevels' | 'hideEasyCognates') => {
         if (stats.settings) {
             updateSettings({ [key]: !stats.settings[key] });
         }
@@ -286,6 +286,21 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                                 type="checkbox"
                                 checked={stats.settings?.unlockAllLevels ?? false}
                                 onChange={() => toggleSetting('unlockAllLevels')}
+                            />
+                            <span className="slider"></span>
+                        </label>
+                    </div>
+
+                    <div className="settings-item">
+                        <div className="flex flex-col">
+                            <span className="font-16 font-700">Hide Easy Cognates</span>
+                            <span className="font-12 text-secondary">Skip words that sound too close to Korean or feel too obvious</span>
+                        </div>
+                        <label className="toggle-switch">
+                            <input
+                                type="checkbox"
+                                checked={stats.settings?.hideEasyCognates ?? false}
+                                onChange={() => toggleSetting('hideEasyCognates')}
                             />
                             <span className="slider"></span>
                         </label>

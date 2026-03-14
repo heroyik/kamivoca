@@ -30,5 +30,6 @@ export const defaultTestStats: UserStats = {
     hapticsEnabled: true,
     hideFurigana: false,
     unlockAllLevels: false,
+    hideEasyCognates: false,
   },
 };

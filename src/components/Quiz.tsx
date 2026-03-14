@@ -10,6 +10,7 @@ import { X, Frown } from "lucide-react";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import { useRank } from "@/hooks/useRank";
+import { filterEasyCognates } from "@/utils/cognates";
 
 interface QuizProps {
   unitId: string;
@@ -159,20 +160,23 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
     return map;
   }, [top20]);
 
+  const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
+
   // Memoize grouped vocabulary by POS to optimize generation
   const vocabByPOS = useMemo(() => {
+    const filteredVocab = filterEasyCognates(vocabData.data as VocabEntry[], hideEasyCognates);
     const groups: Record<string, VocabEntry[]> = {
       noun: [],
       verb: [],
       adjective: [],
       other: []
     };
-    (vocabData.data as VocabEntry[]).forEach((entry: VocabEntry) => {
+    filteredVocab.forEach((entry: VocabEntry) => {
       const pos = inferPOS(entry);
       groups[pos].push(entry);
     });
     return groups;
-  }, []);
+  }, [hideEasyCognates]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { APP_VERSION, APP_NAME, BASE_PATH } from '@/lib/constants';
 import { getUnits, getTotalWordCount } from '@/utils/vocab';
+import { filterEasyCognates } from '@/utils/cognates';
 import Link from 'next/link';
 import { useGamification } from '@/hooks/useGamification';
 import { useRank } from '@/hooks/useRank';
@@ -56,7 +57,11 @@ export default function Home() {
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
 
   // Updated units calculation
-  const units = getUnits();
+  const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
+  const units = getUnits().map((unit) => ({
+    ...unit,
+    words: filterEasyCognates(unit.words, hideEasyCognates),
+  }));
   const totalWords = getTotalWordCount();
 
   const handleReviewMistakes = (e: React.MouseEvent, unitId: string) => {

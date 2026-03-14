@@ -25,6 +25,7 @@ export interface UserStats {
     hapticsEnabled: boolean;
     hideFurigana: boolean;
     unlockAllLevels: boolean;
+    hideEasyCognates: boolean;
   };
 }
 
@@ -65,6 +66,7 @@ const defaultStats: UserStats = {
     hapticsEnabled: true,
     hideFurigana: false,
     unlockAllLevels: false,
+    hideEasyCognates: false,
   },
 };
 
@@ -152,6 +154,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
                   hapticsEnabled: cloudData.settings?.hapticsEnabled ?? prev.settings?.hapticsEnabled ?? defaultStats.settings!.hapticsEnabled,
                   hideFurigana: cloudData.settings?.hideFurigana ?? prev.settings?.hideFurigana ?? defaultStats.settings!.hideFurigana,
                   unlockAllLevels: cloudData.settings?.unlockAllLevels ?? prev.settings?.unlockAllLevels ?? defaultStats.settings!.unlockAllLevels,
+                  hideEasyCognates: cloudData.settings?.hideEasyCognates ?? prev.settings?.hideEasyCognates ?? defaultStats.settings!.hideEasyCognates,
                 },
               };
 

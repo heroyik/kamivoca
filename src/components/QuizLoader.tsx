@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { getUnits } from "@/utils/vocab";
 import Quiz from "./Quiz";
 import { useGamification } from "@/hooks/useGamification";
+import { filterEasyCognates } from "@/utils/cognates";
 
 interface QuizLoaderProps {
     unitId: string;
@@ -18,7 +19,11 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
     const mode = searchParams.get("mode");
     const sources = sourcesStr ? sourcesStr.split(",") : ["1"];
 
-    const units = getUnits();
+    const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
+    const units = getUnits().map((unit) => ({
+        ...unit,
+        words: filterEasyCognates(unit.words, hideEasyCognates),
+    }));
     const unit = units.find((u) => u.id === unitId);
 
     // If review mode, filter by mistakes
@@ -49,6 +54,21 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
                 <div className="font-64">✨</div>
                 <h2 className="text-title text-duo-green">All Caught Up!</h2>
                 <p className="text-subtitle text-center px-20">You have no mistakes to review in this unit.</p>
+                <button onClick={() => router.push('/')} className="duo-button duo-button-primary w-auto px-40">GO BACK</button>
+            </div>
+        );
+    }
+
+    if (unitWords.length === 0) {
+        return (
+            <div className="flex-center flex-col gap-16" style={{ height: '100vh' }}>
+                <div className="font-64">🫥</div>
+                <h2 className="text-title text-duo-blue">No quiz words left</h2>
+                <p className="text-subtitle text-center px-20">
+                    {hideEasyCognates
+                        ? "This step only contains easy cognates right now, so they were hidden by your profile setting."
+                        : "No words are available in this step."}
+                </p>
                 <button onClick={() => router.push('/')} className="duo-button duo-button-primary w-auto px-40">GO BACK</button>
             </div>
         );
