@@ -48,6 +48,8 @@ const KOREAN_ENDINGS = [
   "되다", "되는", "되기", "적인", "적", "으로", "하다", "감", "함",
 ];
 
+const SURU_ENDINGS = ["する", "します", "した", "して", "している", "された", "される"];
+
 function japaneseToRomaji(input: string) {
   let text = hiraToKana(input).replace(/[^\u30A1-\u30FAー]/g, "");
   if (!text) return "";
@@ -152,12 +154,59 @@ function hasJapaneseRoot(entry: VocabEntry) {
   return /[一-龯ァ-ヶ々]/.test(entry.word);
 }
 
+function stripJapaneseCognateSuffix(text: string) {
+  let normalized = text.trim();
+  for (const ending of SURU_ENDINGS) {
+    if (normalized.endsWith(ending) && normalized.length > ending.length) {
+      normalized = normalized.slice(0, -ending.length);
+      break;
+    }
+  }
+  return normalized;
+}
+
+function getJapaneseCore(entry: VocabEntry) {
+  const wordCore = stripJapaneseCognateSuffix(entry.word);
+  const furiganaCore = stripJapaneseCognateSuffix(entry.furigana || entry.word);
+  return {
+    word: wordCore,
+    furigana: furiganaCore,
+    hasKanjiCore: /[一-龯々]/.test(wordCore),
+  };
+}
+
+function matchesCoreKoreanCognate(entry: VocabEntry, meaningTokens: string[]) {
+  const japaneseCore = getJapaneseCore(entry);
+  if (!japaneseCore.hasKanjiCore) return false;
+
+  const jpRomaji = japaneseToRomaji(japaneseCore.furigana);
+  const jpSkeleton = consonantSkeleton(jpRomaji);
+
+  return meaningTokens.some((token) => {
+    const koRomaji = koreanToRomaji(token);
+    const koSkeleton = consonantSkeleton(koRomaji);
+
+    const fullSimilarity = similarity(jpRomaji, koRomaji);
+    const skeletonSimilarity = similarity(jpSkeleton, koSkeleton);
+
+    return (
+      fullSimilarity >= 0.78 ||
+      (jpSkeleton.length >= 2 && jpSkeleton === koSkeleton) ||
+      (skeletonSimilarity >= 0.84 && Math.abs(jpRomaji.length - koRomaji.length) <= 2)
+    );
+  });
+}
+
 export function isEasyCognate(entry: VocabEntry) {
   if (!hasJapaneseRoot(entry)) return false;
 
+  const meaningTokens = getMeaningTokens(entry.meaning);
+  if (matchesCoreKoreanCognate(entry, meaningTokens)) {
+    return true;
+  }
+
   const jpRomaji = japaneseToRomaji(entry.furigana || entry.word);
   const jpSkeleton = consonantSkeleton(jpRomaji);
-  const meaningTokens = getMeaningTokens(entry.meaning);
 
   return meaningTokens.some((token) => {
     const koRomaji = koreanToRomaji(token);
