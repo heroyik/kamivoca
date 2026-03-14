@@ -4,6 +4,7 @@ import vocabData from '@/data/vocab.json';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { APP_VERSION, APP_NAME, BASE_PATH } from '@/lib/constants';
 import { getUnits, getTotalWordCount } from '@/utils/vocab';
 import Link from 'next/link';
@@ -14,8 +15,12 @@ import UserProfile from '@/components/UserProfile';
 import ReviewTab from '@/components/ReviewTab';
 import RankToast from '@/components/RankToast';
 import Image from 'next/image';
-import { WeatherBackground } from '@/components/WeatherBackground';
 import { Github } from 'lucide-react';
+
+const WeatherBackground = dynamic(
+  () => import('@/components/WeatherBackground').then((mod) => mod.WeatherBackground),
+  { ssr: false }
+);
 
 // Gamification Helpers
 const getLevelTier = (idx: number) => {
