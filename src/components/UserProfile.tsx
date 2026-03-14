@@ -1,7 +1,7 @@
 "use client";
 
 import { auth, googleProvider } from '@/lib/firebase';
-import { signInWithPopup, signOut } from 'firebase/auth';
+import { signInWithRedirect, signOut } from 'firebase/auth';
 import { useGamification } from '@/hooks/useGamification';
 import { UserStats } from '@/hooks/useGamification';
 import { User } from 'firebase/auth';
@@ -38,7 +38,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
         }
 
         try {
-            await signInWithPopup(auth, googleProvider);
+            await signInWithRedirect(auth, googleProvider);
         } catch (error) {
             console.error("Login failed", error);
             alert("Google Login failed. Please check your Firebase config.");

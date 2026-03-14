@@ -73,10 +73,11 @@ export default function ReviewTab() {
           </div>
 
           <div className="review-actions">
-            <Link href="/quiz/review" className="flex-1 no-underline">
-              <button className="duo-button duo-button-primary button-standard w-full button-review-pulse">
-                START REVIEW
-              </button>
+            <Link
+              href="/quiz/review"
+              className="flex-1 no-underline duo-button duo-button-primary button-standard w-full button-review-pulse flex-center"
+            >
+              START REVIEW
             </Link>
             <button
               onClick={() => clearAllMistakes()}

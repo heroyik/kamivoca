@@ -226,30 +226,27 @@ export default function Home() {
                 <Link
                   href={isLocked ? '#' : `/quiz/${unit.id}`}
                   onClick={(e) => isLocked && e.preventDefault()}
-                  className="no-underline"
+                  className={`no-underline unit-button ${combinedClass}`}
+                  aria-disabled={isLocked}
                 >
-                  <button
-                    className={`unit-button ${combinedClass}`}
-                  >
-                    {getUnitIcon(index, isLocked, isCompleted, isMastered)}
+                  {getUnitIcon(index, isLocked, isCompleted, isMastered)}
 
-                    {showFailBadge && (
-                      <div 
-                        className="fail-badge-dual" 
-                        onClick={e => handleReviewMistakes(e, unit.id)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <div className="fail-badge-circle" />
-                        <span className="fail-badge-count">{failCount}</span>
-                      </div>
-                    )}
+                  {showFailBadge && (
+                    <div
+                      className="fail-badge-dual"
+                      onClick={e => handleReviewMistakes(e, unit.id)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="fail-badge-circle" />
+                      <span className="fail-badge-count">{failCount}</span>
+                    </div>
+                  )}
 
-                    {isCurrent && (
-                      <div className="start-indicator">
-                        START!
-                      </div>
-                    )}
-                  </button>
+                  {isCurrent && (
+                    <div className="start-indicator">
+                      START!
+                    </div>
+                  )}
                 </Link>
 
                 <div className={`unit-label-card tier-${tier}`} style={{
