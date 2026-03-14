@@ -19,28 +19,126 @@ interface QuizProps {
   isReview?: boolean;
 }
 
+function isKanji(char: string) {
+  return /[一-龯々ヶヵ]/.test(char);
+}
+
+function isKana(char: string) {
+  return /[ぁ-ゖァ-ヺー]/.test(char);
+}
+
+function isJapaneseWordChar(char: string) {
+  return isKanji(char) || isKana(char);
+}
+
+function isParticleBridge(text: string) {
+  return /[はがをにでとものへや]/.test(text);
+}
+
+function extractRubyBase(text: string, reading: string) {
+  let runStart = text.length;
+  while (runStart > 0 && isJapaneseWordChar(text[runStart - 1])) {
+    runStart -= 1;
+  }
+
+  const run = text.slice(runStart);
+  if (!run) {
+    return { prefix: text, base: "" };
+  }
+
+  const lastKanjiOffset = Math.max(...Array.from(run).map((char, idx) => (isKanji(char) ? idx : -1)));
+  if (lastKanjiOffset < 0) {
+    return { prefix: text, base: run };
+  }
+
+  let baseStart = lastKanjiOffset;
+  while (baseStart > 0 && isKanji(run[baseStart - 1])) {
+    baseStart -= 1;
+  }
+
+  // Expand left across short kana bridges only when they connect to another kanji block.
+  while (baseStart > 0) {
+    let cursor = baseStart;
+    let kanaCount = 0;
+
+    while (cursor > 0 && isKana(run[cursor - 1]) && kanaCount < 2) {
+      cursor -= 1;
+      kanaCount += 1;
+    }
+
+    const bridge = run.slice(cursor, baseStart);
+    if (isParticleBridge(bridge)) {
+      break;
+    }
+
+    if (cursor === baseStart || cursor === 0 || !isKanji(run[cursor - 1])) {
+      break;
+    }
+
+    while (cursor > 0 && isKanji(run[cursor - 1])) {
+      cursor -= 1;
+    }
+
+    baseStart = cursor;
+  }
+
+  // Include leading kana only when it is explicitly reflected in the reading.
+  let leadingKanaStart = baseStart;
+  while (leadingKanaStart > 0 && isKana(run[leadingKanaStart - 1])) {
+    leadingKanaStart -= 1;
+  }
+
+  const leadingKana = run.slice(leadingKanaStart, baseStart);
+  if (leadingKana && reading.startsWith(leadingKana)) {
+    baseStart = leadingKanaStart;
+  }
+
+  return {
+    prefix: text.slice(0, runStart + baseStart),
+    base: run.slice(baseStart),
+  };
+}
+
 function FuriganaSentence({ text }: { text: string }) {
-  // Regex to match "Word(Furigana)"
-  // Specifically looks for something like 漢字(かんじ) or 食べる(たべる)
-  // We use a splitting regex to keep the matches
-  const parts = text.split(/([^\s(]+\([^\s)]+\))/g);
-  
-  return (
-    <span>
-      {parts.map((part, i) => {
-        const match = part.match(/^(.+)\((.+)\)$/);
-        if (match) {
-          return (
-            <ruby key={i}>
-              {match[1]}
-              <rt>{match[2]}</rt>
-            </ruby>
-          );
-        }
-        return <span key={i}>{part}</span>;
-      })}
-    </span>
-  );
+  const nodes: React.ReactNode[] = [];
+  let cursor = 0;
+
+  while (cursor < text.length) {
+    const openIndex = text.indexOf("(", cursor);
+    if (openIndex === -1) {
+      nodes.push(<span key={`plain-${cursor}`}>{text.slice(cursor)}</span>);
+      break;
+    }
+
+    const closeIndex = text.indexOf(")", openIndex + 1);
+    if (closeIndex === -1) {
+      nodes.push(<span key={`plain-${cursor}`}>{text.slice(cursor)}</span>);
+      break;
+    }
+
+    const reading = text.slice(openIndex + 1, closeIndex).trim();
+    const before = text.slice(cursor, openIndex);
+    const { prefix, base } = extractRubyBase(before, reading);
+
+    if (prefix) {
+      nodes.push(<span key={`plain-${cursor}`}>{prefix}</span>);
+    }
+
+    if (base && reading) {
+      nodes.push(
+        <ruby key={`ruby-${openIndex}`} className="furigana-ruby">
+          <span className="furigana-base">{base}</span>
+          <rt className="furigana-rt">{reading}</rt>
+        </ruby>,
+      );
+    } else {
+      nodes.push(<span key={`fallback-${openIndex}`}>{before}({reading})</span>);
+    }
+
+    cursor = closeIndex + 1;
+  }
+
+  return <span className="furigana-sentence">{nodes}</span>;
 }
 
 export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }: QuizProps) {
@@ -362,7 +460,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
           className={`quiz-feedback-bar ${isCorrect ? 'correct' : 'incorrect'}`}
           style={isUnknown ? { background: "#fff0f0", borderColor: "#fecaca" } : undefined}
         >
-          <div className="container flex-between">
+          <div className="container flex-between quiz-feedback-content">
             <div className="flex flex-col items-start">
               <div>
                 {/* 6.3 — Friendlier message for "unknown" answer */}
@@ -412,7 +510,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
             </div>
             <button
               onClick={handleNext}
-              className={`duo-button w-auto px-40 py-12 ${isCorrect ? 'duo-button-primary' : ''}`}
+              className={`duo-button w-auto px-40 py-12 quiz-feedback-next ${isCorrect ? 'duo-button-primary' : ''}`}
               style={{
                 backgroundColor: isCorrect ? 'var(--duo-green)' : 'var(--kv-kurenai)',
                 color: 'white',

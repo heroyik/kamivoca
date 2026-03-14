@@ -71,6 +71,30 @@ button {
   font-family: inherit;
 }
 
+ruby.furigana-ruby {
+  ruby-align: center;
+  ruby-position: over;
+}
+
+.furigana-sentence {
+  display: inline;
+  line-height: 2.05;
+  word-break: keep-all;
+}
+
+.furigana-base {
+  display: inline;
+}
+
+rt.furigana-rt {
+  font-size: 0.52em;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: #555;
+  user-select: none;
+}
+
 /* Common Layout Utilities */
 .container {
   width: 100%;
@@ -360,6 +384,17 @@ button {
 .quiz-feedback-bar.incorrect {
   background-color: #fff0f0;
   border-color: var(--kv-kurenai);
+}
+
+.quiz-feedback-content {
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.quiz-feedback-next {
+  align-self: flex-start;
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 /* Page Layout Styles */
