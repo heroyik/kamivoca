@@ -419,22 +419,11 @@ rt.furigana-rt {
     min-height: 132px;
   }
 
-  .quiz-step-badge-mobile {
-    display: inline-flex;
-    position: absolute;
+  .quiz-unit-badge {
     top: 12px;
-    left: 14px;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: #edf7ff;
-    color: var(--duo-blue);
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    box-shadow: 0 2px 0 rgba(22, 94, 131, 0.12);
+    left: 12px;
+    padding: 2px 8px;
+    font-size: 11px;
   }
 
   .quiz-card .text-main-title,
@@ -564,6 +553,25 @@ rt.furigana-rt {
   text-align: center;
   min-height: 120px;
   margin-bottom: 24px;
+}
+
+.quiz-unit-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #edf7ff;
+  color: var(--duo-blue);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 rgba(22, 94, 131, 0.12);
+  z-index: 10;
 }
 
 .quiz-step-badge-mobile {

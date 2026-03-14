@@ -390,7 +390,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
 
         <div className="quiz-card mb-32">
           {unitTitle && (
-            <div className="quiz-step-badge-mobile">
+            <div className="quiz-unit-badge" aria-label={`Current unit ${unitTitle}`}>
               {unitTitle}
             </div>
           )}
