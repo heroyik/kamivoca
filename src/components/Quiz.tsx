@@ -45,7 +45,7 @@ function FuriganaSentence({ text }: { text: string }) {
 
 export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }: QuizProps) {
   const router = useRouter();
-  const { addXP, addGem, addMistake, completeUnit, user, stats, removeMistake } = useGamification();
+  const { addXP, addGem, addMistake, completeUnit, user, stats } = useGamification();
 
   // Sound hook — preloaded + Chrome Android unlock
   const { play: playSound } = useSound(stats.settings?.soundEnabled ?? true);
@@ -139,10 +139,6 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
       setComboCount(newCombo);
       setScore(prev => prev + 1);
       addXP(10);
-
-      if (initiallyWasMistake) {
-        removeMistake(questions[currentIndex].word);
-      }
 
       if (newCombo >= 3) {
         playSound("cheer");
