@@ -10,22 +10,14 @@ import { useState } from 'react';
 import { getUnits } from '@/utils/vocab';
 import { getAvatarColor, getInitial } from '@/utils/ui';
 import { isUnsupportedIAB, redirectToExternalBrowser } from '@/utils/browser';
-import { BASE_PATH } from '@/lib/constants';
 
 interface UserProfileProps {
     user: User | null;
     stats: UserStats;
 }
 
-const AVATARS = [
-    '/images/avatars/samurai.png',
-    '/images/avatars/ninja.png',
-    '/images/avatars/geisha.png',
-    '/images/avatars/shiba_inu.png'
-];
-
 export default function UserProfile({ user, stats }: UserProfileProps) {
-    const { unlockProgress, updateSettings, updateProfile, resetProgress } = useGamification();
+    const { unlockProgress, updateSettings, updateProfile, resetProgress, resetLocalState } = useGamification();
     const [devClickCount, setDevClickCount] = useState(0);
     const [selectedLevel, setSelectedLevel] = useState(1);
     const [imageError, setImageError] = useState(false);
@@ -53,8 +45,11 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
         }
     };
 
-    const handleLogout = () => {
-        if (auth) signOut(auth);
+    const handleLogout = async () => {
+        resetLocalState();
+        if (auth) {
+            await signOut(auth);
+        }
     };
 
     const toggleSetting = (key: 'soundEnabled' | 'hapticsEnabled' | 'hideFurigana' | 'unlockAllLevels') => {
@@ -69,7 +64,6 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                 {/* Unified Profile Header */}
                 {(() => {
                     const googlePhoto = user?.photoURL;
-                    const localAvatar = (stats.photoURL && !stats.photoURL.startsWith('http')) ? stats.photoURL : null;
                     const displayPhoto = googlePhoto || (stats.photoURL?.startsWith('http') ? stats.photoURL : null);
                     const displayName = user?.displayName || stats.displayName || 'Guest User';
                     
@@ -104,21 +98,6 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                             </div>
                             <h2 className="font-24 font-900 text-main mb-4">{displayName}</h2>
                             <p className="text-secondary font-700 mb-16">日本語学習者 🇯🇵</p>
-
-                            {/* Avatar Grid - only show when no Google photo available */}
-                            {!googlePhoto && (
-                                <div className="avatar-grid flex justify-start sm:justify-center gap-12 py-16 px-16 overflow-x-auto no-scrollbar">
-                                    {AVATARS.map((avatar, idx) => (
-                                        <div
-                                            key={idx}
-                                            onClick={() => updateProfile({ photoURL: avatar })}
-                                            className={`relative w-48 h-48 rounded-full overflow-hidden cursor-pointer border-2 ${localAvatar === avatar ? 'border-duo-green' : 'border-transparent'}`}
-                                        >
-                                            <Image src={`${BASE_PATH}${avatar}`} alt={`Avatar ${idx}`} fill className="object-cover" />
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
                         </>
                     );
                 })()}

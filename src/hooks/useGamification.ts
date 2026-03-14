@@ -23,8 +23,8 @@ export function useGamification() {
     clearAllMistakes: context.clearAllMistakes,
     updateSettings: context.updateSettings,
     updateProfile: context.updateProfile,
-    resetProgress: context.resetProgress
+    resetProgress: context.resetProgress,
+    resetLocalState: context.resetLocalState
   };
 }
-
 

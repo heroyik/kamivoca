@@ -44,6 +44,7 @@ interface GamificationContextType {
   updateSettings: (settings: Partial<NonNullable<UserStats['settings']>>) => void;
   updateProfile: (profile: Partial<Pick<UserStats, 'displayName' | 'photoURL'>>) => void;
   resetProgress: () => void;
+  resetLocalState: () => void;
 }
 
 
@@ -211,6 +212,18 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     syncStatsToCloud(newStats, isDeletion);
   };
 
+  const resetLocalState = () => {
+    statsRef.current = defaultStats;
+    setStats(defaultStats);
+    setUser(null);
+    setIsInitialized(true);
+
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("kamivoca_stats");
+      localStorage.removeItem("weather_cache");
+    }
+  };
+
   const addXP = (amount: number) => {
     saveStatsLocally({ ...statsRef.current, xp: statsRef.current.xp + amount });
   };
@@ -369,7 +382,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       addGem,
       updateSettings,
       updateProfile,
-      resetProgress
+      resetProgress,
+      resetLocalState
     }}>
       {children}
     </GamificationContext.Provider>
