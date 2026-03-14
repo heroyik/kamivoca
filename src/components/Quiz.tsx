@@ -144,7 +144,7 @@ function FuriganaSentence({ text }: { text: string }) {
 
 export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }: QuizProps) {
   const router = useRouter();
-  const { addXP, addGem, addMistake, completeUnit, user, stats } = useGamification();
+  const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, markManualCognite } = useGamification();
 
   // Sound hook — preloaded + Chrome Android unlock
   const { play: playSound } = useSound(stats.settings?.soundEnabled ?? true);
@@ -164,7 +164,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
 
   // Memoize grouped vocabulary by POS to optimize generation
   const vocabByPOS = useMemo(() => {
-    const filteredVocab = filterEasyCognates(vocabData.data as VocabEntry[], hideEasyCognates);
+    const filteredVocab = filterEasyCognates(vocabData.data as VocabEntry[], hideEasyCognates, manualCogniteIds);
     const groups: Record<string, VocabEntry[]> = {
       noun: [],
       verb: [],
@@ -176,7 +176,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
       groups[pos].push(entry);
     });
     return groups;
-  }, [hideEasyCognates]);
+  }, [hideEasyCognates, manualCogniteIds]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -355,6 +355,8 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
   const progress = ((currentIndex) / questions.length) * 100;
   const painRank = wallOfPainMap.get(currentQuestion.word);
   const isUnknown = selectedOption === "UNKNOWN";
+  const isAdminUser = user?.email === "heroyik@gmail.com";
+  const isManuallyMarkedCognite = manualCogniteIds.includes(currentQuestion.id);
 
   return (
     <div className="container flex flex-col min-h-screen p-20-120 relative">
@@ -399,6 +401,16 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
             <div className="jlpt-badge-quiz smaller" data-testid="jlpt-badge">
               {questions[currentIndex].jlpt}
             </div>
+          )}
+          {isAdminUser && (
+            <button
+              type="button"
+              className={`quiz-cognite-button ${isManuallyMarkedCognite ? "is-active" : ""}`}
+              disabled={isManuallyMarkedCognite}
+              onClick={() => void markManualCognite(currentQuestion.id)}
+            >
+              {isManuallyMarkedCognite ? "COGNITE Y" : "COGNITE"}
+            </button>
           )}
           <div className="text-main-title text-kv-kurenai mb-4">
             {currentQuestion.word}

@@ -13,7 +13,7 @@ interface QuizLoaderProps {
 export default function QuizLoader({ unitId }: QuizLoaderProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { stats, isInitialized } = useGamification();
+    const { stats, isInitialized, manualCogniteIds } = useGamification();
 
     const sourcesStr = searchParams.get("sources");
     const mode = searchParams.get("mode");
@@ -22,7 +22,7 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
     const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
     const units = getUnits().map((unit) => ({
         ...unit,
-        words: filterEasyCognates(unit.words, hideEasyCognates),
+        words: filterEasyCognates(unit.words, hideEasyCognates, manualCogniteIds),
     }));
     const unit = units.find((u) => u.id === unitId);
 

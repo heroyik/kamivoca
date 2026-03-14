@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, onSnapshot, increment, setDoc as fsSetDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, serverTimestamp, increment } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 export interface UserStats {
@@ -31,6 +31,7 @@ export interface UserStats {
 
 interface GamificationContextType {
   user: User | null;
+  manualCogniteIds: string[];
   stats: UserStats;
   isInitialized: boolean;
   addXP: (amount: number) => void;
@@ -44,6 +45,7 @@ interface GamificationContextType {
   addGem: (amount: number) => void;
   updateSettings: (settings: Partial<NonNullable<UserStats['settings']>>) => void;
   updateProfile: (profile: Partial<Pick<UserStats, 'displayName' | 'photoURL'>>) => void;
+  markManualCognite: (entryId: string) => Promise<void>;
   resetProgress: () => void;
   resetLocalState: () => void;
 }
@@ -72,6 +74,7 @@ const defaultStats: UserStats = {
 
 export function GamificationProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [manualCogniteIds, setManualCogniteIds] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [stats, setStats] = useState<UserStats>(defaultStats);
   const unsubscribeRef = useRef<(() => void) | null>(null);
@@ -101,6 +104,22 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
         }
       }
     }
+  }, []);
+
+  useEffect(() => {
+    if (!db) {
+      setManualCogniteIds([]);
+      return;
+    }
+
+    const cogniteQuery = query(collection(db, "vocabEntries"), where("is_cognite", "==", "y"));
+    const unsubscribe = onSnapshot(cogniteQuery, (snapshot) => {
+      setManualCogniteIds(snapshot.docs.map((docSnap) => docSnap.id));
+    }, (error) => {
+      console.error("[GamificationProvider] Manual cognite sync failed", error);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const statsRef = useRef(stats);
@@ -307,7 +326,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     // Fire-and-forget: increment global word fail count in Firestore
     if (db) {
       const wordRef = doc(db, "globalWordStats", encodeURIComponent(word));
-      fsSetDoc(wordRef, { failCount: increment(1), word: word }, { merge: true })
+      setDoc(wordRef, { failCount: increment(1), word: word }, { merge: true })
         .catch((e) => console.warn("[GlobalStats] Failed to increment:", e));
     }
   };
@@ -357,6 +376,20 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     saveStatsLocally(updatedStats);
   };
 
+  const markManualCognite = async (entryId: string) => {
+    if (!db) {
+      console.warn("[GamificationProvider] Firestore is not available for manual cognites");
+      return;
+    }
+
+    await setDoc(doc(db, "vocabEntries", entryId), {
+      is_cognite: "y",
+      cogniteUpdatedAt: serverTimestamp(),
+    }, { merge: true });
+
+    setManualCogniteIds((prev) => (prev.includes(entryId) ? prev : [...prev, entryId]));
+  };
+
   const resetProgress = () => {
     const updatedStats: UserStats = {
       ...statsRef.current,
@@ -372,6 +405,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   return (
     <GamificationContext.Provider value={{
       user,
+      manualCogniteIds,
       stats,
       isInitialized,
       addXP,
@@ -385,6 +419,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       addGem,
       updateSettings,
       updateProfile,
+      markManualCognite,
       resetProgress,
       resetLocalState
     }}>

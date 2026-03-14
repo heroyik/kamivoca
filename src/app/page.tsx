@@ -52,7 +52,7 @@ const getMotivationalSticker = (idx: number) => {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile'>('learn');
-  const { stats, user } = useGamification();
+  const { stats, user, manualCogniteIds } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
 
@@ -60,7 +60,7 @@ export default function Home() {
   const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
   const units = getUnits().map((unit) => ({
     ...unit,
-    words: filterEasyCognates(unit.words, hideEasyCognates),
+    words: filterEasyCognates(unit.words, hideEasyCognates, manualCogniteIds),
   }));
   const totalWords = getTotalWordCount();
 

@@ -227,7 +227,12 @@ export function isEasyCognate(entry: VocabEntry) {
   });
 }
 
-export function filterEasyCognates(entries: VocabEntry[], hideEasyCognates: boolean) {
+export function filterEasyCognates(
+  entries: VocabEntry[],
+  hideEasyCognates: boolean,
+  manualCogniteIds: Iterable<string> = [],
+) {
   if (!hideEasyCognates) return entries;
-  return entries.filter((entry) => !isEasyCognate(entry));
+  const manualIdSet = new Set(manualCogniteIds);
+  return entries.filter((entry) => !manualIdSet.has(entry.id) && !isEasyCognate(entry));
 }

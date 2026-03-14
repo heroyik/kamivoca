@@ -10,6 +10,7 @@ export function useGamification() {
   // Map context to existing hook interface for backward compatibility
   return {
     user: context.user,
+    manualCogniteIds: context.manualCogniteIds,
     stats: context.stats,
     isInitialized: context.isInitialized,
     addXP: context.addXP,
@@ -23,8 +24,8 @@ export function useGamification() {
     clearAllMistakes: context.clearAllMistakes,
     updateSettings: context.updateSettings,
     updateProfile: context.updateProfile,
+    markManualCognite: context.markManualCognite,
     resetProgress: context.resetProgress,
     resetLocalState: context.resetLocalState
   };
 }
-
