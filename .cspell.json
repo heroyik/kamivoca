@@ -75,7 +75,11 @@
     "Nihongo",
     "distractor",
     "Distractor",
-    "áéíóúñ"
+    "áéíóúñ",
+    "Mizuki",
+    "Meteo",
+    "geolocation",
+    "venv"
   ],
   "ignorePaths": [
     "node_modules",
