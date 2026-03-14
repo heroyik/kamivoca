@@ -191,7 +191,7 @@ const Moon: React.FC = () => {
 
 /* ─── Main WeatherBackground ─── */
 export const WeatherBackground: React.FC = () => {
-  const { type, timeOfDay, sunrise, sunset, maxTemp, minTemp, locationName, updateStep } = useWeather();
+  const { type, timeOfDay, sunrise, sunset, maxTemp, minTemp, locationName, updateStep, refresh } = useWeather();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
   const frameId  = useRef<number>(0);
@@ -426,7 +426,7 @@ export const WeatherBackground: React.FC = () => {
       </div>
 
       {/* Weather Update Progress Visualization */}
-      <WeatherUpdateProgress step={updateStep} timeOfDay={timeOfDay} />
+      <WeatherUpdateProgress step={updateStep} timeOfDay={timeOfDay} onRetry={refresh} />
     </>
   );
 };
@@ -456,7 +456,11 @@ const ThunderOverlay: React.FC = () => {
 };
 
 /* ─── Weather Update Progress Visualization ─── */
-const WeatherUpdateProgress: React.FC<{ step: UpdateStep; timeOfDay: TimeOfDay }> = ({ step, timeOfDay }) => {
+const WeatherUpdateProgress: React.FC<{ 
+  step: UpdateStep; 
+  timeOfDay: TimeOfDay;
+  onRetry: () => void;
+}> = ({ step, timeOfDay, onRetry }) => {
   if (step === 'COMPLETED' || step === 'IDLE') return null;
 
   const labels: Record<UpdateStep, string> = {
@@ -465,13 +469,16 @@ const WeatherUpdateProgress: React.FC<{ step: UpdateStep; timeOfDay: TimeOfDay }
     FETCHING_WEATHER: 'Fetching Weather...',
     FETCHING_LOCATION: 'Detecting City...',
     COMPLETED: 'Done',
-    FAILED: 'Update Failed'
+    FAILED: 'Update Failed',
+    DENIED: 'Location Denied'
   };
 
   const isNight = timeOfDay === 'night';
   const textColor = isNight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)';
   const barColor = isNight ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)';
   const progressColor = isNight ? '#fff' : '#4da6ff';
+
+  const isError = step === 'FAILED' || step === 'DENIED';
 
   // Simple progress % based on step
   const progressMap: Record<UpdateStep, number> = {
@@ -480,23 +487,32 @@ const WeatherUpdateProgress: React.FC<{ step: UpdateStep; timeOfDay: TimeOfDay }
     FETCHING_WEATHER: 50,
     FETCHING_LOCATION: 80,
     COMPLETED: 100,
-    FAILED: 100
+    FAILED: 100,
+    DENIED: 100
   };
 
   return (
-    <div style={{
-      position: 'fixed', bottom: '32px', left: '50%',
-      transform: 'translateX(-50%)', zIndex: 1000,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
-      pointerEvents: 'none', width: '180px'
-    }}>
+    <div 
+      onClick={() => isError && onRetry()}
+      style={{
+        position: 'fixed', bottom: '32px', left: '50%',
+        transform: 'translateX(-50%)', zIndex: 1000,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+        pointerEvents: isError ? 'auto' : 'none', 
+        width: '180px',
+        cursor: isError ? 'pointer' : 'default',
+        transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+      }}
+      onMouseEnter={(e) => isError && (e.currentTarget.style.transform = 'translateX(-50%) scale(1.05)')}
+      onMouseLeave={(e) => isError && (e.currentTarget.style.transform = 'translateX(-50%) scale(1)')}
+    >
       <div style={{
         fontSize: '11px', fontWeight: 900, color: textColor,
         textTransform: 'uppercase', letterSpacing: '1.5px',
         textShadow: isNight ? '0 2px 8px rgba(0,0,0,0.6)' : '0 1px 3px rgba(255,255,255,0.8)',
         animation: 'pulse-text 2s ease-in-out infinite'
       }}>
-        {labels[step]}
+        {labels[step]} {isError && ' ↻'}
       </div>
       <div style={{
         width: '100%', height: '4px', background: barColor,
@@ -506,11 +522,11 @@ const WeatherUpdateProgress: React.FC<{ step: UpdateStep; timeOfDay: TimeOfDay }
       }}>
         <div style={{
           width: `${progressMap[step]}%`, height: '100%',
-          background: step === 'FAILED' ? '#ff4d4d' : `linear-gradient(90deg, ${progressColor}, #fff)`,
+          background: isError ? '#ff4d4d' : `linear-gradient(90deg, ${progressColor}, #fff)`,
           backgroundSize: '200% 100%',
           animation: 'shimmer 1.5s infinite linear',
           transition: 'width 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
-          boxShadow: step === 'FAILED' ? 'none' : `0 0 10px ${progressColor}`
+          boxShadow: isError ? '0 0 8px rgba(255,77,77,0.4)' : `0 0 10px ${progressColor}`
         }} />
       </div>
       <style>{`

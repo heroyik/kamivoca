@@ -162,6 +162,14 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - Optimized to only appear when necessary and disappear smoothly upon completion or failure.
     - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`
 
+18. **Weather Update Failure Handling & Interactive Retry**
+    - Enhanced the weather progress bar to handle failures gracefully, displaying "UPDATE FAILED ↻" or "LOCATION DENIED ↻".
+    - Implemented **Interactive Retry**: Users can click the progress bar during a failed state to manually re-trigger the weather/location update.
+    - Integrated **Auto-Dismissal Logic**: Completion messages disappear after 5s, while failure messages persist for 8s (if not interacted with) to maintain a clean UI.
+    - Optimized `useWeather` hook with improved TypeScript safety and resolved lint errors (`npm run build` verified).
+    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`
+
+
 ### 👥 Social & Engagement
 
 - **Home (巡礼)**: Core learning path and Pilgrimage maps.
