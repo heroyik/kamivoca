@@ -155,6 +155,13 @@ The following behavior changes were implemented to improve quiz quality, map vis
     - Optimized React component lifecycle to prevent redundant state updates and improve performance.
     - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `src/app/page.tsx`
 
+17. **Weather Update Progress Visualization**
+    - Implemented a sleek, animated progress bar that appears at the bottom center of the screen during weather and location updates.
+    - Provides real-time status messages (e.g., "Locating...", "Fetching Weather...", "Detecting City...").
+    - Features premium animations, including a shimmer effect and a subtle pulse on the status text.
+    - Optimized to only appear when necessary and disappear smoothly upon completion or failure.
+    - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`
+
 ### 👥 Social & Engagement
 
 - **Home (巡礼)**: Core learning path and Pilgrimage maps.

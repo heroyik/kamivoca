@@ -319,7 +319,7 @@ export const WeatherBackground: React.FC = () => {
     };
   }, [type]);
 
-  if (type === 'LOADING') return null;
+  // if (type === 'LOADING') return null; // Removed to allow progress visualization
 
   const overlay  = TIME_OVERLAYS[timeOfDay];
   const tint     = TIME_TINT[timeOfDay];
@@ -485,30 +485,44 @@ const WeatherUpdateProgress: React.FC<{ step: UpdateStep; timeOfDay: TimeOfDay }
 
   return (
     <div style={{
-      position: 'fixed', bottom: '24px', left: '50%',
-      transform: 'translateX(-50%)', zIndex: 50,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-      pointerEvents: 'none', width: '120px'
+      position: 'fixed', bottom: '32px', left: '50%',
+      transform: 'translateX(-50%)', zIndex: 1000,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+      pointerEvents: 'none', width: '180px'
     }}>
       <div style={{
-        fontSize: '10px', fontWeight: 800, color: textColor,
-        textTransform: 'uppercase', letterSpacing: '1px',
-        textShadow: isNight ? '0 1px 4px rgba(0,0,0,0.4)' : 'none'
+        fontSize: '11px', fontWeight: 900, color: textColor,
+        textTransform: 'uppercase', letterSpacing: '1.5px',
+        textShadow: isNight ? '0 2px 8px rgba(0,0,0,0.6)' : '0 1px 3px rgba(255,255,255,0.8)',
+        animation: 'pulse-text 2s ease-in-out infinite'
       }}>
         {labels[step]}
       </div>
       <div style={{
-        width: '100%', height: '3px', background: barColor,
-        borderRadius: '2px', overflow: 'hidden', backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)'
+        width: '100%', height: '4px', background: barColor,
+        borderRadius: '4px', overflow: 'hidden', backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        boxShadow: isNight ? '0 0 15px rgba(255,255,255,0.05)' : '0 0 15px rgba(0,0,0,0.03)'
       }}>
         <div style={{
           width: `${progressMap[step]}%`, height: '100%',
-          background: step === 'FAILED' ? '#ff4d4d' : progressColor,
-          transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-          boxShadow: step === 'FAILED' ? 'none' : `0 0 8px ${progressColor}`
+          background: step === 'FAILED' ? '#ff4d4d' : `linear-gradient(90deg, ${progressColor}, #fff)`,
+          backgroundSize: '200% 100%',
+          animation: 'shimmer 1.5s infinite linear',
+          transition: 'width 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
+          boxShadow: step === 'FAILED' ? 'none' : `0 0 10px ${progressColor}`
         }} />
       </div>
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        @keyframes pulse-text {
+          0%, 100% { opacity: 0.7; transform: scale(0.98); }
+          50% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 };
