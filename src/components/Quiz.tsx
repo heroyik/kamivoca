@@ -376,19 +376,24 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
       {/* Hearts Visualization */}
       <div className="flex justify-center gap-4 mb-24">
         {Array.from({ length: 5 }).map((_, i) => (
-          <span key={i} className={`font-24 transition-transform ${i < hearts ? 'scale-100' : 'scale-75 opacity-20 grayscale'}`} style={{ filter: i < hearts ? 'drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3))' : 'none' }}>
+          <span key={i} className={`quiz-hearts font-24 transition-transform ${i < hearts ? 'scale-100' : 'scale-75 opacity-20 grayscale'}`} style={{ filter: i < hearts ? 'drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3))' : 'none' }}>
             🌸
           </span>
         ))}
       </div>
 
       <div className="flex-1">
-        <h2 className="text-title mb-32">
+        <h2 className="quiz-prompt text-title mb-32">
           {unitTitle && <span className="text-duo-blue mr-8">{unitTitle}:</span>}
           What does this word mean?
         </h2>
 
         <div className="quiz-card mb-32">
+          {unitTitle && (
+            <div className="quiz-step-badge-mobile">
+              {unitTitle}
+            </div>
+          )}
           {/* JLPT Level Badge inside Card */}
           {questions.length > 0 && questions[currentIndex] && (
             <div className="jlpt-badge-quiz smaller" data-testid="jlpt-badge">

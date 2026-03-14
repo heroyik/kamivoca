@@ -403,6 +403,48 @@ rt.furigana-rt {
   z-index: 1;
 }
 
+@media (max-width: 640px) {
+  .quiz-hearts {
+    display: none;
+  }
+
+  .quiz-prompt {
+    display: none;
+  }
+
+  .quiz-card {
+    align-items: flex-start;
+    text-align: left;
+    padding-top: 46px;
+    min-height: 132px;
+  }
+
+  .quiz-step-badge-mobile {
+    display: inline-flex;
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #edf7ff;
+    color: var(--duo-blue);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    box-shadow: 0 2px 0 rgba(22, 94, 131, 0.12);
+  }
+
+  .quiz-card .text-main-title,
+  .quiz-card .text-title,
+  .quiz-card .mistake-badge {
+    width: 100%;
+    text-align: center;
+  }
+}
+
 /* Page Layout Styles */
 /* Page Layout Styles */
 .sticky-header {
@@ -522,6 +564,10 @@ rt.furigana-rt {
   text-align: center;
   min-height: 120px;
   margin-bottom: 24px;
+}
+
+.quiz-step-badge-mobile {
+  display: none;
 }
 
 .footer-nav {
