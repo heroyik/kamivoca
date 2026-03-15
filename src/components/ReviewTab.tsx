@@ -161,7 +161,7 @@ export default function ReviewTab() {
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {top20.map((entry, idx) => {
               const rank = idx + 1;
-              const quizHref = `/quiz/${entry.unitId}?mode=review&word=${encodeURIComponent(entry.word)}`;
+              const quizHref = `/quiz/${entry.unitId}?word=${encodeURIComponent(entry.word)}`;
               const displayFurigana = normalizeDisplayFurigana(entry.word, entry.furigana);
               return (
                 <Link
