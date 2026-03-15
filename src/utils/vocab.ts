@@ -21,6 +21,56 @@ export interface LearningUnit {
   words: VocabEntry[];
 }
 
+function isKana(char: string): boolean {
+  return /[ぁ-ゖァ-ヺー]/.test(char);
+}
+
+function toHiragana(text: string): string {
+  return Array.from(text)
+    .map((char) => {
+      const codePoint = char.codePointAt(0);
+      if (codePoint === undefined) return char;
+      if (codePoint >= 0x30A1 && codePoint <= 0x30F6) {
+        return String.fromCodePoint(codePoint - 0x60);
+      }
+      return char;
+    })
+    .join("");
+}
+
+export function normalizeDisplayFurigana(word: string, furigana: string): string {
+  const trimmedWord = word.trim();
+  const trimmedFurigana = furigana.trim();
+
+  if (!trimmedWord || !trimmedFurigana) return trimmedFurigana;
+
+  const leadingKanaChars: string[] = [];
+  for (const char of Array.from(trimmedWord)) {
+    if (!isKana(char)) break;
+    leadingKanaChars.push(char);
+  }
+
+  if (leadingKanaChars.length === 0) return trimmedFurigana;
+
+  const furiganaChars = Array.from(trimmedFurigana);
+  if (furiganaChars.length <= leadingKanaChars.length) return trimmedFurigana;
+
+  const prefix = leadingKanaChars.join("");
+  const normalizedPrefix = toHiragana(prefix);
+  const furiganaPrefix = furiganaChars.slice(0, leadingKanaChars.length).join("");
+  const furiganaRest = furiganaChars.slice(leadingKanaChars.length).join("");
+
+  if (toHiragana(furiganaPrefix) !== normalizedPrefix) {
+    return trimmedFurigana;
+  }
+
+  if (!toHiragana(furiganaRest).startsWith(normalizedPrefix)) {
+    return trimmedFurigana;
+  }
+
+  return furiganaRest;
+}
+
 /**
  * Japanese POS classification for distractor generation
  */

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import vocabData from "@/data/vocab.json";
-import { VocabEntry } from "@/utils/vocab";
+import { normalizeDisplayFurigana, VocabEntry } from "@/utils/vocab";
 import { Trash2, Brain, Frown } from "lucide-react";
 import Link from "next/link";
 
@@ -91,33 +91,37 @@ export default function ReviewTab() {
           </div>
 
           <div className="mistake-list">
-            {reviewEntries.map(({ entry, totalCount }) => (
-              <div key={entry.word} className="mistake-item flex-between">
-                <div className="flex-1 pr-12">
-                  <div className="text-subtitle text-kv-kurenai mb-4">{entry.word}</div>
-                  {!stats.settings?.hideFurigana && entry.furigana && entry.word !== entry.furigana && (
-                    <div className="text-small text-secondary mb-4">{entry.furigana}</div>
-                  )}
-                  <div className="text-small">{entry.meaning}</div>
-                </div>
-                <div className="flex-center gap-12">
-                  <div
-                    className="mistake-count"
-                    style={{ display: "flex", alignItems: "center", gap: "3px" }}
-                  >
-                    <Frown size={12} />
-                    {totalCount}
+            {reviewEntries.map(({ entry, totalCount }) => {
+              const displayFurigana = normalizeDisplayFurigana(entry.word, entry.furigana);
+
+              return (
+                <div key={entry.word} className="mistake-item flex-between">
+                  <div className="flex-1 pr-12">
+                    <div className="text-subtitle text-kv-kurenai mb-4">{entry.word}</div>
+                    {!stats.settings?.hideFurigana && displayFurigana && entry.word !== displayFurigana && (
+                      <div className="text-small text-secondary mb-4">{displayFurigana}</div>
+                    )}
+                    <div className="text-small">{entry.meaning}</div>
                   </div>
-                  <button
-                    onClick={() => removeMistake(entry.word)}
-                    className="trash-button"
-                    aria-label={`Remove ${entry.word} from review list`}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex-center gap-12">
+                    <div
+                      className="mistake-count"
+                      style={{ display: "flex", alignItems: "center", gap: "3px" }}
+                    >
+                      <Frown size={12} />
+                      {totalCount}
+                    </div>
+                    <button
+                      onClick={() => removeMistake(entry.word)}
+                      className="trash-button"
+                      aria-label={`Remove ${entry.word} from review list`}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -158,6 +162,7 @@ export default function ReviewTab() {
             {top20.map((entry, idx) => {
               const rank = idx + 1;
               const quizHref = `/quiz/${entry.unitId}?mode=review`;
+              const displayFurigana = normalizeDisplayFurigana(entry.word, entry.furigana);
               return (
                 <Link
                   key={entry.word}
@@ -210,8 +215,8 @@ export default function ReviewTab() {
                         }}
                       >
                         <div style={{ marginBottom: "2px" }}>{entry.word}</div>
-                        {!stats.settings?.hideFurigana && entry.furigana && entry.word !== entry.furigana && (
-                          <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px", fontWeight: 400 }}>{entry.furigana}</div>
+                        {!stats.settings?.hideFurigana && displayFurigana && entry.word !== displayFurigana && (
+                          <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px", fontWeight: 400 }}>{displayFurigana}</div>
                         )}
                       </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSound } from "@/hooks/useSound";
-import { VocabEntry, inferPOS } from "@/utils/vocab";
+import { VocabEntry, inferPOS, normalizeDisplayFurigana } from "@/utils/vocab";
 import vocabData from "@/data/vocab.json"; // Import full vocab for distractors
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -352,6 +352,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
   }
 
   const currentQuestion = questions[currentIndex];
+  const displayFurigana = normalizeDisplayFurigana(currentQuestion.word, currentQuestion.furigana);
   const progress = ((currentIndex) / questions.length) * 100;
   const painRank = wallOfPainMap.get(currentQuestion.word);
   const isUnknown = selectedOption === "UNKNOWN";
@@ -415,9 +416,9 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
           <div className="text-main-title text-kv-kurenai mb-4">
             {currentQuestion.word}
           </div>
-          {!stats.settings?.hideFurigana && currentQuestion.furigana && currentQuestion.word !== currentQuestion.furigana && (
+          {!stats.settings?.hideFurigana && displayFurigana && currentQuestion.word !== displayFurigana && (
             <div className="text-title text-secondary mb-4">
-              {currentQuestion.furigana}
+              {displayFurigana}
             </div>
           )}
           {initiallyWasMistake && (
