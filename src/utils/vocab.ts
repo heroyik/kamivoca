@@ -124,42 +124,21 @@ function getAllVocabData(): VocabEntry[] {
 export function getUnits(): LearningUnit[] {
   const allWords = getAllVocabData();
 
-  // If we don't have enough words, just return 1 unit for now
   if (allWords.length === 0) return [];
 
-  // Sort by ID to maintain a consistent order across the pilgrimage
-  const allWordsSorted = [...allWords].sort((a, b) => a.id.localeCompare(b.id));
-
   const TOTAL_UNITS = 15;
-  const unitSize = Math.max(1, Math.ceil(allWordsSorted.length / TOTAL_UNITS));
   const units: LearningUnit[] = [];
 
-  for (let i = 0; i < TOTAL_UNITS; i++) {
-    const start = i * unitSize;
-    const end = Math.min(start + unitSize, allWordsSorted.length);
-    const unitWords = allWordsSorted.slice(start, end);
-
-    // If we run out of words before 15 units, we just stop or create empty units 
-    // depending on design. Let's stop to avoid empty nodes on small datasets.
-    if (unitWords.length === 0) break;
+  for (let level = 1; level <= TOTAL_UNITS; level++) {
+    const unitWords = allWords
+      .filter((word) => word.level === level)
+      .sort((a, b) => a.id.localeCompare(b.id));
 
     units.push({
-      id: `unit-${i + 1}`,
-      title: `Step ${i + 1}`,
+      id: `unit-${level}`,
+      title: `Step ${level}`,
       source: "Pilgrimage",
       words: unitWords,
-    });
-  }
-
-  // Ensure we ALWAYS return exactly 15 map nodes for the visual map layout if required.
-  // Actually, implementation plan says: "15단계 순례길 맵 렌더링 검증"
-  // Let's pad it out if we have very little sample data.
-  while (units.length < TOTAL_UNITS) {
-    units.push({
-      id: `unit-${units.length + 1}`,
-      title: `Step ${units.length + 1}`,
-      source: "Pilgrimage",
-      words: [], // Empty for now, handled gracefully by UI
     });
   }
 
