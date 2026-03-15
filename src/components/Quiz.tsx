@@ -21,6 +21,15 @@ interface QuizProps {
   priorityWord?: string;
 }
 
+const HARD_JLPT_LEVELS = new Set(["N3", "N2", "N1", "級外"]);
+const difficultExampleEntries = Array.from(
+  new Map(
+    (vocabData.data as VocabEntry[])
+      .filter((entry) => HARD_JLPT_LEVELS.has(entry.jlpt) && /[一-龯々ヶヵ]/.test(entry.word))
+      .map((entry) => [entry.word, entry] as const),
+  ).values(),
+).sort((a, b) => b.word.length - a.word.length);
+
 function isKanji(char: string) {
   return /[一-龯々ヶヵ]/.test(char);
 }
@@ -186,28 +195,60 @@ function splitWordReading(word: string, reading: string) {
   }
 
   return {
+    prefix: wordChars.slice(0, prefixLength).join(""),
     baseWord: wordChars.slice(prefixLength, wordChars.length - wordSuffixLength).join(""),
     baseReading: readingChars.slice(prefixLength, readingChars.length - readingSuffixLength).join(""),
+    suffix: wordChars.slice(wordChars.length - wordSuffixLength).join(""),
   };
 }
 
-function annotateExampleSentence(example: string, word: string, reading: string) {
-  if (!example || !word || !reading || example.includes("(")) {
-    return example;
-  }
+function escapeForRegex(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
+function annotateExactWord(text: string, word: string, reading: string) {
   const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  if (new RegExp(escapedWord).test(example)) {
-    return example.replace(new RegExp(escapedWord, "g"), `${word}(${reading})`);
-  }
+  const { prefix, baseWord, baseReading, suffix } = splitWordReading(word, reading);
+  const hasMixedKana = (prefix || suffix) && baseWord && baseReading && /[一-龯々ヶヵ]/.test(baseWord);
+  const annotation = hasMixedKana
+    ? `${prefix}${baseWord}(${baseReading})${suffix}`
+    : `${word}(${reading})`;
 
+  if (new RegExp(`${escapedWord}(?!\\()`).test(text)) {
+    return text.replace(new RegExp(`${escapedWord}(?!\\()`, "g"), annotation);
+  }
+  return text;
+}
+
+function annotateWordStem(text: string, word: string, reading: string) {
   const { baseWord, baseReading } = splitWordReading(word, reading);
   if (!baseWord || !baseReading || !/[一-龯々ヶヵ]/.test(baseWord)) {
+    return text;
+  }
+
+  const escapedBaseWord = escapeForRegex(baseWord);
+  return text.replace(new RegExp(`${escapedBaseWord}(?!\\()`, "g"), `${baseWord}(${baseReading})`);
+}
+
+function annotateDifficultExampleWords(text: string) {
+  return difficultExampleEntries.reduce((annotatedText, entry) => {
+    if (!entry.furigana) return annotatedText;
+    return annotateExactWord(annotatedText, entry.word, entry.furigana);
+  }, text);
+}
+
+function annotateExampleSentence(example: string, word: string, reading: string) {
+  if (!example) {
     return example;
   }
 
-  const escapedBaseWord = baseWord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return example.replace(new RegExp(escapedBaseWord, "g"), `${baseWord}(${baseReading})`);
+  let annotatedText = example;
+  if (word && reading) {
+    annotatedText = annotateExactWord(annotatedText, word, reading);
+    annotatedText = annotateWordStem(annotatedText, word, reading);
+  }
+
+  return annotateDifficultExampleWords(annotatedText);
 }
 
 function isValidQuizMeaning(meaning: string) {
