@@ -1,6 +1,6 @@
 # 🇯🇵 KamiVoca (v2.2.0) - Advanced Japanese Vocabulary App
 
-`Version 2.1.0`
+`Version 2.2.0`
 
 ---
 
@@ -43,9 +43,86 @@ A winding, interactive learning path that visually guides users through 15 diffi
 - **POS-based Distractors**: Meaningful distractors matched by Part of Speech (U-verbs with U-verbs, Na-adjectives with Na-adjectives).
 - **Mistake Management ("分かりません")**: Dedicated "I don't know" action that funnels weak words to dynamic Re-Review sessions.
 
-### ✅ Recent Updates (2026-03)
+### ✅ Recent Updates (v2.2.0, 2026-03)
 
-The following behavior changes were implemented to improve leaderboard realism, provide administrative tools, and enhance profile aesthetics:
+The following changes were implemented in the 2.2.0 dataset and quiz-quality pass:
+
+1. **Version alignment**
+   - Updated `package.json` and `src/lib/constants.ts` so the package version and in-app version badge both show `2.2.0`.
+   - Affected files:
+     - `package.json`
+     - `src/lib/constants.ts`
+
+2. **Furigana normalization for headwords**
+   - Fixed duplicated-reading display cases where kana already present in the surface form was repeated in furigana.
+   - Examples fixed:
+     - `プー太郎` no longer renders as `プーぷーたろう`
+     - `お湯` no longer renders as `おおゆ`
+   - Display normalization is shared across quiz cards and review surfaces.
+   - Affected files:
+     - `src/utils/vocab.ts`
+     - `src/components/Quiz.tsx`
+     - `src/components/ReviewTab.tsx`
+
+3. **Example sentence ruby rendering expanded**
+   - Example sentences already using `漢字(かな)` continue to render via `<ruby>`.
+   - Added automatic example annotation for current quiz words and difficult vocabulary appearing inside examples.
+   - Automatic furigana annotation now covers `N3`, `N2`, `N1`, and `級外` vocabulary.
+   - Mixed kana/kanji words now annotate only the kanji segment, so forms like `病気がちな` render as `病気(びょうき)がちな`.
+   - Affected files:
+     - `src/components/Quiz.tsx`
+
+4. **Quiz meaning cleanup**
+   - Removed placeholder meanings such as bare `뜻` / `의미` from the dataset.
+   - Removed meta prefixes like `일본어로 ...` from quiz answers so options now show natural Korean meanings.
+   - Cleaned several explanation-style meanings such as `...다는 뜻`, `직역하면 ...`, and similar quiz-hostile phrasing.
+   - Corrected multiple broken meanings that were mapped to the wrong Japanese headword.
+   - Example fixed entries include:
+     - `メール1軒` -> `메일 한 건`
+     - `件名` -> `제목, 메일 제목`
+     - `一昨年` -> `재작년`
+     - `報告があります` -> `보고할 것이 있습니다`
+     - `〜ますように祈る` restored from malformed source text
+   - Choice generation now excludes placeholder values even if a bad dataset entry slips in later.
+   - Affected files:
+     - `voca_json/VOCA_word_furigana_separated.json`
+     - `src/data/vocab.json`
+     - `src/components/Quiz.tsx`
+     - `scripts/transform_japanese_data.mjs`
+
+5. **Wall of Pain behavior cleanup**
+   - Wall of Pain cards are now informational only and no longer navigate into quizzes.
+   - Review routing bugs were fixed before that change so clicked entries no longer opened unrelated quiz cards or empty review states.
+   - Affected files:
+     - `src/components/ReviewTab.tsx`
+     - `src/components/QuizLoader.tsx`
+     - `src/components/Quiz.tsx`
+
+6. **Dataset deduplication pass**
+   - Performed a full duplicate/similar-entry audit across the source vocabulary dataset.
+   - Removed exact duplicate records and same-word duplicates.
+   - Merged several near-duplicate entries by keeping one canonical record and combining/correcting meanings, furigana, or examples where appropriate.
+   - Regenerated the duplicate report after cleanup.
+   - Current post-cleanup state:
+     - exact duplicate records: `0`
+     - same-word duplicates: `0`
+     - same-furigana different-word groups: `1`
+     - same-meaning different-word groups: `5`
+   - Remaining groups are intentional semantic neighbors or same-reading/different-kanji pairs that still require product judgment rather than automatic deletion.
+   - Affected files:
+     - `voca_json/VOCA_word_furigana_separated.json`
+     - `src/data/vocab.json`
+     - `duplicated.md`
+
+7. **Example sentence naturalness edits**
+   - Rewrote awkward or over-explanatory example sentences into more natural spoken/written Japanese where surfaced during QA.
+   - Example:
+     - `マヨラー` examples were rewritten to sound like natural colloquial usage instead of explanatory dictionary text.
+   - Affected files:
+     - `voca_json/VOCA_word_furigana_separated.json`
+     - `src/data/vocab.json`
+
+The following earlier platform changes remain part of the current app behavior:
 
 1. **Hall of Fame & Wall of Pain (Auth Fixes)**
    - **Seeding**: Fully populated `globalWordStats` to enable the "Wall of Pain" feature.
@@ -152,7 +229,7 @@ The following behavior changes were implemented to improve leaderboard realism, 
     - Affected files: `src/hooks/useWeather.ts`, `src/components/WeatherBackground.tsx`, `src/app/layout.tsx`
 
 13. **UI Version Fix**
-    - Updated `APP_VERSION` string in `src/lib/constants.ts` to `2.0.0` to ensure the UI visually matches the package.json version update.
+    - Updated `APP_VERSION` string in `src/lib/constants.ts` so the in-app badge matches the package version.
     - Affected files: `src/lib/constants.ts`
 
 14. **Weather Display Refinement (Location & Positioning)**
