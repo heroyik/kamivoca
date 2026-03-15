@@ -210,6 +210,11 @@ function annotateExampleSentence(example: string, word: string, reading: string)
   return example.replace(new RegExp(escapedBaseWord, "g"), `${baseWord}(${baseReading})`);
 }
 
+function isValidQuizMeaning(meaning: string) {
+  const normalizedMeaning = meaning.trim();
+  return normalizedMeaning !== "" && normalizedMeaning !== "뜻" && normalizedMeaning !== "의미";
+}
+
 function normalizeWordKey(word: string) {
   return word.trim().toLowerCase();
 }
@@ -300,7 +305,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
     const finalDistractors = Array.from(
       new Set(
         vocabByPOS[pos]
-          .filter((v) => v.meaning !== correctAnswer)
+          .filter((v) => v.meaning !== correctAnswer && isValidQuizMeaning(v.meaning))
           .map((v) => v.meaning)
       )
     )
