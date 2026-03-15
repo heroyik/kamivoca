@@ -29,6 +29,19 @@ function isKana(char: string) {
   return /[ぁ-ゖァ-ヺー]/.test(char);
 }
 
+function toHiragana(text: string) {
+  return Array.from(text)
+    .map((char) => {
+      const codePoint = char.codePointAt(0);
+      if (codePoint === undefined) return char;
+      if (codePoint >= 0x30A1 && codePoint <= 0x30F6) {
+        return String.fromCodePoint(codePoint - 0x60);
+      }
+      return char;
+    })
+    .join("");
+}
+
 function isJapaneseWordChar(char: string) {
   return isKanji(char) || isKana(char);
 }
@@ -141,6 +154,60 @@ function FuriganaSentence({ text }: { text: string }) {
   }
 
   return <span className="furigana-sentence">{nodes}</span>;
+}
+
+function splitWordReading(word: string, reading: string) {
+  const wordChars = Array.from(word);
+  const readingChars = Array.from(reading);
+
+  let prefixLength = 0;
+  while (
+    prefixLength < wordChars.length &&
+    prefixLength < readingChars.length &&
+    isKana(wordChars[prefixLength]) &&
+    toHiragana(wordChars[prefixLength]) === toHiragana(readingChars[prefixLength])
+  ) {
+    prefixLength += 1;
+  }
+
+  let wordSuffixLength = 0;
+  let readingSuffixLength = 0;
+  while (
+    wordSuffixLength < wordChars.length - prefixLength &&
+    readingSuffixLength < readingChars.length - prefixLength
+  ) {
+    const wordChar = wordChars[wordChars.length - 1 - wordSuffixLength];
+    const readingChar = readingChars[readingChars.length - 1 - readingSuffixLength];
+    if (!isKana(wordChar) || toHiragana(wordChar) !== toHiragana(readingChar)) {
+      break;
+    }
+    wordSuffixLength += 1;
+    readingSuffixLength += 1;
+  }
+
+  return {
+    baseWord: wordChars.slice(prefixLength, wordChars.length - wordSuffixLength).join(""),
+    baseReading: readingChars.slice(prefixLength, readingChars.length - readingSuffixLength).join(""),
+  };
+}
+
+function annotateExampleSentence(example: string, word: string, reading: string) {
+  if (!example || !word || !reading || example.includes("(")) {
+    return example;
+  }
+
+  const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (new RegExp(escapedWord).test(example)) {
+    return example.replace(new RegExp(escapedWord, "g"), `${word}(${reading})`);
+  }
+
+  const { baseWord, baseReading } = splitWordReading(word, reading);
+  if (!baseWord || !baseReading || !/[一-龯々ヶヵ]/.test(baseWord)) {
+    return example;
+  }
+
+  const escapedBaseWord = baseWord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return example.replace(new RegExp(escapedBaseWord, "g"), `${baseWord}(${baseReading})`);
 }
 
 function normalizeWordKey(word: string) {
@@ -545,7 +612,9 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
                         maxWidth: "100%"
                       }}
                     >
-                      <FuriganaSentence text={ex} />
+                      <FuriganaSentence
+                        text={annotateExampleSentence(ex, currentQuestion.word, currentQuestion.furigana)}
+                      />
                     </div>
                   ))}
                 </div>
