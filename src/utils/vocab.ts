@@ -38,9 +38,9 @@ function toHiragana(text: string): string {
     .join("");
 }
 
-export function normalizeDisplayFurigana(word: string, furigana: string): string {
+export function normalizeDisplayFurigana(word: string, furigana?: string): string {
   const trimmedWord = word.trim();
-  const trimmedFurigana = furigana.trim();
+  const trimmedFurigana = furigana?.trim() ?? "";
 
   if (!trimmedWord || !trimmedFurigana) return trimmedFurigana;
 
