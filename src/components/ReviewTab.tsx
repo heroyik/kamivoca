@@ -161,26 +161,17 @@ export default function ReviewTab() {
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {top20.map((entry, idx) => {
               const rank = idx + 1;
-              const quizHref = `/quiz/${entry.unitId}?word=${encodeURIComponent(entry.word)}`;
               const displayFurigana = normalizeDisplayFurigana(entry.word, entry.furigana);
               return (
-                <Link
+                <div
                   key={entry.word}
-                  href={quizHref}
-                  style={{ textDecoration: "none" }}
+                  style={{
+                    background: "#fafafa",
+                    border: "1px solid #f0f0f0",
+                    borderRadius: "12px",
+                    padding: "9px 12px",
+                  }}
                 >
-                  <div
-                    style={{
-                      background: "#fafafa",
-                      border: "1px solid #f0f0f0",
-                      borderRadius: "12px",
-                      padding: "9px 12px",
-                      transition: "background 0.15s",
-                      cursor: "pointer",
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.background = "#f5f5f5")}
-                    onMouseLeave={e => (e.currentTarget.style.background = "#fafafa")}
-                  >
                     {/* ── Row 1: rank · word · fail count ── */}
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       {/* Rank circle */}
@@ -291,8 +282,7 @@ export default function ReviewTab() {
                         Step {entry.unitNum}
                       </span>
                     </div>
-                  </div>
-                </Link>
+                </div>
               );
             })}
           </div>
