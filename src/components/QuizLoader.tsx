@@ -17,6 +17,7 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
 
     const sourcesStr = searchParams.get("sources");
     const mode = searchParams.get("mode");
+    const priorityWord = searchParams.get("word")?.trim() ?? "";
     const sources = sourcesStr ? sourcesStr.split(",") : ["1"];
 
     const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
@@ -74,5 +75,14 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
         );
     }
 
-    return <Quiz unitId={unit.id} unitWords={unitWords} unitTitle={unit.title} sources={sources} isReview={isReviewMode} />;
+    return (
+        <Quiz
+            unitId={unit.id}
+            unitWords={unitWords}
+            unitTitle={unit.title}
+            sources={sources}
+            isReview={isReviewMode}
+            priorityWord={priorityWord || undefined}
+        />
+    );
 }

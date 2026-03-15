@@ -18,6 +18,7 @@ interface QuizProps {
   unitTitle?: string;
   sources: string[];
   isReview?: boolean;
+  priorityWord?: string;
 }
 
 function isKanji(char: string) {
@@ -142,7 +143,11 @@ function FuriganaSentence({ text }: { text: string }) {
   return <span className="furigana-sentence">{nodes}</span>;
 }
 
-export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }: QuizProps) {
+function normalizeWordKey(word: string) {
+  return word.trim().toLowerCase();
+}
+
+export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, priorityWord }: QuizProps) {
   const router = useRouter();
   const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, markManualCognite } = useGamification();
 
@@ -185,7 +190,23 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false }:
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [hasMistakes, setHasMistakes] = useState(false);
-  const [questions] = useState(() => [...unitWords].sort(() => Math.random() - 0.5));
+  const [questions] = useState(() => {
+    const shuffledWords = [...unitWords].sort(() => Math.random() - 0.5);
+
+    if (!priorityWord) {
+      return shuffledWords;
+    }
+
+    const normalizedPriorityWord = normalizeWordKey(priorityWord);
+    const priorityIndex = shuffledWords.findIndex((entry) => normalizeWordKey(entry.word) === normalizedPriorityWord);
+
+    if (priorityIndex <= 0) {
+      return shuffledWords;
+    }
+
+    const [priorityEntry] = shuffledWords.splice(priorityIndex, 1);
+    return [priorityEntry, ...shuffledWords];
+  });
   const [prevIndex, setPrevIndex] = useState(-1);
   const [initiallyWasMistake, setInitiallyWasMistake] = useState(false);
   const [hearts, setHearts] = useState(5); // New Magatama/Heart system
