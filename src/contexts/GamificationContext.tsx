@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, onSnapshot, updateDoc, collection, serverTimestamp, increment, deleteDoc, getDocs, writeBatch } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, serverTimestamp, increment, deleteDoc, getDocs, writeBatch, deleteField } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import vocabData from "@/data/vocab.json";
 import { normalizeVocabWordKey, VocabEntry } from "@/utils/vocab";
@@ -396,6 +396,35 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     saveStatsLocally(updatedStats);
   };
 
+  const getEntriesByWordKey = () => {
+    const map = new Map<string, VocabEntry[]>();
+    (vocabData.data as VocabEntry[]).forEach((entry) => {
+      const wordKey = normalizeVocabWordKey(entry.word);
+      const entries = map.get(wordKey) ?? [];
+      entries.push(entry);
+      map.set(wordKey, entries);
+    });
+    return map;
+  };
+
+  const clearLegacyCogniteFlags = async (wordKey: string) => {
+    if (!db) return;
+    const firestore = db;
+
+    const entriesByWordKey = getEntriesByWordKey();
+    const matchingEntries = entriesByWordKey.get(wordKey) ?? [];
+    if (matchingEntries.length === 0) return;
+
+    const batch = writeBatch(firestore);
+    matchingEntries.forEach((entry) => {
+      batch.set(doc(firestore, "vocabEntries", entry.id), {
+        is_cognite: deleteField(),
+        cogniteUpdatedAt: deleteField(),
+      }, { merge: true });
+    });
+    await batch.commit();
+  };
+
   const markManualCognite = async (entryId: string) => {
     if (!db || !user) {
       console.warn("[GamificationProvider] Firestore is not available for manual cognites");
@@ -435,6 +464,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
     const wordKey = normalizeVocabWordKey(entry.word);
     await deleteDoc(doc(db, "users", user.uid, "manualCognites", wordKey));
+    await clearLegacyCogniteFlags(wordKey);
     setManualCogniteIds((prev) => prev.filter((id) => id !== entryId));
   };
 
@@ -451,9 +481,16 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const wordKeys = snapshot.docs.map((docSnap) => {
+      const data = docSnap.data() as { word?: string; wordKey?: string };
+      return data.wordKey || (data.word ? normalizeVocabWordKey(data.word) : docSnap.id);
+    });
+
     const batch = writeBatch(db);
     snapshot.docs.forEach((docSnap) => batch.delete(docSnap.ref));
     await batch.commit();
+
+    await Promise.all(wordKeys.map((wordKey) => clearLegacyCogniteFlags(wordKey)));
     setManualCogniteIds([]);
   };
 
