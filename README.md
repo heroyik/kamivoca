@@ -1,6 +1,6 @@
-# 🇯🇵 KamiVoca (v2.2.0) - Advanced Japanese Vocabulary App
+# 🇯🇵 KamiVoca (v2.3.0) - Advanced Japanese Vocabulary App
 
-`Version 2.2.0`
+`Version 2.3.0`
 
 ---
 
@@ -43,12 +43,12 @@ A winding, interactive learning path that visually guides users through 15 diffi
 - **POS-based Distractors**: Meaningful distractors matched by Part of Speech (U-verbs with U-verbs, Na-adjectives with Na-adjectives).
 - **Mistake Management ("分かりません")**: Dedicated "I don't know" action that funnels weak words to dynamic Re-Review sessions.
 
-### ✅ Recent Updates (v2.2.0, 2026-03)
+### ✅ Recent Updates (v2.3.0, 2026-03)
 
-The following changes were implemented in the 2.2.0 dataset and quiz-quality pass:
+The following changes were implemented in the 2.3.0 dataset and quiz-quality pass:
 
 1. **Version alignment**
-   - Updated `package.json` and `src/lib/constants.ts` so the package version and in-app version badge both show `2.2.0`.
+   - Updated `package.json` and `src/lib/constants.ts` so the package version and in-app version badge both show `2.3.0`.
    - Affected files:
      - `package.json`
      - `src/lib/constants.ts`
@@ -106,13 +106,102 @@ The following changes were implemented in the 2.2.0 dataset and quiz-quality pas
    - Current post-cleanup state:
      - exact duplicate records: `0`
      - same-word duplicates: `0`
-     - same-furigana different-word groups: `1`
-     - same-meaning different-word groups: `5`
+     - same-furigana different-word groups: `5`
+     - same-meaning different-word groups: `0`
    - Remaining groups are intentional semantic neighbors or same-reading/different-kanji pairs that still require product judgment rather than automatic deletion.
    - Affected files:
      - `voca_json/VOCA_word_furigana_separated.json`
      - `src/data/vocab.json`
-     - `duplicated.md`
+      - `duplicated.md`
+      - `same_reading_review.md`
+      - `same_meaning_review.md`
+
+8. **N1/N2 expansion batches**
+   - Added a large batch of exact-verified `N1/N2` entries focused on words Korean learners commonly confuse.
+   - Batch design emphasized:
+     - written/formal N1 vocabulary
+     - hanja trap words that look familiar to Korean learners
+     - contrastive near-neighbor pairs
+     - high-value abstract nouns and adverbs
+   - Newly added advanced entries include examples such as:
+     - `ことごとく`
+     - `おびただしい`
+     - `免れる`
+     - `見地`
+     - `厳密`
+     - `視野`
+     - `主観`
+     - `客観`
+     - `一概に`
+     - `一応`
+     - `強いて`
+     - `原則`
+     - `交渉`
+     - `構想`
+     - `購読`
+     - `講読`
+     - `純粋`
+     - `消極的`
+     - `焦点`
+     - `推定`
+   - Candidate planning and batch strategy were documented separately for ongoing expansion work.
+   - Affected files:
+     - `strategy/5.n1n2plan.md`
+     - `voca_json/VOCA_word_furigana_separated.json`
+     - `src/data/vocab.json`
+     - `batchA_review.md`
+
+9. **Quiz distractor conflict hardening**
+   - Added explicit exclusion groups for pairs that are too close in reading or meaning to be useful distractors.
+   - Automatic conflict detection now also considers:
+     - same reading
+     - highly similar Korean meaning tokens
+     - manually curated comparison pairs
+   - Example protected pairs:
+     - `趣旨 / 主旨`
+     - `紛らわしい / 煩わしい`
+     - `原点 / 原典`
+     - `好意 / 行為`
+     - `購読 / 講読`
+     - `解ける / 溶ける`
+   - Added a generated conflict report for maintenance.
+   - Affected files:
+     - `src/components/Quiz.tsx`
+     - `scripts/transform_japanese_data.mjs`
+     - `distractor_conflicts.md`
+     - `strategy/distractor_conflicts.md`
+
+10. **Manual COGNITE system redesign**
+    - The `COGNITE` marker is no longer treated as a global dataset flag.
+    - Previous behavior stored `is_cognite = "y"` directly on shared vocabulary documents, which made the data:
+      - global across users
+      - fragile when IDs were reshuffled
+      - vulnerable to accidental deletion during dataset maintenance
+    - Current behavior stores manual cognite marks per user at:
+      - `users/{uid}/manualCognites/{wordKey}`
+    - The app now maps these stored `wordKey` values back to current dataset IDs on load, so cognite marks survive future ID reordering as long as the headword itself remains the same.
+    - Affected files:
+      - `src/contexts/GamificationContext.tsx`
+      - `src/hooks/useGamification.ts`
+      - `src/utils/vocab.ts`
+
+11. **Admin-only COGNITE tab**
+    - Added a dedicated `COGNITE` tab visible only when logged in as `heroyik@gmail.com`.
+    - The tab lists all manually marked cognite entries with:
+      - headword
+      - furigana
+      - Korean meaning
+      - JLPT level
+      - Step level
+    - Added deletion controls:
+      - per-word trash button
+      - `CLEAR ALL` action
+      - round trash icon for full list clear
+    - This tab is intended as an internal curation tool rather than a learner-facing public feature.
+    - Affected files:
+      - `src/components/CogniteTab.tsx`
+      - `src/app/page.tsx`
+      - `src/contexts/GamificationContext.tsx`
 
 7. **Example sentence naturalness edits**
    - Rewrote awkward or over-explanatory example sentences into more natural spoken/written Japanese where surfaced during QA.
@@ -292,7 +381,15 @@ After updating the data, run:
 node scripts/transform_japanese_data.mjs
 ```
 
-This will regenerate `src/data/vocab.json`. To sync this data to the cloud:
+This will regenerate:
+
+- `src/data/vocab.json`
+- `duplicated.md`
+- `strategy/duplicated.md`
+- `distractor_conflicts.md`
+- `strategy/distractor_conflicts.md`
+
+To sync this data to the cloud:
 
 ```bash
 # Sync standard vocabulary
@@ -304,11 +401,77 @@ npm run sync:firestore:full-voca
 
 These scripts use the **Firebase Admin SDK** and require the service account key in `secrets/`.
 
+### Source Of Truth
+
+- Primary editable source:
+  - `voca_json/VOCA_word_furigana_separated.json`
+- Derived app dataset:
+  - `src/data/vocab.json`
+- Duplicate review notes:
+  - `duplicated.md`
+  - `same_reading_review.md`
+  - `same_meaning_review.md`
+- Distractor maintenance report:
+  - `distractor_conflicts.md`
+
+### Manual COGNITE Storage
+
+Manual `COGNITE` marks are **not** part of the source JSON and should not be added to vocabulary entries.
+
+Current behavior:
+
+- Stored per user in Firestore:
+  - `users/{uid}/manualCognites/{wordKey}`
+- `wordKey` is a normalized headword key, not the current dataset ID
+- This design keeps admin curation resilient even when:
+  - entry IDs are reshuffled
+  - levels are redistributed
+  - duplicate entries are merged
+
+Legacy behavior:
+
+- older builds wrote `is_cognite = "y"` onto shared `vocabEntries`
+- this was removed because it was global, destructive during sync, and not user-safe
+
+### Current Dataset Status
+
+As of the current `2.3.0` maintenance state:
+
+- total entries: `1081`
+- exact duplicate groups: `0`
+- same-word duplicate groups: `0`
+- same-reading different-word groups: `5`
+- same-meaning different-word groups: `0`
+
+The remaining same-reading groups are intentionally kept because they are useful contrast pairs:
+
+- `原点 / 原典`
+- `好意 / 行為`
+- `購読 / 講読`
+- `趣旨 / 主旨`
+- `解ける / 溶ける`
+
+### Recommended Update Workflow
+
+When editing vocabulary or adding new N1/N2 batches:
+
+1. Update `voca_json/VOCA_word_furigana_separated.json`
+2. Run `node scripts/transform_japanese_data.mjs`
+3. Review:
+   - `duplicated.md`
+   - `same_reading_review.md`
+   - `same_meaning_review.md`
+   - `distractor_conflicts.md`
+4. Run `npm run build`
+5. Sync:
+   - `npm run sync:firestore:vocab`
+   - `npm run sync:firestore:full-voca`
+
 ---
 
 ## 🛠️ Technical Stack
 
-- **Framework**: [Next.js 15](https://nextjs.org) (App Router, Client Components)
+- **Framework**: [Next.js 16](https://nextjs.org) (App Router, Client Components)
 - **Backend-as-a-Service**: [Firebase](https://firebase.google.com/) (Auth, Firestore, Hosting)
   - Real-time cloud sync with offline support and unified Google Login.
 - **Design/Styling**: Vanilla CSS & Tailwind with the KamiVoca traditional palette.

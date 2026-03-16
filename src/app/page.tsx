@@ -14,6 +14,7 @@ import { useRank } from '@/hooks/useRank';
 import Leaderboard from '@/components/Leaderboard';
 import UserProfile from '@/components/UserProfile';
 import ReviewTab from '@/components/ReviewTab';
+import CogniteTab from '@/components/CogniteTab';
 import RankToast from '@/components/RankToast';
 import Image from 'next/image';
 import { Github } from 'lucide-react';
@@ -51,10 +52,11 @@ const getMotivationalSticker = (idx: number) => {
 };
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile'>('learn');
+  const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite'>('learn');
   const { stats, user, manualCogniteIds } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
+  const isAdminUser = user?.email === 'heroyik@gmail.com';
 
   // Updated units calculation
   const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
@@ -271,6 +273,7 @@ export default function Home() {
       )}
 
       {activeTab === 'review' && <ReviewTab />}
+      {activeTab === 'cognite' && isAdminUser && <CogniteTab />}
       {activeTab === 'leader' && <Leaderboard />}
       {activeTab === 'profile' && <UserProfile user={user} stats={stats} />}
 
@@ -308,6 +311,15 @@ export default function Home() {
           <span className="font-24">📚</span>
           <span className="font-10 font-800">REVIEW</span>
         </div>
+        {isAdminUser && (
+          <div
+            onClick={() => setActiveTab('cognite')}
+            className={`nav-item ${activeTab === 'cognite' ? 'active' : ''}`}
+          >
+            <span className="font-24">🧠</span>
+            <span className="font-10 font-800">COGNITE</span>
+          </div>
+        )}
         <div
           onClick={() => setActiveTab('profile')}
           className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}

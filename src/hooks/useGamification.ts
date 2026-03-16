@@ -25,6 +25,8 @@ export function useGamification() {
     updateSettings: context.updateSettings,
     updateProfile: context.updateProfile,
     markManualCognite: context.markManualCognite,
+    removeManualCognite: context.removeManualCognite,
+    clearAllManualCognites: context.clearAllManualCognites,
     resetProgress: context.resetProgress,
     resetLocalState: context.resetLocalState
   };

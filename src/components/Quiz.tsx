@@ -260,6 +260,92 @@ function normalizeWordKey(word: string) {
   return word.trim().toLowerCase();
 }
 
+const DISTRACTOR_EXCLUSION_GROUPS = [
+  ["〜がてら", "ついでに"],
+  ["手を繋ぐ", "手を握る"],
+  ["1日を充実させる", "1日を有意義に過ごす"],
+  ["頭が切れる", "頭の回転が速い"],
+  ["育ってくれて", "息子がよく育ってくれて"],
+  ["手がかかる", "手間がかかる"],
+  ["たまたま見る", "見かける"],
+  ["配慮がある", "思いやりがある"],
+  ["趣旨", "主旨"],
+  ["紛らわしい", "煩わしい"],
+  ["原点", "原典"],
+  ["好意", "行為"],
+  ["購読", "講読"],
+  ["解ける", "溶ける"],
+];
+
+const normalizedDistractorExclusionGroups = DISTRACTOR_EXCLUSION_GROUPS.map((group) =>
+  group.map((word) => normalizeWordKey(word)),
+);
+
+function normalizeReadingKey(reading: string) {
+  return toHiragana(reading.trim());
+}
+
+function normalizeMeaningToken(token: string) {
+  return token
+    .trim()
+    .toLowerCase()
+    .replace(/[~～,./·•|(){}\[\]"'`]/g, "")
+    .replace(/\s+/g, "");
+}
+
+function getMeaningTokens(meaning: string) {
+  return Array.from(
+    new Set(
+      meaning
+        .split(/[,\n/·•|(){}\[\]]|,|،|，/)
+        .flatMap((chunk) => chunk.split(/\s+/))
+        .map(normalizeMeaningToken)
+        .filter((token) => token.length >= 2),
+    ),
+  );
+}
+
+function hasHighlySimilarMeaning(currentMeaning: string, candidateMeaning: string) {
+  const currentTokens = getMeaningTokens(currentMeaning);
+  const candidateTokens = getMeaningTokens(candidateMeaning);
+
+  if (currentTokens.length === 0 || candidateTokens.length === 0) {
+    return false;
+  }
+
+  const overlapCount = currentTokens.filter((token) => candidateTokens.includes(token)).length;
+  const shorterLength = Math.min(currentTokens.length, candidateTokens.length);
+  const longerLength = Math.max(currentTokens.length, candidateTokens.length);
+
+  return overlapCount >= 2 && overlapCount >= shorterLength && overlapCount / longerLength >= 0.6;
+}
+
+function shouldExcludeDistractorEntry(currentEntry: VocabEntry, candidateEntry: VocabEntry) {
+  const normalizedCurrentWord = normalizeWordKey(currentEntry.word);
+  const normalizedCandidateWord = normalizeWordKey(candidateEntry.word);
+
+  if (
+    normalizedDistractorExclusionGroups.some(
+      (group) => group.includes(normalizedCurrentWord) && group.includes(normalizedCandidateWord),
+    )
+  ) {
+    return true;
+  }
+
+  const currentReading = normalizeReadingKey(currentEntry.furigana || currentEntry.word);
+  const candidateReading = normalizeReadingKey(candidateEntry.furigana || candidateEntry.word);
+  if (
+    currentReading &&
+    candidateReading &&
+    currentReading === candidateReading &&
+    normalizedCurrentWord !== normalizedCandidateWord
+  ) {
+    return true;
+  }
+
+  return hasHighlySimilarMeaning(currentEntry.meaning, candidateEntry.meaning);
+}
+
 export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, priorityWord }: QuizProps) {
   const router = useRouter();
   const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, markManualCognite } = useGamification();
@@ -346,7 +432,12 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
     const finalDistractors = Array.from(
       new Set(
         vocabByPOS[pos]
-          .filter((v) => v.meaning !== correctAnswer && isValidQuizMeaning(v.meaning))
+          .filter(
+            (v) =>
+              v.meaning !== correctAnswer &&
+              isValidQuizMeaning(v.meaning) &&
+              !shouldExcludeDistractorEntry(currentEntry, v),
+          )
           .map((v) => v.meaning)
       )
     )

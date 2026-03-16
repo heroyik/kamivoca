@@ -21,6 +21,15 @@ export interface LearningUnit {
   words: VocabEntry[];
 }
 
+export function normalizeVocabWordKey(word: string): string {
+  return word
+    .normalize("NFKC")
+    .replace(/[〜～]/g, "~")
+    .replace(/\s+/g, "")
+    .trim()
+    .toLowerCase();
+}
+
 function isKana(char: string): boolean {
   return /[ぁ-ゖァ-ヺー]/.test(char);
 }

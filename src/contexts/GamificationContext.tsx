@@ -2,8 +2,10 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, serverTimestamp, increment } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, serverTimestamp, increment, deleteDoc, getDocs, writeBatch } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import vocabData from "@/data/vocab.json";
+import { normalizeVocabWordKey, VocabEntry } from "@/utils/vocab";
 
 export interface UserStats {
   xp: number;
@@ -46,6 +48,8 @@ interface GamificationContextType {
   updateSettings: (settings: Partial<NonNullable<UserStats['settings']>>) => void;
   updateProfile: (profile: Partial<Pick<UserStats, 'displayName' | 'photoURL'>>) => void;
   markManualCognite: (entryId: string) => Promise<void>;
+  removeManualCognite: (entryId: string) => Promise<void>;
+  clearAllManualCognites: () => Promise<void>;
   resetProgress: () => void;
   resetLocalState: () => void;
 }
@@ -107,20 +111,36 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!db) {
-      setManualCogniteIds([]);
+    if (!db || !user) {
+      setTimeout(() => setManualCogniteIds([]), 0);
       return;
     }
 
-    const cogniteQuery = query(collection(db, "vocabEntries"), where("is_cognite", "==", "y"));
-    const unsubscribe = onSnapshot(cogniteQuery, (snapshot) => {
-      setManualCogniteIds(snapshot.docs.map((docSnap) => docSnap.id));
+    const entries = vocabData.data as VocabEntry[];
+    const idsByWordKey = new Map<string, string[]>();
+    entries.forEach((entry) => {
+      const wordKey = normalizeVocabWordKey(entry.word);
+      const ids = idsByWordKey.get(wordKey) ?? [];
+      ids.push(entry.id);
+      idsByWordKey.set(wordKey, ids);
+    });
+
+    const cogniteCollection = collection(db, "users", user.uid, "manualCognites");
+    const unsubscribe = onSnapshot(cogniteCollection, (snapshot) => {
+      const nextIds = new Set<string>();
+      snapshot.docs.forEach((docSnap) => {
+        const data = docSnap.data() as { word?: string; wordKey?: string };
+        const wordKey = data.wordKey || (data.word ? normalizeVocabWordKey(data.word) : docSnap.id);
+        const matchingIds = idsByWordKey.get(wordKey) ?? [];
+        matchingIds.forEach((id) => nextIds.add(id));
+      });
+      setManualCogniteIds(Array.from(nextIds));
     }, (error) => {
       console.error("[GamificationProvider] Manual cognite sync failed", error);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const statsRef = useRef(stats);
   useEffect(() => {
@@ -377,17 +397,64 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   };
 
   const markManualCognite = async (entryId: string) => {
-    if (!db) {
+    if (!db || !user) {
       console.warn("[GamificationProvider] Firestore is not available for manual cognites");
       return;
     }
 
-    await setDoc(doc(db, "vocabEntries", entryId), {
-      is_cognite: "y",
+    const entries = vocabData.data as VocabEntry[];
+    const entry = entries.find((item) => item.id === entryId);
+    if (!entry) {
+      console.warn("[GamificationProvider] Could not resolve cognite word for entry:", entryId);
+      return;
+    }
+
+    const wordKey = normalizeVocabWordKey(entry.word);
+    await setDoc(doc(db, "users", user.uid, "manualCognites", wordKey), {
+      entryId,
+      word: entry.word,
+      wordKey,
       cogniteUpdatedAt: serverTimestamp(),
-    }, { merge: true });
+    });
 
     setManualCogniteIds((prev) => (prev.includes(entryId) ? prev : [...prev, entryId]));
+  };
+
+  const removeManualCognite = async (entryId: string) => {
+    if (!db || !user) {
+      console.warn("[GamificationProvider] Firestore is not available for manual cognites");
+      return;
+    }
+
+    const entries = vocabData.data as VocabEntry[];
+    const entry = entries.find((item) => item.id === entryId);
+    if (!entry) {
+      console.warn("[GamificationProvider] Could not resolve cognite word for entry:", entryId);
+      return;
+    }
+
+    const wordKey = normalizeVocabWordKey(entry.word);
+    await deleteDoc(doc(db, "users", user.uid, "manualCognites", wordKey));
+    setManualCogniteIds((prev) => prev.filter((id) => id !== entryId));
+  };
+
+  const clearAllManualCognites = async () => {
+    if (!db || !user) {
+      console.warn("[GamificationProvider] Firestore is not available for manual cognites");
+      return;
+    }
+
+    const cogniteCollection = collection(db, "users", user.uid, "manualCognites");
+    const snapshot = await getDocs(cogniteCollection);
+    if (snapshot.empty) {
+      setManualCogniteIds([]);
+      return;
+    }
+
+    const batch = writeBatch(db);
+    snapshot.docs.forEach((docSnap) => batch.delete(docSnap.ref));
+    await batch.commit();
+    setManualCogniteIds([]);
   };
 
   const resetProgress = () => {
@@ -420,6 +487,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       updateSettings,
       updateProfile,
       markManualCognite,
+      removeManualCognite,
+      clearAllManualCognites,
       resetProgress,
       resetLocalState
     }}>
