@@ -375,10 +375,10 @@ const OriginalAnimeInspiredFigure: React.FC<{ opacity: number }> = ({ opacity })
     <div
       style={{
         position: 'absolute',
-        right: '16%',
-        bottom: '14%',
-        width: '118px',
-        height: '286px',
+        right: '14.5%',
+        bottom: '12.5%',
+        width: '134px',
+        height: '314px',
         opacity,
         transform: 'translateZ(0)',
         filter: 'drop-shadow(0 20px 28px rgba(18, 20, 38, 0.18))',
@@ -387,7 +387,7 @@ const OriginalAnimeInspiredFigure: React.FC<{ opacity: number }> = ({ opacity })
       }}
     >
       <svg
-        viewBox="0 0 118 286"
+        viewBox="0 0 134 314"
         style={{
           width: '100%',
           height: '100%',
@@ -402,27 +402,36 @@ const OriginalAnimeInspiredFigure: React.FC<{ opacity: number }> = ({ opacity })
             <stop offset="100%" stopColor="rgba(82,78,154,0.92)" />
           </linearGradient>
           <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="rgba(241,241,244,0.98)" />
-            <stop offset="100%" stopColor="rgba(211,210,219,0.96)" />
+            <stop offset="0%" stopColor="rgba(244,243,247,0.99)" />
+            <stop offset="100%" stopColor="rgba(214,213,223,0.97)" />
+          </linearGradient>
+          <linearGradient id="skirtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="rgba(86,94,126,0.98)" />
+            <stop offset="100%" stopColor="rgba(60,66,96,0.97)" />
           </linearGradient>
           <linearGradient id="legGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="rgba(208,199,197,0.98)" />
-            <stop offset="100%" stopColor="rgba(177,170,172,0.95)" />
+            <stop offset="0%" stopColor="rgba(216,204,201,0.99)" />
+            <stop offset="100%" stopColor="rgba(184,174,176,0.96)" />
           </linearGradient>
           <linearGradient id="hairGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="rgba(74,70,78,0.98)" />
-            <stop offset="100%" stopColor="rgba(46,45,54,0.96)" />
+            <stop offset="0%" stopColor="rgba(78,73,84,0.99)" />
+            <stop offset="55%" stopColor="rgba(55,51,61,0.98)" />
+            <stop offset="100%" stopColor="rgba(37,35,43,0.97)" />
           </linearGradient>
           <linearGradient id="bagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="rgba(52,68,95,0.98)" />
             <stop offset="100%" stopColor="rgba(31,43,65,0.95)" />
           </linearGradient>
+          <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="rgba(239,221,212,0.99)" />
+            <stop offset="100%" stopColor="rgba(224,202,194,0.98)" />
+          </linearGradient>
         </defs>
 
-        <ellipse cx="58" cy="272" rx="24" ry="7" fill="rgba(18,24,34,0.16)" />
+        <ellipse cx="68" cy="300" rx="30" ry="8" fill="rgba(18,24,34,0.16)" />
 
         <path
-          d="M66 42 C78 48, 84 58, 87 74 C88 82, 86 90, 84 100 L82 118 C81 132, 86 154, 94 176 C100 194, 103 211, 102 236 C88 221, 73 200, 63 183 C56 170, 53 153, 51 139 L49 94 C48 71, 54 53, 66 42 Z"
+          d="M76 46 C88 53, 96 66, 99 81 C102 94, 100 111, 97 124 L94 146 C92 163, 97 188, 108 212 C115 230, 117 250, 116 273 C102 258, 85 235, 74 213 C66 197, 62 176, 60 159 L58 107 C57 80, 63 57, 76 46 Z"
           fill="url(#coatGrad)"
           opacity="0.94"
           style={{
@@ -432,32 +441,32 @@ const OriginalAnimeInspiredFigure: React.FC<{ opacity: number }> = ({ opacity })
           }}
         />
         <path
-          d="M58 63 C52 66, 47 72, 45 82 C43 95, 44 114, 44 129 C44 155, 46 183, 45 208 C45 224, 43 244, 39 263 L51 263 C55 242, 58 224, 59 206 L61 156 L65 263 L77 263 C77 240, 76 217, 78 194 C80 172, 83 151, 84 130 C85 111, 83 92, 79 78 C75 66, 68 60, 58 63 Z"
+          d="M66 111 C58 116, 53 126, 52 139 C50 158, 52 181, 53 204 C54 229, 53 253, 49 289 L62 289 C67 263, 69 244, 70 223 L73 177 L77 289 L90 289 C90 263, 90 238, 93 216 C96 188, 99 166, 99 145 C99 130, 96 118, 89 111 C81 103, 74 104, 66 111 Z"
           fill="url(#legGrad)"
         />
         <path
-          d="M47 262 L57 262 C58 268, 56 272, 49 273 C45 273, 44 269, 47 262 Z"
+          d="M58 288 L70 288 C72 295, 68 299, 60 300 C55 300, 54 295, 58 288 Z"
           fill="rgba(53,57,73,0.96)"
         />
         <path
-          d="M73 262 L84 262 C86 268, 83 272, 76 273 C71 273, 70 269, 73 262 Z"
+          d="M85 288 L99 288 C101 295, 96 300, 88 300 C83 300, 81 295, 85 288 Z"
           fill="rgba(53,57,73,0.96)"
         />
 
         <path
-          d="M58 52 C50 53, 44 59, 42 69 C39 82, 40 98, 42 112 C44 125, 49 138, 57 141 C67 143, 78 138, 83 126 C88 115, 90 93, 88 77 C86 61, 75 51, 58 52 Z"
+          d="M70 60 C58 63, 51 72, 49 87 C47 104, 49 123, 54 136 C59 149, 69 155, 81 153 C92 151, 100 140, 104 126 C109 108, 108 86, 102 73 C96 60, 84 56, 70 60 Z"
           fill="url(#shirtGrad)"
         />
         <path
-          d="M56 47 C61 45, 69 46, 73 52 C76 57, 75 67, 69 71 C64 74, 56 73, 52 68 C47 62, 49 50, 56 47 Z"
-          fill="rgba(230,213,204,0.98)"
+          d="M64 48 C70 44, 79 44, 85 48 C90 52, 92 61, 88 68 C84 76, 75 80, 66 78 C59 76, 54 69, 55 61 C55 55, 58 51, 64 48 Z"
+          fill="url(#skinGrad)"
         />
         <path
-          d="M50 48 C52 36, 62 30, 72 31 C80 32, 88 39, 89 48 C89 57, 84 63, 77 67 C72 70, 66 69, 60 68 C55 66, 49 60, 50 48 Z"
+          d="M58 50 C58 34, 70 24, 84 25 C97 26, 107 37, 107 51 C106 63, 100 73, 89 79 C80 84, 67 83, 60 76 C53 69, 58 58, 58 50 Z"
           fill="url(#hairGrad)"
         />
         <path
-          d="M71 34 C83 43, 88 54, 88 69 C86 82, 78 92, 68 99 C78 92, 87 85, 95 86 C96 73, 93 56, 86 43 C81 35, 76 31, 71 34 Z"
+          d="M85 28 C98 33, 108 44, 111 60 C114 77, 109 92, 98 105 C90 114, 79 119, 71 120 C83 111, 92 100, 100 92 C105 87, 111 87, 118 91 C119 77, 116 57, 107 43 C100 32, 92 27, 85 28 Z"
           fill="rgba(56,53,65,0.92)"
           style={{
             transformOrigin: '60% 12%',
@@ -465,33 +474,61 @@ const OriginalAnimeInspiredFigure: React.FC<{ opacity: number }> = ({ opacity })
             animation: 'hair-drift 5.8s ease-in-out infinite',
           }}
         />
+        <path
+          d="M59 59 C61 66, 65 71, 70 74 C77 78, 84 79, 90 77"
+          fill="none"
+          stroke="rgba(37,35,43,0.35)"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+        <circle cx="72" cy="62" r="1.2" fill="rgba(75,66,65,0.72)" />
+        <circle cx="81" cy="61" r="1.2" fill="rgba(75,66,65,0.72)" />
+        <path
+          d="M74 66 C75 68, 76 69, 78 69"
+          fill="none"
+          stroke="rgba(166,123,118,0.58)"
+          strokeWidth="0.9"
+          strokeLinecap="round"
+        />
+        <path
+          d="M72 72 C75 74, 79 74, 82 72"
+          fill="none"
+          stroke="rgba(155,102,110,0.54)"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+        />
 
         <path
-          d="M41 78 C35 87, 34 94, 35 108 C36 118, 38 129, 41 136"
-          stroke="rgba(217,209,208,0.96)"
-          strokeWidth="5"
-          strokeLinecap="round"
+          d="M47 89 C41 99, 40 108, 41 122 C42 132, 46 144, 51 152"
           fill="none"
+          stroke="url(#skinGrad)"
+          strokeWidth="6"
+          strokeLinecap="round"
         />
         <path
-          d="M81 82 C88 90, 94 97, 98 108"
-          stroke="rgba(220,211,209,0.96)"
-          strokeWidth="5"
-          strokeLinecap="round"
+          d="M95 91 C104 99, 110 107, 114 121"
           fill="none"
+          stroke="url(#skinGrad)"
+          strokeWidth="6"
+          strokeLinecap="round"
         />
         <path
-          d="M96 107 C101 108, 106 112, 107 118 C108 123, 104 127, 99 126 C94 125, 92 118, 96 107 Z"
-          fill="rgba(230,213,204,0.98)"
+          d="M112 119 C117 120, 121 124, 121 130 C121 135, 116 139, 110 138 C105 137, 103 131, 105 125 C106 122, 108 120, 112 119 Z"
+          fill="url(#skinGrad)"
         />
 
         <path
-          d="M41 97 C47 93, 56 92, 66 95 C73 98, 78 103, 79 109 C80 116, 76 121, 69 123 C58 126, 46 125, 40 117 C36 111, 36 102, 41 97 Z"
+          d="M48 108 C57 100, 70 98, 83 100 C94 102, 102 108, 104 118 C106 128, 100 136, 90 139 C78 143, 62 142, 51 136 C43 131, 42 117, 48 108 Z"
           fill="url(#coatGrad)"
           opacity="0.92"
         />
         <path
-          d="M72 99 C83 103, 94 108, 102 118 C108 126, 111 138, 109 151 C102 146, 97 141, 90 137 C81 132, 73 128, 67 122 C62 116, 64 104, 72 99 Z"
+          d="M66 108 C67 101, 71 97, 77 96 C83 95, 88 98, 90 104 C91 112, 86 118, 78 119 C71 120, 66 116, 66 108 Z"
+          fill="rgba(165,79,101,0.78)"
+          opacity="0.6"
+        />
+        <path
+          d="M82 107 C95 111, 109 118, 118 130 C125 140, 128 155, 126 171 C117 165, 110 159, 101 154 C90 147, 81 142, 73 133 C67 125, 70 112, 82 107 Z"
           fill="url(#coatGrad)"
           opacity="0.9"
           style={{
@@ -500,14 +537,19 @@ const OriginalAnimeInspiredFigure: React.FC<{ opacity: number }> = ({ opacity })
             animation: 'coat-tail 7.4s ease-in-out infinite',
           }}
         />
+        <path
+          d="M62 136 C70 135, 80 135, 92 138 C95 154, 95 168, 94 181 C80 183, 68 182, 56 178 C56 165, 57 150, 62 136 Z"
+          fill="url(#skirtGrad)"
+          opacity="0.96"
+        />
 
         <path
-          d="M84 108 C88 103, 95 101, 103 104 C108 106, 112 111, 113 117 C113 129, 103 136, 92 133 C84 131, 80 123, 84 108 Z"
+          d="M100 121 C107 116, 116 115, 124 119 C130 123, 133 129, 132 138 C130 149, 120 155, 109 153 C100 151, 94 143, 95 133 C95 128, 97 124, 100 121 Z"
           fill="url(#bagGrad)"
           opacity="0.92"
         />
         <path
-          d="M76 78 C84 83, 91 93, 96 106"
+          d="M86 82 C95 90, 102 103, 109 121"
           stroke="rgba(70,79,110,0.78)"
           strokeWidth="2.8"
           fill="none"
@@ -520,13 +562,13 @@ const OriginalAnimeInspiredFigure: React.FC<{ opacity: number }> = ({ opacity })
         />
 
         <path
-          d="M51 52 C55 59, 57 66, 57 74"
+          d="M63 53 C67 61, 69 68, 68 77"
           stroke="rgba(255,255,255,0.26)"
           strokeWidth="1.2"
           fill="none"
         />
         <path
-          d="M69 95 C72 121, 75 144, 83 167"
+          d="M79 104 C83 128, 88 150, 97 176"
           stroke="rgba(255,255,255,0.20)"
           strokeWidth="1.2"
           fill="none"
