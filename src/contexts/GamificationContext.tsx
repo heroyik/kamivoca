@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, onSnapshot, updateDoc, collection, collectionGroup, query, where, serverTimestamp, increment, deleteDoc, getDocs, writeBatch, deleteField } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, serverTimestamp, increment, deleteDoc, getDocs, writeBatch, deleteField } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import vocabData from "@/data/vocab.json";
 import { normalizeVocabWordKey, VocabEntry } from "@/utils/vocab";
@@ -439,6 +439,21 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     return chunks;
   };
 
+  const deleteManualCognitesAcrossUsers = async (firestore: NonNullable<typeof db>, wordKeys: string[]) => {
+    if (wordKeys.length === 0) return;
+
+    const userSnapshot = await getDocs(collection(firestore, "users"));
+    const deleteRefs = userSnapshot.docs.flatMap((userDoc) =>
+      wordKeys.map((wordKey) => doc(firestore, "users", userDoc.id, "manualCognites", wordKey)),
+    );
+
+    for (const refs of chunkItems(deleteRefs, 400)) {
+      const batch = writeBatch(firestore);
+      refs.forEach((ref) => batch.delete(ref));
+      await batch.commit();
+    }
+  };
+
   const clearLegacyCogniteFlags = async (wordKey: string) => {
     if (!db) return;
     const firestore = db;
@@ -475,15 +490,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     deleteBatch.delete(doc(db, "fullVocaEntries", entry.id));
     await deleteBatch.commit();
 
-    const matchingManualCognites = await getDocs(
-      query(collectionGroup(db, "manualCognites"), where("wordKey", "==", wordKey)),
-    );
-
-    if (!matchingManualCognites.empty) {
-      const cogniteBatch = writeBatch(db);
-      matchingManualCognites.docs.forEach((docSnap) => cogniteBatch.delete(docSnap.ref));
-      await cogniteBatch.commit();
-    }
+    await deleteManualCognitesAcrossUsers(db, [wordKey]);
 
     await clearLegacyCogniteFlags(wordKey);
   };
@@ -531,19 +538,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       await batch.commit();
     }
 
-    for (const wordKeyChunk of chunkItems(uniqueWordKeys, 10)) {
-      const snapshot = await getDocs(
-        query(collectionGroup(firestore, "manualCognites"), where("wordKey", "in", wordKeyChunk)),
-      );
-
-      if (snapshot.empty) continue;
-
-      for (const docChunk of chunkItems(snapshot.docs, 400)) {
-        const batch = writeBatch(firestore);
-        docChunk.forEach((docSnap) => batch.delete(docSnap.ref));
-        await batch.commit();
-      }
-    }
+    await deleteManualCognitesAcrossUsers(firestore, uniqueWordKeys);
 
     await Promise.all(uniqueWordKeys.map((wordKey) => clearLegacyCogniteFlags(wordKey)));
     setManualCogniteIds((prev) =>
