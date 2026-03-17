@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "delete:heroyik:cognites": "node scripts/delete-heroyik-cognites-and-sync.mjs",
     "sync:firestore:vocab": "node scripts/sync-firestore-vocab.mjs",
     "sync:firestore:full-voca": "node scripts/sync-full-voca.mjs",
     "data:refresh": "node scripts/regenerate_dataset_contexts.mjs && node scripts/transform_japanese_data.mjs && node scripts/sync-firestore-vocab.mjs && node scripts/sync-full-voca.mjs",
