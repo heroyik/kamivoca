@@ -30,6 +30,15 @@ export function normalizeVocabWordKey(word: string): string {
     .toLowerCase();
 }
 
+export function filterDeletedWords<T extends Pick<VocabEntry, "word">>(
+  entries: T[],
+  deletedWordKeys: Iterable<string> = [],
+): T[] {
+  const deletedSet = new Set(deletedWordKeys);
+  if (deletedSet.size === 0) return entries;
+  return entries.filter((entry) => !deletedSet.has(normalizeVocabWordKey(entry.word)));
+}
+
 function isKana(char: string): boolean {
   return /[ぁ-ゖァ-ヺー]/.test(char);
 }
@@ -121,17 +130,17 @@ export function inferPOS(entry: Pick<VocabEntry, "pos" | "word" | "furigana">): 
  * KamiVoca uses a single combined JSON pipeline initially.
  * Eventually, this could merge multiple JSON files.
  */
-function getAllVocabData(): VocabEntry[] {
+function getAllVocabData(deletedWordKeys: Iterable<string> = []): VocabEntry[] {
   // Currently we just have one initial subset for testing/pilgrimage
   // We can expand this array later by concat'ing other json files like jlpt_n5.json
-  return opicData.data as VocabEntry[];
+  return filterDeletedWords(opicData.data as VocabEntry[], deletedWordKeys);
 }
 
 /**
  * Creates the 15 units of the Pilgrimage Map based on JLPT Levels or overall progress.
  */
-export function getUnits(): LearningUnit[] {
-  const allWords = getAllVocabData();
+export function getUnits(deletedWordKeys: Iterable<string> = []): LearningUnit[] {
+  const allWords = getAllVocabData(deletedWordKeys);
 
   if (allWords.length === 0) return [];
 
@@ -162,8 +171,9 @@ export function getRandomWords(
   count: number,
   targetPOS?: POS,
   excludeWordIds?: string[],
+  deletedWordKeys: Iterable<string> = [],
 ): VocabEntry[] {
-  const allWords = getAllVocabData();
+  const allWords = getAllVocabData(deletedWordKeys);
   const excludeArray = excludeWordIds || [];
   
   let candidates = allWords.filter((w) => !excludeArray.includes(w.id));
@@ -181,6 +191,6 @@ export function getRandomWords(
   return [...candidates].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
-export function getTotalWordCount(): number {
-  return getAllVocabData().length;
+export function getTotalWordCount(deletedWordKeys: Iterable<string> = []): number {
+  return getAllVocabData(deletedWordKeys).length;
 }

@@ -53,18 +53,18 @@ const getMotivationalSticker = (idx: number) => {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite'>('learn');
-  const { stats, user, manualCogniteIds } = useGamification();
+  const { stats, user, manualCogniteIds, globalDeletedWordKeys } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
   const isAdminUser = user?.email === 'heroyik@gmail.com';
 
   // Updated units calculation
   const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
-  const units = getUnits().map((unit) => ({
+  const units = getUnits(globalDeletedWordKeys).map((unit) => ({
     ...unit,
     words: filterEasyCognates(unit.words, hideEasyCognates, manualCogniteIds),
   }));
-  const totalWords = getTotalWordCount();
+  const totalWords = getTotalWordCount(globalDeletedWordKeys);
 
   const handleReviewMistakes = (e: React.MouseEvent, unitId: string) => {
     e.preventDefault();

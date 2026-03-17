@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, onSnapshot, updateDoc, collection, serverTimestamp, increment, deleteDoc, getDocs, writeBatch, deleteField } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, collectionGroup, query, where, serverTimestamp, increment, deleteDoc, getDocs, writeBatch, deleteField } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import vocabData from "@/data/vocab.json";
 import { normalizeVocabWordKey, VocabEntry } from "@/utils/vocab";
@@ -33,6 +33,7 @@ export interface UserStats {
 
 interface GamificationContextType {
   user: User | null;
+  globalDeletedWordKeys: string[];
   manualCogniteIds: string[];
   stats: UserStats;
   isInitialized: boolean;
@@ -78,6 +79,7 @@ const defaultStats: UserStats = {
 
 export function GamificationProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [globalDeletedWordKeys, setGlobalDeletedWordKeys] = useState<string[]>([]);
   const [manualCogniteIds, setManualCogniteIds] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [stats, setStats] = useState<UserStats>(defaultStats);
@@ -108,6 +110,27 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
         }
       }
     }
+  }, []);
+
+  useEffect(() => {
+    if (!db) {
+      setTimeout(() => setGlobalDeletedWordKeys([]), 0);
+      return;
+    }
+
+    const deletedWordsCollection = collection(db, "adminDeletedWords");
+    const unsubscribe = onSnapshot(
+      deletedWordsCollection,
+      (snapshot) => {
+        const nextKeys = snapshot.docs.map((docSnap) => docSnap.id);
+        setGlobalDeletedWordKeys(nextKeys);
+      },
+      (error) => {
+        console.error("[GamificationProvider] Global deleted word sync failed", error);
+      },
+    );
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -425,6 +448,37 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     await batch.commit();
   };
 
+  const markWordGloballyDeleted = async (entry: VocabEntry) => {
+    if (!db || !user) return;
+
+    const wordKey = normalizeVocabWordKey(entry.word);
+
+    await setDoc(doc(db, "adminDeletedWords", wordKey), {
+      word: entry.word,
+      wordKey,
+      deletedByUid: user.uid,
+      deletedByEmail: user.email ?? null,
+      deletedAt: serverTimestamp(),
+    }, { merge: true });
+
+    const deleteBatch = writeBatch(db);
+    deleteBatch.delete(doc(db, "vocabEntries", entry.id));
+    deleteBatch.delete(doc(db, "fullVocaEntries", entry.id));
+    await deleteBatch.commit();
+
+    const matchingManualCognites = await getDocs(
+      query(collectionGroup(db, "manualCognites"), where("wordKey", "==", wordKey)),
+    );
+
+    if (!matchingManualCognites.empty) {
+      const cogniteBatch = writeBatch(db);
+      matchingManualCognites.docs.forEach((docSnap) => cogniteBatch.delete(docSnap.ref));
+      await cogniteBatch.commit();
+    }
+
+    await clearLegacyCogniteFlags(wordKey);
+  };
+
   const markManualCognite = async (entryId: string) => {
     if (!db || !user) {
       console.warn("[GamificationProvider] Firestore is not available for manual cognites");
@@ -464,7 +518,11 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
     const wordKey = normalizeVocabWordKey(entry.word);
     await deleteDoc(doc(db, "users", user.uid, "manualCognites", wordKey));
-    await clearLegacyCogniteFlags(wordKey);
+    if (user.email === "heroyik@gmail.com") {
+      await markWordGloballyDeleted(entry);
+    } else {
+      await clearLegacyCogniteFlags(wordKey);
+    }
     setManualCogniteIds((prev) => prev.filter((id) => id !== entryId));
   };
 
@@ -490,7 +548,14 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     snapshot.docs.forEach((docSnap) => batch.delete(docSnap.ref));
     await batch.commit();
 
-    await Promise.all(wordKeys.map((wordKey) => clearLegacyCogniteFlags(wordKey)));
+    if (user.email === "heroyik@gmail.com") {
+      const entriesByWordKey = getEntriesByWordKey();
+      await Promise.all(
+        wordKeys.flatMap((wordKey) => (entriesByWordKey.get(wordKey) ?? []).map((entry) => markWordGloballyDeleted(entry))),
+      );
+    } else {
+      await Promise.all(wordKeys.map((wordKey) => clearLegacyCogniteFlags(wordKey)));
+    }
     setManualCogniteIds([]);
   };
 
@@ -509,6 +574,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   return (
     <GamificationContext.Provider value={{
       user,
+      globalDeletedWordKeys,
       manualCogniteIds,
       stats,
       isInitialized,

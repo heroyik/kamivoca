@@ -10,6 +10,7 @@ export function useGamification() {
   // Map context to existing hook interface for backward compatibility
   return {
     user: context.user,
+    globalDeletedWordKeys: context.globalDeletedWordKeys,
     manualCogniteIds: context.manualCogniteIds,
     stats: context.stats,
     isInitialized: context.isInitialized,

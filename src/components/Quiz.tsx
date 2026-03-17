@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSound } from "@/hooks/useSound";
-import { VocabEntry, inferPOS, normalizeDisplayFurigana } from "@/utils/vocab";
+import { filterDeletedWords, VocabEntry, inferPOS, normalizeDisplayFurigana } from "@/utils/vocab";
 import vocabData from "@/data/vocab.json"; // Import full vocab for distractors
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -348,7 +348,7 @@ function shouldExcludeDistractorEntry(currentEntry: VocabEntry, candidateEntry: 
 
 export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, priorityWord }: QuizProps) {
   const router = useRouter();
-  const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, markManualCognite } = useGamification();
+  const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, globalDeletedWordKeys, markManualCognite } = useGamification();
 
   // Sound hook — preloaded + Chrome Android unlock
   const { play: playSound } = useSound(stats.settings?.soundEnabled ?? true);
@@ -368,7 +368,11 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
 
   // Memoize grouped vocabulary by POS to optimize generation
   const vocabByPOS = useMemo(() => {
-    const filteredVocab = filterEasyCognates(vocabData.data as VocabEntry[], hideEasyCognates, manualCogniteIds);
+    const filteredVocab = filterEasyCognates(
+      filterDeletedWords(vocabData.data as VocabEntry[], globalDeletedWordKeys),
+      hideEasyCognates,
+      manualCogniteIds,
+    );
     const groups: Record<string, VocabEntry[]> = {
       noun: [],
       verb: [],
@@ -380,7 +384,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
       groups[pos].push(entry);
     });
     return groups;
-  }, [hideEasyCognates, manualCogniteIds]);
+  }, [globalDeletedWordKeys, hideEasyCognates, manualCogniteIds]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);

@@ -4,12 +4,12 @@ import { useEffect } from "react";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import vocabData from "@/data/vocab.json";
-import { normalizeDisplayFurigana, VocabEntry } from "@/utils/vocab";
+import { filterDeletedWords, normalizeDisplayFurigana, normalizeVocabWordKey, VocabEntry } from "@/utils/vocab";
 import { Trash2, Brain, Frown } from "lucide-react";
 import Link from "next/link";
 
 export default function ReviewTab() {
-  const { stats, removeMistake, clearAllMistakes } = useGamification();
+  const { stats, removeMistake, clearAllMistakes, globalDeletedWordKeys } = useGamification();
   const { top20, loading: top20Loading, error: top20Error, refresh: refreshTop20 } = useGlobalTop20();
 
   const mistakes = stats.mistakes || {};
@@ -18,7 +18,7 @@ export default function ReviewTab() {
   // Grouping logic to handle data inconsistency (duplicates in vocab and variant keys in mistakes)
   const groupedMistakesMap = new Map<string, { entry: VocabEntry; totalCount: number }>();
   
-  (vocabData.data as VocabEntry[]).forEach((v) => {
+  filterDeletedWords(vocabData.data as VocabEntry[], globalDeletedWordKeys).forEach((v) => {
     const word = v.word;
     const normalized = word.trim();
     
@@ -38,6 +38,7 @@ export default function ReviewTab() {
   });
 
   const reviewEntries = Array.from(groupedMistakesMap.values());
+  const visibleTop20 = top20.filter((entry) => !globalDeletedWordKeys.includes(normalizeVocabWordKey(entry.word)));
 
   // Pull latest global fail totals whenever this tab is active and local mistakes changed.
   useEffect(() => {
@@ -151,15 +152,15 @@ export default function ReviewTab() {
           </div>
         )}
 
-        {!top20Loading && !top20Error && top20.length === 0 && (
+        {!top20Loading && !top20Error && visibleTop20.length === 0 && (
           <div className="text-small text-center py-16" style={{ color: "#9ca3af" }}>
             No global data yet.
           </div>
         )}
 
-        {!top20Loading && top20.length > 0 && (
+        {!top20Loading && visibleTop20.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {top20.map((entry, idx) => {
+            {visibleTop20.map((entry, idx) => {
               const rank = idx + 1;
               const displayFurigana = normalizeDisplayFurigana(entry.word, entry.furigana);
               return (
