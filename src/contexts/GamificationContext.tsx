@@ -493,6 +493,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       console.warn("[GamificationProvider] Admin-only global delete rejected");
       return;
     }
+    const firestore = db;
 
     const entriesById = new Map((vocabData.data as VocabEntry[]).map((entry) => [entry.id, entry]));
     const entriesByWordKey = getEntriesByWordKey();
@@ -508,7 +509,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
     for (const wordKey of uniqueWordKeys) {
       const sourceEntry = entriesByWordKey.get(wordKey)?.[0];
-      await setDoc(doc(db, "adminDeletedWords", wordKey), {
+      await setDoc(doc(firestore, "adminDeletedWords", wordKey), {
         word: sourceEntry?.word ?? null,
         wordKey,
         deletedByUid: user.uid,
@@ -519,26 +520,26 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
     const deleteRefs = uniqueWordKeys.flatMap((wordKey) =>
       (entriesByWordKey.get(wordKey) ?? []).flatMap((entry) => [
-        doc(db, "vocabEntries", entry.id),
-        doc(db, "fullVocaEntries", entry.id),
+        doc(firestore, "vocabEntries", entry.id),
+        doc(firestore, "fullVocaEntries", entry.id),
       ]),
     );
 
     for (const refs of chunkItems(deleteRefs, 400)) {
-      const batch = writeBatch(db);
+      const batch = writeBatch(firestore);
       refs.forEach((ref) => batch.delete(ref));
       await batch.commit();
     }
 
     for (const wordKeyChunk of chunkItems(uniqueWordKeys, 10)) {
       const snapshot = await getDocs(
-        query(collectionGroup(db, "manualCognites"), where("wordKey", "in", wordKeyChunk)),
+        query(collectionGroup(firestore, "manualCognites"), where("wordKey", "in", wordKeyChunk)),
       );
 
       if (snapshot.empty) continue;
 
       for (const docChunk of chunkItems(snapshot.docs, 400)) {
-        const batch = writeBatch(db);
+        const batch = writeBatch(firestore);
         docChunk.forEach((docSnap) => batch.delete(docSnap.ref));
         await batch.commit();
       }
