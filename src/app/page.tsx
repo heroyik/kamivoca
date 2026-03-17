@@ -15,6 +15,7 @@ import Leaderboard from '@/components/Leaderboard';
 import UserProfile from '@/components/UserProfile';
 import ReviewTab from '@/components/ReviewTab';
 import CogniteTab from '@/components/CogniteTab';
+import AdminDeleteTab from '@/components/AdminDeleteTab';
 import RankToast from '@/components/RankToast';
 import Image from 'next/image';
 import { Github } from 'lucide-react';
@@ -52,7 +53,7 @@ const getMotivationalSticker = (idx: number) => {
 };
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite'>('learn');
+  const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite' | 'delete'>('learn');
   const { stats, user, manualCogniteIds, globalDeletedWordKeys } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
@@ -274,6 +275,7 @@ export default function Home() {
 
       {activeTab === 'review' && <ReviewTab />}
       {activeTab === 'cognite' && isAdminUser && <CogniteTab />}
+      {activeTab === 'delete' && isAdminUser && <AdminDeleteTab />}
       {activeTab === 'leader' && <Leaderboard />}
       {activeTab === 'profile' && <UserProfile user={user} stats={stats} />}
 
@@ -318,6 +320,15 @@ export default function Home() {
           >
             <span className="font-24">🧠</span>
             <span className="font-10 font-800">COGNITE</span>
+          </div>
+        )}
+        {isAdminUser && (
+          <div
+            onClick={() => setActiveTab('delete')}
+            className={`nav-item ${activeTab === 'delete' ? 'active' : ''}`}
+          >
+            <span className="font-24">🗑️</span>
+            <span className="font-10 font-800">DELETE</span>
           </div>
         )}
         <div

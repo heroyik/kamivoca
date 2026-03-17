@@ -51,6 +51,7 @@ interface GamificationContextType {
   markManualCognite: (entryId: string) => Promise<void>;
   removeManualCognite: (entryId: string) => Promise<void>;
   clearAllManualCognites: () => Promise<void>;
+  deleteWordsGlobally: (entryIds: string[]) => Promise<void>;
   resetProgress: () => void;
   resetLocalState: () => void;
 }
@@ -430,6 +431,14 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     return map;
   };
 
+  const chunkItems = <T,>(items: T[], size: number) => {
+    const chunks: T[][] = [];
+    for (let index = 0; index < items.length; index += size) {
+      chunks.push(items.slice(index, index + size));
+    }
+    return chunks;
+  };
+
   const clearLegacyCogniteFlags = async (wordKey: string) => {
     if (!db) return;
     const firestore = db;
@@ -477,6 +486,72 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     }
 
     await clearLegacyCogniteFlags(wordKey);
+  };
+
+  const deleteWordsGlobally = async (entryIds: string[]) => {
+    if (!db || !user || user.email !== "heroyik@gmail.com") {
+      console.warn("[GamificationProvider] Admin-only global delete rejected");
+      return;
+    }
+
+    const entriesById = new Map((vocabData.data as VocabEntry[]).map((entry) => [entry.id, entry]));
+    const entriesByWordKey = getEntriesByWordKey();
+    const selectedEntries = entryIds
+      .map((entryId) => entriesById.get(entryId))
+      .filter((entry): entry is VocabEntry => Boolean(entry));
+
+    if (selectedEntries.length === 0) return;
+
+    const uniqueWordKeys = Array.from(
+      new Set(selectedEntries.map((entry) => normalizeVocabWordKey(entry.word))),
+    );
+
+    for (const wordKey of uniqueWordKeys) {
+      const sourceEntry = entriesByWordKey.get(wordKey)?.[0];
+      await setDoc(doc(db, "adminDeletedWords", wordKey), {
+        word: sourceEntry?.word ?? null,
+        wordKey,
+        deletedByUid: user.uid,
+        deletedByEmail: user.email ?? null,
+        deletedAt: serverTimestamp(),
+      }, { merge: true });
+    }
+
+    const deleteRefs = uniqueWordKeys.flatMap((wordKey) =>
+      (entriesByWordKey.get(wordKey) ?? []).flatMap((entry) => [
+        doc(db, "vocabEntries", entry.id),
+        doc(db, "fullVocaEntries", entry.id),
+      ]),
+    );
+
+    for (const refs of chunkItems(deleteRefs, 400)) {
+      const batch = writeBatch(db);
+      refs.forEach((ref) => batch.delete(ref));
+      await batch.commit();
+    }
+
+    for (const wordKeyChunk of chunkItems(uniqueWordKeys, 10)) {
+      const snapshot = await getDocs(
+        query(collectionGroup(db, "manualCognites"), where("wordKey", "in", wordKeyChunk)),
+      );
+
+      if (snapshot.empty) continue;
+
+      for (const docChunk of chunkItems(snapshot.docs, 400)) {
+        const batch = writeBatch(db);
+        docChunk.forEach((docSnap) => batch.delete(docSnap.ref));
+        await batch.commit();
+      }
+    }
+
+    await Promise.all(uniqueWordKeys.map((wordKey) => clearLegacyCogniteFlags(wordKey)));
+    setManualCogniteIds((prev) =>
+      prev.filter((entryId) => {
+        const entry = entriesById.get(entryId);
+        return !entry || !uniqueWordKeys.includes(normalizeVocabWordKey(entry.word));
+      }),
+    );
+    setGlobalDeletedWordKeys((prev) => Array.from(new Set([...prev, ...uniqueWordKeys])));
   };
 
   const markManualCognite = async (entryId: string) => {
@@ -592,6 +667,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       markManualCognite,
       removeManualCognite,
       clearAllManualCognites,
+      deleteWordsGlobally,
       resetProgress,
       resetLocalState
     }}>

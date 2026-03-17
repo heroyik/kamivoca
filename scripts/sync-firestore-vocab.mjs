@@ -36,6 +36,15 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+function normalizeWordKey(word = "") {
+  return word
+    .normalize("NFKC")
+    .replace(/[〜～]/g, "~")
+    .replace(/\s+/g, "")
+    .trim()
+    .toLowerCase();
+}
+
 function chunk(arr, size) {
   const out = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
@@ -57,15 +66,20 @@ async function main() {
   const local = localRaw.data;
   if (!Array.isArray(local)) throw new Error("Dataset 'data' field must be an array.");
 
+  const deletedWordSnapshot = await db.collection("adminDeletedWords").select().get();
+  const deletedWordKeys = new Set(deletedWordSnapshot.docs.map((docSnap) => docSnap.id));
+  const filteredLocal = local.filter((entry) => !deletedWordKeys.has(normalizeWordKey(entry.word)));
+
   const localMap = new Map();
-  for (const entry of local) {
+  for (const entry of filteredLocal) {
     const id = String(entry.id).trim();
     if (!id) throw new Error("Found entry with empty id.");
     if (localMap.has(id)) throw new Error(`Duplicate id detected: ${id}`);
     localMap.set(id, entry);
   }
 
-  console.log(`📦 Loaded local dataset (${localMap.size} entries)`);
+  console.log(`📦 Loaded local dataset (${local.length} entries)`);
+  console.log(`🧹 Excluding ${local.length - filteredLocal.length} admin-deleted entries`);
 
   // 3. Fetch Remote State
   console.log("🔍 Fetching remote entries...");
