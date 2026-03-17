@@ -186,7 +186,7 @@ The following changes were implemented in the 2.3.0 dataset and quiz-quality pas
       - `src/utils/vocab.ts`
 
 11. **Admin-only COGNITE tab**
-    - Added a dedicated `COGNITE` tab visible only when logged in as `heroyik@gmail.com`.
+    - Added a dedicated `COGNITE` tab for the account that matches `NEXT_PUBLIC_KAMI_ADMIN_KEY`.
     - The tab lists all manually marked cognite entries with:
       - headword
       - furigana

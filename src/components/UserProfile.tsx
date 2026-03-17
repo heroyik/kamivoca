@@ -1,6 +1,7 @@
 "use client";
 
 import { auth, googleProvider } from '@/lib/firebase';
+import { isKamiAdminEmail } from '@/lib/admin';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { useGamification } from '@/hooks/useGamification';
 import { UserStats } from '@/hooks/useGamification';
@@ -14,9 +15,11 @@ import { isUnsupportedIAB, redirectToExternalBrowser } from '@/utils/browser';
 interface UserProfileProps {
     user: User | null;
     stats: UserStats;
+    adminToolsUnlocked: boolean;
+    onAdminToolsUnlock: () => void;
 }
 
-export default function UserProfile({ user, stats }: UserProfileProps) {
+export default function UserProfile({ user, stats, adminToolsUnlocked, onAdminToolsUnlock }: UserProfileProps) {
     const { unlockProgress, updateSettings, updateProfile, resetProgress, resetLocalState } = useGamification();
     const [devClickCount, setDevClickCount] = useState(0);
     const [selectedLevel, setSelectedLevel] = useState(1);
@@ -24,6 +27,8 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
     const [adminName, setAdminName] = useState(stats.displayName || user?.displayName || '');
     const [adminPhoto, setAdminPhoto] = useState(stats.photoURL || user?.photoURL || '');
 
+    const isAdminUser = isKamiAdminEmail(user?.email);
+    const showDevConsole = isAdminUser && (adminToolsUnlocked || devClickCount >= 5);
 
     const handleLogin = async () => {
         if (!auth || !googleProvider) {
@@ -72,7 +77,15 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                     return (
                         <>
                             <div
-                                onClick={() => setDevClickCount(prev => prev + 1)}
+                                onClick={() => {
+                                    setDevClickCount((prev) => {
+                                        const nextValue = prev + 1;
+                                        if (isAdminUser && nextValue >= 5) {
+                                            onAdminToolsUnlock();
+                                        }
+                                        return nextValue;
+                                    });
+                                }}
                                 className="avatar-container"
                                 style={{
                                     backgroundColor: (displayPhoto && !imageError) ? 'transparent' : getAvatarColor(user?.uid || 'guest'),
@@ -124,7 +137,7 @@ export default function UserProfile({ user, stats }: UserProfileProps) {
                 {user ? (
                     <>
                         {/* Developer Tools */}
-                        {user.email === 'heroyik@gmail.com' && devClickCount >= 5 && (
+                        {showDevConsole && (
                             <div className="mt-32 p-16 bg-dev border-dev rounded-12 text-left">
                                 <p className="font-14 font-800 text-duo-green mb-12">🔧 DEV CONSOLE</p>
 

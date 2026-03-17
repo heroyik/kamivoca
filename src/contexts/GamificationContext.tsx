@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useRef, ReactNod
 import { User, onAuthStateChanged } from "firebase/auth";
 import { doc, setDoc, onSnapshot, updateDoc, collection, serverTimestamp, increment, deleteDoc, getDocs, writeBatch, deleteField } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { isKamiAdminEmail } from "@/lib/admin";
 import vocabData from "@/data/vocab.json";
 import { normalizeVocabWordKey, VocabEntry } from "@/utils/vocab";
 
@@ -496,7 +497,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteWordsGlobally = async (entryIds: string[]) => {
-    if (!db || !user || user.email !== "heroyik@gmail.com") {
+    if (!db || !user || !isKamiAdminEmail(user.email)) {
       console.warn("[GamificationProvider] Admin-only global delete rejected");
       return;
     }
@@ -589,7 +590,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
     const wordKey = normalizeVocabWordKey(entry.word);
     await deleteDoc(doc(db, "users", user.uid, "manualCognites", wordKey));
-    if (user.email === "heroyik@gmail.com") {
+    if (isKamiAdminEmail(user.email)) {
       await markWordGloballyDeleted(entry);
     } else {
       await clearLegacyCogniteFlags(wordKey);
@@ -619,7 +620,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     snapshot.docs.forEach((docSnap) => batch.delete(docSnap.ref));
     await batch.commit();
 
-    if (user.email === "heroyik@gmail.com") {
+    if (isKamiAdminEmail(user.email)) {
       const entriesByWordKey = getEntriesByWordKey();
       await Promise.all(
         wordKeys.flatMap((wordKey) => (entriesByWordKey.get(wordKey) ?? []).map((entry) => markWordGloballyDeleted(entry))),

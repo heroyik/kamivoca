@@ -2,10 +2,11 @@
 
 import vocabData from '@/data/vocab.json';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { APP_VERSION, APP_NAME, BASE_PATH } from '@/lib/constants';
+import { isKamiAdminEmail } from '@/lib/admin';
 import { getUnits, getTotalWordCount } from '@/utils/vocab';
 import { filterEasyCognates } from '@/utils/cognates';
 import Link from 'next/link';
@@ -54,10 +55,24 @@ const getMotivationalSticker = (idx: number) => {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite' | 'delete'>('learn');
+  const [adminToolsUnlocked, setAdminToolsUnlocked] = useState(false);
   const { stats, user, manualCogniteIds, globalDeletedWordKeys } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
-  const isAdminUser = user?.email === 'heroyik@gmail.com';
+  const isAdminUser = isKamiAdminEmail(user?.email);
+  const showAdminTabs = isAdminUser && adminToolsUnlocked;
+
+  useEffect(() => {
+    if (!isAdminUser) {
+      setAdminToolsUnlocked(false);
+    }
+  }, [isAdminUser]);
+
+  useEffect(() => {
+    if (!showAdminTabs && (activeTab === 'cognite' || activeTab === 'delete')) {
+      setActiveTab('profile');
+    }
+  }, [activeTab, showAdminTabs]);
 
   // Updated units calculation
   const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
@@ -274,10 +289,17 @@ export default function Home() {
       )}
 
       {activeTab === 'review' && <ReviewTab />}
-      {activeTab === 'cognite' && isAdminUser && <CogniteTab />}
-      {activeTab === 'delete' && isAdminUser && <AdminDeleteTab />}
+      {activeTab === 'cognite' && showAdminTabs && <CogniteTab />}
+      {activeTab === 'delete' && showAdminTabs && <AdminDeleteTab />}
       {activeTab === 'leader' && <Leaderboard />}
-      {activeTab === 'profile' && <UserProfile user={user} stats={stats} />}
+      {activeTab === 'profile' && (
+        <UserProfile
+          user={user}
+          stats={stats}
+          adminToolsUnlocked={adminToolsUnlocked}
+          onAdminToolsUnlock={() => setAdminToolsUnlocked(true)}
+        />
+      )}
 
       {/* Rank toast — shown after rank improvement */}
       <RankToast rank={rank} rankDelta={rankDelta} onDismiss={clearDelta} />
@@ -313,7 +335,7 @@ export default function Home() {
           <span className="font-24">📚</span>
           <span className="font-10 font-800">REVIEW</span>
         </div>
-        {isAdminUser && (
+        {showAdminTabs && (
           <div
             onClick={() => setActiveTab('cognite')}
             className={`nav-item ${activeTab === 'cognite' ? 'active' : ''}`}
@@ -322,7 +344,7 @@ export default function Home() {
             <span className="font-10 font-800">COGNITE</span>
           </div>
         )}
-        {isAdminUser && (
+        {showAdminTabs && (
           <div
             onClick={() => setActiveTab('delete')}
             className={`nav-item ${activeTab === 'delete' ? 'active' : ''}`}

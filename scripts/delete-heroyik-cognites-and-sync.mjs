@@ -10,7 +10,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const serviceAccountPath = resolve(__dirname, "../secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json");
 const rawDatasetPath = resolve(__dirname, "../voca_json/VOCA_word_furigana_separated.json");
 const transformedDatasetPath = resolve(__dirname, "../src/data/vocab.json");
-const adminEmail = "heroyik@gmail.com";
+const adminEmail = (process.env.KAMI_ADMIN_KEY || process.env.NEXT_PUBLIC_KAMI_ADMIN_KEY || "").trim().toLowerCase();
 
 if (!existsSync(serviceAccountPath)) {
   console.error(`Missing service account file: ${serviceAccountPath}`);
@@ -19,6 +19,11 @@ if (!existsSync(serviceAccountPath)) {
 
 if (!existsSync(rawDatasetPath)) {
   console.error(`Missing dataset file: ${rawDatasetPath}`);
+  process.exit(1);
+}
+
+if (!adminEmail) {
+  console.error("Missing KAMI_ADMIN_KEY (or NEXT_PUBLIC_KAMI_ADMIN_KEY) environment variable.");
   process.exit(1);
 }
 
@@ -93,12 +98,10 @@ async function setAdminDeletedWords(wordKeys, removedEntries) {
 }
 
 async function collectCollectionGroupRefs(wordKeys) {
-  const refs = [];
-  for (const wordKey of wordKeys) {
-    const snapshot = await db.collectionGroup("manualCognites").where("wordKey", "==", wordKey).get();
-    snapshot.docs.forEach((docSnap) => refs.push(docSnap.ref));
-  }
-  return refs;
+  const userSnapshot = await db.collection("users").get();
+  return userSnapshot.docs.flatMap((userDoc) =>
+    wordKeys.map((wordKey) => db.collection("users").doc(userDoc.id).collection("manualCognites").doc(wordKey)),
+  );
 }
 
 async function main() {

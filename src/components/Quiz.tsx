@@ -7,6 +7,7 @@ import vocabData from "@/data/vocab.json"; // Import full vocab for distractors
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { X, Frown } from "lucide-react";
+import { isKamiAdminEmail } from "@/lib/admin";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import { useRank } from "@/hooks/useRank";
@@ -585,7 +586,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
   const progress = ((currentIndex) / questions.length) * 100;
   const painRank = wallOfPainMap.get(currentQuestion.word);
   const isUnknown = selectedOption === "UNKNOWN";
-  const isAdminUser = user?.email === "heroyik@gmail.com";
+  const isAdminUser = isKamiAdminEmail(user?.email);
   const isManuallyMarkedCognite = manualCogniteIds.includes(currentQuestion.id);
 
   return (
