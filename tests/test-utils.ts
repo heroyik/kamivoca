@@ -1,11 +1,31 @@
 import { Page } from '@playwright/test';
 import { UserStats } from '@/contexts/GamificationContext';
 
+type TestStatsOverride =
+  Omit<Partial<UserStats>, 'settings'> & {
+    settings?: Partial<NonNullable<UserStats['settings']>>;
+  };
+
 /**
  * Seeds the localStorage with kamivoca_stats to bypass Auth
  */
-export async function seedTestState(page: Page, stats: Partial<UserStats> = {}) {
-  const finalStats = { ...defaultTestStats, ...stats };
+export async function seedTestState(page: Page, stats: TestStatsOverride = {}) {
+  const baseSettings: NonNullable<UserStats['settings']> = defaultTestStats.settings ?? {
+    soundEnabled: true,
+    hapticsEnabled: true,
+    hideFurigana: false,
+    unlockAllLevels: false,
+    hideEasyCognates: false,
+  };
+
+  const finalStats: UserStats = {
+    ...defaultTestStats,
+    ...stats,
+    settings: {
+      ...baseSettings,
+      ...(stats.settings || {}),
+    },
+  };
   
   await page.goto('');
   await page.evaluate((data) => {
