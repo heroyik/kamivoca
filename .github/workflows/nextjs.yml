@@ -1,6 +1,9 @@
 # Dual-version deployment: main (root) and v2.x (/v2)
 name: Deploy Next.js site to Pages
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 on:
   push:
     branches: ["main", "v1.3-maintenance", "develop"]
