@@ -2,7 +2,7 @@
 
 Source: `voca_json/VOCA_word_furigana_separated.json`
 
-Generated entries scanned: **892**
+Generated entries scanned: **891**
 
 This report mirrors the current quiz distractor exclusion rules. Pairs listed here are candidates that should not appear together as answer options because they are same-reading pairs, known contrast pairs, or meanings are too close.
 
@@ -15,12 +15,12 @@ This report mirrors the current quiz distractor exclusion rules. Pairs listed he
 
 ## Conflict Pairs
 
-### 充実させる / 有意義に過ごす
+### ざるを得ない / 〜ざるをえない
 
 - Types: highly similar meaning
 - Meaning tokens overlap heavily enough to confuse distractor generation.
-- 0333 | 充実させる | じゅうじつさせる | 하루를 충실하게 만들다, 알차게 보내다
-- 0454 | 有意義に過ごす | ゆういぎにすごす | 하루를 알차게 보내다
+- 0180 | ざるを得ない | ざるをえない | ~하지 않을 수 없다, 어쩔 수 없이 ~하다
+- 0461 | 〜ざるをえない | 〜ざるをえない | 어쩔 수 없이 ~하다, ~하지 않을 수 없다
 
 ### 配慮がある / 思いやりがある
 

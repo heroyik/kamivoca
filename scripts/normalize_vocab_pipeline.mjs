@@ -8,6 +8,7 @@ const rootDir = path.resolve(__dirname, "..");
 const steps = [
   "scripts/normalize_kana_words_to_kanji.mjs",
   "scripts/normalize_long_vocab_phrases.mjs",
+  "scripts/normalize_mismatched_meanings.mjs",
   "scripts/normalize_onomatopoeia_pos.mjs",
   "scripts/normalize_onomatopoeia_suru_forms.mjs",
   "scripts/disambiguate_duplicate_vocab_entries.mjs",

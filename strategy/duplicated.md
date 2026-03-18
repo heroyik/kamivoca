@@ -2,14 +2,14 @@
 
 Source: `voca_json/VOCA_word_furigana_separated.json`
 
-Generated entries scanned: **892**
+Generated entries scanned: **891**
 
 Most exact/same-word duplicates have been merged or removed. The remaining groups below are mainly semantic neighbors or same-reading different-kanji pairs that still need manual product judgement.
 
 ## Summary
 
 - Exact duplicate records (word + furigana + meaning all identical): **0 groups**
-- Same word duplicates: **0 groups**
+- Same word duplicates: **1 groups**
 - Same furigana, different word: **6 groups**
 - Same normalized meaning, different word: **0 groups**
 
@@ -19,7 +19,10 @@ Most exact/same-word duplicates have been merged or removed. The remaining group
 
 ## Same Word Duplicates
 
-- None
+### 買い占め (2)
+
+- 0173 | 買い占め | かいしめ | 사재기, 대량으로 사들임
+- 0913 | 買い占め | かいしめ | 사재기
 
 ## Same Furigana, Different Word
 
