@@ -813,6 +813,13 @@ rt.furigana-rt {
   font-weight: 800;
 }
 
+.admin-edit-hint {
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #8a4b08;
+}
+
 .admin-delete-list {
   display: flex;
   flex-direction: column;

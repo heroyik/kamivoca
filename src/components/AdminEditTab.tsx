@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Search, PenSquare, RotateCcw, Save } from "lucide-react";
 import { useGamification } from "@/hooks/useGamification";
 import { filterDeletedWords, normalizeDisplayFurigana, VocabEntry } from "@/utils/vocab";
@@ -73,6 +73,7 @@ export default function AdminEditTab() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const editPanelRef = useRef<HTMLDivElement | null>(null);
   const deferredSearch = useDeferredValue(search);
   const searchValue = normalizeSearchValue(deferredSearch);
 
@@ -120,6 +121,15 @@ export default function AdminEditTab() {
     }
 
     setDraft(createDraft(editingEntry));
+  }, [editingEntry]);
+
+  useEffect(() => {
+    if (!editingEntry || !editPanelRef.current) return;
+
+    editPanelRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   }, [editingEntry]);
 
   const selectedSet = new Set(selectedIds);
@@ -263,6 +273,10 @@ export default function AdminEditTab() {
           </div>
         </div>
 
+        <p className="admin-edit-hint">
+          체크박스는 삭제 후보 선택입니다. 카드 본문을 누르면 바로 편집 모드로 전환됩니다.
+        </p>
+
         <div className="admin-delete-actions">
           <button type="button" className="duo-button duo-button-secondary button-standard" onClick={selectVisible} disabled={visibleEntries.length === 0 || isDeleting}>
             SELECT VISIBLE
@@ -325,7 +339,7 @@ export default function AdminEditTab() {
             })}
           </div>
 
-          <div className="admin-edit-panel">
+          <div ref={editPanelRef} className="admin-edit-panel">
             {!editingEntry || !draft ? (
               <div className="admin-edit-empty">
                 <div className="font-64">🛠️</div>
