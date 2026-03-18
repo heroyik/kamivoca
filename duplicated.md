@@ -9,7 +9,7 @@ Most exact/same-word duplicates have been merged or removed. The remaining group
 ## Summary
 
 - Exact duplicate records (word + furigana + meaning all identical): **0 groups**
-- Same word duplicates: **1 groups**
+- Same word duplicates: **3 groups**
 - Same furigana, different word: **6 groups**
 - Same normalized meaning, different word: **0 groups**
 
@@ -18,6 +18,16 @@ Most exact/same-word duplicates have been merged or removed. The remaining group
 - None
 
 ## Same Word Duplicates
+
+### 多々ある (2)
+
+- 0387 | 多々ある | たたある | 여럿 있다, 많이 있다
+- 0481 | 多々ある | たたある | 종종 있다, 여러 개 있다, 꽤 많다
+
+### 当てはまる (2)
+
+- 0226 | 当てはまる | あてはまる | 들어맞다, 해당되다, 딱 맞다
+- 0279 | 当てはまる | あてはまる | 들어맞다, 해당되다, 적용되다
 
 ### 買い占め (2)
 

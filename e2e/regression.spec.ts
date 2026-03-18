@@ -20,7 +20,7 @@ test.describe('Regression Suite for UI Changes', () => {
     // Check Version Badge (Should be subtle)
     const version = header.locator('.version-badge');
     await expect(version).toBeVisible();
-    await expect(version).toHaveText(/2\.4\.0/);
+    await expect(version).toHaveText(/3\.0\.2/);
 
     // Verify Stats are NOT in header
     const streakInHeader = header.locator('text=🔥');

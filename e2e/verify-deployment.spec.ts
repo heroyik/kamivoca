@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Verify KamiVoca v1.1 Deployment', async ({ page }) => {
+test('Verify KamiVoca v3.0.2 Deployment', async ({ page }) => {
     // Capture browser console logs
     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
 
@@ -18,7 +18,7 @@ test('Verify KamiVoca v1.1 Deployment', async ({ page }) => {
 
     // Check for Revision tag (Current version)
     const revisionTag = page.locator('.version-badge'); // Match the class used in page.tsx
-    await expect(revisionTag).toContainText('2.4.0');
+    await expect(revisionTag).toContainText('3.0.2');
     console.log('✅ Version badge found.');
 
     // 2.5 Check Vocabulary (Unit 1 should be beginner)

@@ -1,10 +1,10 @@
-# KamiVoca v3.0.1
+# KamiVoca v3.0.2
 
 KamiVoca is a mobile-first Japanese vocabulary app built with Next.js and Firebase. It combines a 15-step progression map, quiz/review loops, global mistake tracking, and admin-side dataset curation for a Korean-speaking learner audience.
 
 Current dataset state:
-- source entries: `892`
-- transformed app entries: `892`
+- source entries: `891`
+- transformed app entries: `891`
 - learning units: `15`
 - unit distribution: `60 x 7`, `59 x 8`
 
@@ -37,6 +37,14 @@ The app is designed for static deployment on GitHub Pages, while runtime state a
 - [voca_json/VOCA_word_furigana_separated.json](voca_json/VOCA_word_furigana_separated.json): source dataset
 - [scripts](scripts): normalization, transform, sync, admin maintenance
 - [.github/workflows/nextjs.yml](.github/workflows/nextjs.yml): Pages build and deploy workflow
+
+## Architecture Docs
+
+- [strategy/DataArchitecture.md](strategy/DataArchitecture.md): vocab and Firestore data architecture
+- [strategy/offline_workflow.md](strategy/offline_workflow.md): offline-ready study workflow and limitations
+- [strategy/sentence_like_vocab_candidates.md](strategy/sentence_like_vocab_candidates.md): remaining sentence-like headword review list
+- [strategy/duplicated.md](strategy/duplicated.md): current duplicate vocab review notes
+- [distractor_conflicts.md](distractor_conflicts.md): quiz distractor conflict review notes
 
 ## Dataset Flow
 
@@ -292,12 +300,13 @@ Existing E2E coverage includes:
 - unit page navigation
 - deployed site smoke verification
 
-## Version 3.0.1 Highlights
+## Version 3.0.2 Highlights
 
-This release consolidates the recent admin and dataset tooling changes:
+This release consolidates the recent admin, dataset, and offline documentation changes:
 - admin-only `EDIT` tab replaced the old delete-only admin surface
 - runtime vocab overrides now merge through context and affect quiz/review immediately
 - source JSON can be synchronized from Firestore admin edits
 - sync finalization can clear remote `adminVocabOverrides`
 - source dataset is currently redistributed evenly across 15 units
-- README has been updated to reflect the real architecture and operational flow
+- sentence-like headwords were normalized conservatively and meanings were re-aligned
+- architecture and offline workflow docs were added and linked from README
