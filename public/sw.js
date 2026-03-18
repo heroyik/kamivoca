@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kamivoca-v3-0-0-offline-3";
+const CACHE_VERSION = "kamivoca-v3-0-0-offline-4";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const BASE_PATH = "/kamivoca";
@@ -81,6 +81,24 @@ async function cacheFirst(request) {
   return response;
 }
 
+async function matchShellRoute(pathname) {
+  const shellCache = await caches.open(SHELL_CACHE);
+  const normalizedPath = pathname.replace(/\/+$/, "") || BASE_PATH;
+  const candidates = [
+    pathname,
+    normalizedPath,
+    `${normalizedPath}/`,
+    `${normalizedPath}.html`,
+  ];
+
+  for (const candidate of candidates) {
+    const cached = await shellCache.match(candidate);
+    if (cached) return cached;
+  }
+
+  return shellCache.match(`${BASE_PATH}/`);
+}
+
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
@@ -93,6 +111,20 @@ async function networkFirst(request) {
     const cached = await caches.match(request);
     if (cached) return cached;
     return caches.match(`${BASE_PATH}/`);
+  }
+}
+
+async function navigateResponse(request) {
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      const shellCache = await caches.open(SHELL_CACHE);
+      await shellCache.put(request.url, response.clone());
+    }
+    return response;
+  } catch {
+    const url = new URL(request.url);
+    return matchShellRoute(url.pathname);
   }
 }
 
@@ -121,7 +153,7 @@ self.addEventListener("fetch", (event) => {
   if (!url.pathname.startsWith(BASE_PATH)) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(networkFirst(request));
+    event.respondWith(navigateResponse(request));
     return;
   }
 
