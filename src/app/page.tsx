@@ -152,7 +152,7 @@ export default function Home() {
           )}
           {!isOfflineMode && isOfflineReady && (
             <div className="offline-ready-chip" title="Offline cache is ready">
-              오프라인 준비 완료
+              OFFLINE ready!
             </div>
           )}
           <div
