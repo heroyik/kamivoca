@@ -1,7 +1,8 @@
-const CACHE_VERSION = "kamivoca-v3-0-0-offline-2";
+const CACHE_VERSION = "kamivoca-v3-0-0-offline-3";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const BASE_PATH = "/kamivoca";
+const OFFLINE_ASSET_MANIFEST = `${BASE_PATH}/offline-assets.json`;
 
 const PRECACHE_ROUTES = [
   `${BASE_PATH}/`,
@@ -24,12 +25,33 @@ const PRECACHE_ROUTES = [
   `${BASE_PATH}/quiz/unit-15`,
 ];
 
+async function getOfflineAssetUrls() {
+  try {
+    const response = await fetch(OFFLINE_ASSET_MANIFEST, { cache: "no-store" });
+    if (!response.ok) return [];
+
+    const assets = await response.json();
+    if (!Array.isArray(assets)) return [];
+
+    return assets.filter((asset) => typeof asset === "string" && asset.startsWith(`${BASE_PATH}/`));
+  } catch {
+    return [];
+  }
+}
+
+async function warmShellCache() {
+  const cache = await caches.open(SHELL_CACHE);
+  const assetUrls = await getOfflineAssetUrls();
+  const urlsToCache = Array.from(new Set([...PRECACHE_ROUTES, OFFLINE_ASSET_MANIFEST, ...assetUrls]));
+  await cache.addAll(urlsToCache);
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(SHELL_CACHE).then(async (cache) => {
-      await cache.addAll(PRECACHE_ROUTES);
+    (async () => {
+      await warmShellCache();
       await self.skipWaiting();
-    }),
+    })(),
   );
 });
 
@@ -74,6 +96,22 @@ async function networkFirst(request) {
   }
 }
 
+async function isOfflineReady() {
+  const manifestResponse = await caches.match(OFFLINE_ASSET_MANIFEST);
+  if (!manifestResponse) return false;
+
+  try {
+    const assets = await manifestResponse.json();
+    if (!Array.isArray(assets)) return false;
+
+    const checks = [BASE_PATH, `${BASE_PATH}/`, ...assets];
+    const matches = await Promise.all(checks.map((url) => caches.match(url)));
+    return matches.every(Boolean);
+  } catch {
+    return false;
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
@@ -106,4 +144,15 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(networkFirst(request));
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "OFFLINE_STATUS") return;
+
+  event.waitUntil(
+    (async () => {
+      const ready = await isOfflineReady();
+      event.ports[0]?.postMessage({ ready });
+    })(),
+  );
 });
