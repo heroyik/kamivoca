@@ -3,9 +3,9 @@
 import { useGamification } from "@/hooks/useGamification";
 
 export default function OfflineModeGate() {
-  const { isInitialized, isOnline, isOfflineMode, isOfflineModeBlocked } = useGamification();
+  const { isInitialized, isAuthResolved, isOnline, isOfflineMode, isOfflineModeBlocked } = useGamification();
 
-  if (isOnline || !isInitialized) {
+  if (isOnline || !isInitialized || !isAuthResolved) {
     return null;
   }
 

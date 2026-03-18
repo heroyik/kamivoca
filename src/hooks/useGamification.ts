@@ -15,6 +15,7 @@ export function useGamification() {
     vocabEntries: context.vocabEntries,
     stats: context.stats,
     isInitialized: context.isInitialized,
+    isAuthResolved: context.isAuthResolved,
     isOnline: context.isOnline,
     isOfflineMode: context.isOfflineMode,
     isOfflineModeBlocked: context.isOfflineModeBlocked,

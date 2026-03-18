@@ -41,6 +41,7 @@ interface GamificationContextType {
   vocabEntries: VocabEntry[];
   stats: UserStats;
   isInitialized: boolean;
+  isAuthResolved: boolean;
   isOnline: boolean;
   isOfflineMode: boolean;
   isOfflineModeBlocked: boolean;
@@ -123,7 +124,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   const [globalDeletedWordKeys, setGlobalDeletedWordKeys] = useState<string[]>([]);
   const [manualCogniteIds, setManualCogniteIds] = useState<string[]>([]);
   const [vocabOverrides, setVocabOverrides] = useState<Record<string, VocabOverridePatch>>({});
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(true);
+  const [isAuthResolved, setIsAuthResolved] = useState(false);
   const [stats, setStats] = useState<UserStats>(defaultStats);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const vocabEntries = useMemo(
@@ -188,6 +190,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
           console.error("Failed to parse local stats", e);
         }
       }
+      setTimeout(() => setIsInitialized(true), 0);
     }
   }, []);
 
@@ -287,7 +290,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!auth) {
       console.warn("Firebase Auth is not available. Using Guest Mode.");
-      setTimeout(() => setIsInitialized(true), 0);
+      setTimeout(() => setIsAuthResolved(true), 0);
       return;
     }
 
@@ -333,20 +336,20 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
                 },
               };
 
-              setIsInitialized(true);
               return newStats;
             });
+            setIsAuthResolved(true);
           } else {
             console.log("[GamificationProvider] User document NOT found (new user)");
-            setIsInitialized(true);
+            setIsAuthResolved(true);
           }
         }, (error) => {
           console.error("[GamificationProvider] Snapshot error:", error);
-          setIsInitialized(true);
+          setIsAuthResolved(true);
         });
       } else {
         console.log("[GamificationProvider] No user or DB available (Guest mode)");
-        setIsInitialized(true);
+        setIsAuthResolved(true);
       }
     });
 
@@ -780,6 +783,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       vocabEntries,
       stats,
       isInitialized,
+      isAuthResolved,
       isOnline,
       isOfflineMode,
       isOfflineModeBlocked,
