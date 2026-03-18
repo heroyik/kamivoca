@@ -1,6 +1,7 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { BASE_PATH } from "@/lib/constants";
 import { getUnits } from "@/utils/vocab";
 import Quiz from "./Quiz";
@@ -12,9 +13,22 @@ interface QuizLoaderProps {
 }
 
 export default function QuizLoader({ unitId }: QuizLoaderProps) {
-    const searchParams = useSearchParams();
     const router = useRouter();
     const { stats, isInitialized, manualCogniteIds, globalDeletedWordKeys, vocabEntries, isOfflineMode } = useGamification();
+    const [search, setSearch] = useState(() =>
+        typeof window === "undefined" ? "" : window.location.search,
+    );
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const syncSearch = () => setSearch(window.location.search);
+        syncSearch();
+        window.addEventListener("popstate", syncSearch);
+        return () => window.removeEventListener("popstate", syncSearch);
+    }, []);
+
+    const searchParams = new URLSearchParams(search);
 
     const sourcesStr = searchParams.get("sources");
     const mode = searchParams.get("mode");

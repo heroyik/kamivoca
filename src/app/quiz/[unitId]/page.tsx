@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { getUnits } from "@/utils/vocab";
 import QuizLoader from "@/components/QuizLoader";
 
@@ -18,9 +17,5 @@ export async function generateStaticParams() {
 export default async function QuizPage({ params }: QuizPageProps) {
   const { unitId } = await params;
 
-  return (
-    <Suspense fallback={<div className="flex-center" style={{ height: '100vh' }}>Loading...</div>}>
-      <QuizLoader unitId={unitId} />
-    </Suspense>
-  );
+  return <QuizLoader unitId={unitId} />;
 }

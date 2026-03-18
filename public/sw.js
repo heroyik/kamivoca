@@ -1,4 +1,4 @@
-const CACHE_VERSION = "kamivoca-v2-4-0-offline-1";
+const CACHE_VERSION = "kamivoca-v3-0-0-offline-2";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const BASE_PATH = "/kamivoca";
