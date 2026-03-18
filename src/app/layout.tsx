@@ -16,6 +16,7 @@ export const viewport: Viewport = {
 import { GamificationProvider } from "@/contexts/GamificationContext";
 import AudioPrewarmer from "@/components/AudioPrewarmer";
 import OfflineModeGate from "@/components/OfflineModeGate";
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
 export default function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <GamificationProvider>
+          <ServiceWorkerRegistrar />
           <AudioPrewarmer />
           <OfflineModeGate />
           {children}
