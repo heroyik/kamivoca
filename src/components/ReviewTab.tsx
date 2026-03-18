@@ -3,13 +3,12 @@
 import { useEffect } from "react";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
-import vocabData from "@/data/vocab.json";
 import { filterDeletedWords, normalizeDisplayFurigana, normalizeVocabWordKey, VocabEntry } from "@/utils/vocab";
 import { Trash2, Brain, Frown } from "lucide-react";
 import Link from "next/link";
 
 export default function ReviewTab() {
-  const { stats, removeMistake, clearAllMistakes, globalDeletedWordKeys } = useGamification();
+  const { stats, removeMistake, clearAllMistakes, globalDeletedWordKeys, vocabEntries } = useGamification();
   const { top20, loading: top20Loading, error: top20Error, refresh: refreshTop20 } = useGlobalTop20();
 
   const mistakes = stats.mistakes || {};
@@ -18,7 +17,7 @@ export default function ReviewTab() {
   // Grouping logic to handle data inconsistency (duplicates in vocab and variant keys in mistakes)
   const groupedMistakesMap = new Map<string, { entry: VocabEntry; totalCount: number }>();
   
-  filterDeletedWords(vocabData.data as VocabEntry[], globalDeletedWordKeys).forEach((v) => {
+  filterDeletedWords(vocabEntries as VocabEntry[], globalDeletedWordKeys).forEach((v) => {
     const word = v.word;
     const normalized = word.trim();
     

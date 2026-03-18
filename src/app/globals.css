@@ -885,6 +885,132 @@ rt.furigana-rt {
   color: #71717a;
 }
 
+.admin-edit-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-edit-item.is-editing {
+  border-color: #2563eb;
+  box-shadow: 0 4px 0 rgba(37, 99, 235, 0.2);
+}
+
+.admin-edit-entry-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-edit-panel {
+  background: linear-gradient(180deg, #fffdf8 0%, #fff 100%);
+  border: 2px solid #f1e1cc;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 4px 0 rgba(241, 225, 204, 0.9);
+}
+
+.admin-edit-empty {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.admin-edit-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-edit-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-edit-field span {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8a4b08;
+}
+
+.admin-edit-field input,
+.admin-edit-field textarea {
+  width: 100%;
+  border: 2px solid #eadbc8;
+  border-radius: 14px;
+  background: #fff;
+  color: #2f2417;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 14px;
+  outline: 0;
+  resize: vertical;
+}
+
+.admin-edit-field input:focus,
+.admin-edit-field textarea:focus {
+  border-color: #2563eb;
+}
+
+.admin-edit-field-wide {
+  grid-column: 1 / -1;
+}
+
+.admin-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.admin-edit-actions .duo-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (min-width: 960px) {
+  .admin-edit-layout {
+    grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+    align-items: start;
+  }
+
+  .admin-edit-panel {
+    position: sticky;
+    top: 92px;
+    max-height: calc(100vh - 132px);
+    overflow: auto;
+  }
+
+  .admin-delete-list {
+    max-height: calc(100vh - 340px);
+  }
+}
+
+@media (max-width: 719px) {
+  .admin-edit-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .bg-kv-kurenai {
   background-color: var(--kv-kurenai);
 }

@@ -1,6 +1,6 @@
 {
   "name": "kamivoca",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "delete:heroyik:cognites": "node scripts/delete-heroyik-cognites-and-sync.mjs",
+    "data:normalize": "node scripts/normalize_vocab_pipeline.mjs",
+    "sync:local:admin-edits": "node scripts/sync-admin-edits-to-local.mjs",
+    "sync:local:admin-edits:finalize": "node scripts/sync-admin-edits-to-local.mjs --clear-remote-overrides",
     "sync:firestore:vocab": "node scripts/sync-firestore-vocab.mjs",
     "sync:firestore:full-voca": "node scripts/sync-full-voca.mjs",
     "data:refresh": "node scripts/regenerate_dataset_contexts.mjs && node scripts/transform_japanese_data.mjs && node scripts/sync-firestore-vocab.mjs && node scripts/sync-full-voca.mjs",

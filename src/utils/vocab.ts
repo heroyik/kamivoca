@@ -10,9 +10,10 @@ export interface VocabEntry {
   pos: string;
   opic: string;
   example?: string[];
+  synonyms?: string[];
 }
 
-export type POS = "noun" | "verb" | "adjective" | "other";
+export type POS = "noun" | "verb" | "adjective" | "adverb" | "onomatopoeia" | "other";
 
 export interface LearningUnit {
   id: string;
@@ -94,9 +95,16 @@ export function normalizeDisplayFurigana(word: string, furigana?: string): strin
  */
 export function categorizePOS(posString: string): POS {
   const p = posString.toLowerCase();
+  if (posString.includes("オノマトペ")) return "onomatopoeia";
+  if (posString.includes("副詞")) return "adverb";
+  if (posString.includes("名詞")) return "noun";
+  if (posString.includes("形容詞")) return "adjective";
+  if (posString.includes("動詞")) return "verb";
   if (p.includes("noun")) return "noun";
   if (p.includes("verb") || p.includes("v5") || p.includes("v1")) return "verb";
   if (p.includes("adj")) return "adjective";
+  if (p.includes("adverb")) return "adverb";
+  if (p.includes("onomatopoeia")) return "onomatopoeia";
   return "other";
 }
 
@@ -114,6 +122,10 @@ export function inferPOS(entry: Pick<VocabEntry, "pos" | "word" | "furigana">): 
 
   if (!text) return "other";
 
+  const kanaText = text.replace(/[〜～]/g, "");
+  const repeatedKanaPattern = /^([ぁ-ゖァ-ヺー]{1,3})\1(?:[ぁ-ゖァ-ヺー]{0,3})?$/;
+  if (repeatedKanaPattern.test(kanaText)) return "onomatopoeia";
+
   // Japanese verb endings and common auxiliary verb forms
   if (/(する|できる|れる|られる|せる|させる)$/.test(text)) return "verb";
   if (/[うくぐすつぬぶむる]$/.test(text)) return "verb";
@@ -126,21 +138,23 @@ export function inferPOS(entry: Pick<VocabEntry, "pos" | "word" | "furigana">): 
   return "noun";
 }
 
-/**
- * KamiVoca uses a single combined JSON pipeline initially.
- * Eventually, this could merge multiple JSON files.
- */
-function getAllVocabData(deletedWordKeys: Iterable<string> = []): VocabEntry[] {
-  // Currently we just have one initial subset for testing/pilgrimage
-  // We can expand this array later by concat'ing other json files like jlpt_n5.json
-  return filterDeletedWords(opicData.data as VocabEntry[], deletedWordKeys);
+export const defaultVocabEntries = opicData.data as VocabEntry[];
+
+function getAllVocabData(
+  deletedWordKeys: Iterable<string> = [],
+  entries: VocabEntry[] = defaultVocabEntries,
+): VocabEntry[] {
+  return filterDeletedWords(entries, deletedWordKeys);
 }
 
 /**
  * Creates the 15 units of the Pilgrimage Map based on JLPT Levels or overall progress.
  */
-export function getUnits(deletedWordKeys: Iterable<string> = []): LearningUnit[] {
-  const allWords = getAllVocabData(deletedWordKeys);
+export function getUnits(
+  deletedWordKeys: Iterable<string> = [],
+  entries: VocabEntry[] = defaultVocabEntries,
+): LearningUnit[] {
+  const allWords = getAllVocabData(deletedWordKeys, entries);
 
   if (allWords.length === 0) return [];
 
@@ -172,8 +186,9 @@ export function getRandomWords(
   targetPOS?: POS,
   excludeWordIds?: string[],
   deletedWordKeys: Iterable<string> = [],
+  entries: VocabEntry[] = defaultVocabEntries,
 ): VocabEntry[] {
-  const allWords = getAllVocabData(deletedWordKeys);
+  const allWords = getAllVocabData(deletedWordKeys, entries);
   const excludeArray = excludeWordIds || [];
   
   let candidates = allWords.filter((w) => !excludeArray.includes(w.id));
@@ -191,6 +206,9 @@ export function getRandomWords(
   return [...candidates].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
-export function getTotalWordCount(deletedWordKeys: Iterable<string> = []): number {
-  return getAllVocabData(deletedWordKeys).length;
+export function getTotalWordCount(
+  deletedWordKeys: Iterable<string> = [],
+  entries: VocabEntry[] = defaultVocabEntries,
+): number {
+  return getAllVocabData(deletedWordKeys, entries).length;
 }

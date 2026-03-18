@@ -18,7 +18,7 @@ test('Verify KamiVoca v1.1 Deployment', async ({ page }) => {
 
     // Check for Revision tag (Current version)
     const revisionTag = page.locator('.version-badge'); // Match the class used in page.tsx
-    await expect(revisionTag).toContainText('2.0.2');
+    await expect(revisionTag).toContainText('2.4.0');
     console.log('✅ Version badge found.');
 
     // 2.5 Check Vocabulary (Unit 1 should be beginner)

@@ -1,12 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { doc, setDoc, onSnapshot, updateDoc, collection, serverTimestamp, increment, deleteDoc, getDocs, writeBatch, deleteField } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { isKamiAdminEmail } from "@/lib/admin";
 import vocabData from "@/data/vocab.json";
 import { normalizeVocabWordKey, VocabEntry } from "@/utils/vocab";
+
+export type VocabOverridePatch = Partial<Pick<VocabEntry, "word" | "furigana" | "meaning" | "level" | "jlpt" | "pos" | "opic" | "example" | "synonyms">>;
 
 export interface UserStats {
   xp: number;
@@ -36,6 +38,7 @@ interface GamificationContextType {
   user: User | null;
   globalDeletedWordKeys: string[];
   manualCogniteIds: string[];
+  vocabEntries: VocabEntry[];
   stats: UserStats;
   isInitialized: boolean;
   addXP: (amount: number) => void;
@@ -53,6 +56,8 @@ interface GamificationContextType {
   removeManualCognite: (entryId: string) => Promise<void>;
   clearAllManualCognites: () => Promise<void>;
   deleteWordsGlobally: (entryIds: string[]) => Promise<void>;
+  saveVocabOverride: (entryId: string, patch: VocabOverridePatch) => Promise<void>;
+  clearVocabOverride: (entryId: string) => Promise<void>;
   resetProgress: () => void;
   resetLocalState: () => void;
 }
@@ -79,13 +84,81 @@ const defaultStats: UserStats = {
   },
 };
 
+const baseVocabEntries = vocabData.data as VocabEntry[];
+const baseVocabEntriesById = new Map(baseVocabEntries.map((entry) => [entry.id, entry] as const));
+
+function normalizeStringList(values: string[] | undefined): string[] {
+  if (!values) return [];
+  return Array.from(
+    new Set(
+      values
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
+function sanitizeOverrideData(data: Record<string, unknown>): VocabOverridePatch {
+  const patch: VocabOverridePatch = {};
+
+  if (typeof data.word === "string") patch.word = data.word.trim();
+  if (typeof data.furigana === "string") patch.furigana = data.furigana.trim();
+  if (typeof data.meaning === "string") patch.meaning = data.meaning.trim();
+  if (typeof data.level === "number") patch.level = data.level;
+  if (typeof data.jlpt === "string") patch.jlpt = data.jlpt.trim();
+  if (typeof data.pos === "string") patch.pos = data.pos.trim();
+  if (typeof data.opic === "string") patch.opic = data.opic.trim();
+  if (Array.isArray(data.example)) patch.example = normalizeStringList(data.example.filter((value): value is string => typeof value === "string"));
+  if (Array.isArray(data.synonyms)) patch.synonyms = normalizeStringList(data.synonyms.filter((value): value is string => typeof value === "string"));
+
+  return patch;
+}
+
 export function GamificationProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [globalDeletedWordKeys, setGlobalDeletedWordKeys] = useState<string[]>([]);
   const [manualCogniteIds, setManualCogniteIds] = useState<string[]>([]);
+  const [vocabOverrides, setVocabOverrides] = useState<Record<string, VocabOverridePatch>>({});
   const [isInitialized, setIsInitialized] = useState(false);
   const [stats, setStats] = useState<UserStats>(defaultStats);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const vocabEntries = useMemo(
+    () => baseVocabEntries.map((entry) => {
+      const override = vocabOverrides[entry.id];
+      if (!override) return entry;
+      return {
+        ...entry,
+        ...override,
+        example: override.example ?? entry.example ?? [],
+        synonyms: override.synonyms ?? entry.synonyms ?? [],
+      };
+    }),
+    [vocabOverrides],
+  );
+  const vocabEntriesById = useMemo(
+    () => new Map(vocabEntries.map((entry) => [entry.id, entry] as const)),
+    [vocabEntries],
+  );
+  const entriesByWordKey = useMemo(() => {
+    const map = new Map<string, VocabEntry[]>();
+    const addEntry = (wordKey: string, entry: VocabEntry) => {
+      const entries = map.get(wordKey) ?? [];
+      if (!entries.some((item) => item.id === entry.id)) {
+        entries.push(entry);
+        map.set(wordKey, entries);
+      }
+    };
+
+    vocabEntries.forEach((entry) => {
+      addEntry(normalizeVocabWordKey(entry.word), entry);
+      const baseEntry = baseVocabEntriesById.get(entry.id);
+      if (baseEntry && baseEntry.word !== entry.word) {
+        addEntry(normalizeVocabWordKey(baseEntry.word), entry);
+      }
+    });
+
+    return map;
+  }, [vocabEntries]);
 
   // Client-side hydration
   useEffect(() => {
@@ -136,19 +209,34 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (!db) {
+      setTimeout(() => setVocabOverrides({}), 0);
+      return;
+    }
+
+    const overridesCollection = collection(db, "adminVocabOverrides");
+    const unsubscribe = onSnapshot(
+      overridesCollection,
+      (snapshot) => {
+        const nextOverrides: Record<string, VocabOverridePatch> = {};
+        snapshot.docs.forEach((docSnap) => {
+          nextOverrides[docSnap.id] = sanitizeOverrideData(docSnap.data());
+        });
+        setVocabOverrides(nextOverrides);
+      },
+      (error) => {
+        console.error("[GamificationProvider] Vocab override sync failed", error);
+      },
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
     if (!db || !user) {
       setTimeout(() => setManualCogniteIds([]), 0);
       return;
     }
-
-    const entries = vocabData.data as VocabEntry[];
-    const idsByWordKey = new Map<string, string[]>();
-    entries.forEach((entry) => {
-      const wordKey = normalizeVocabWordKey(entry.word);
-      const ids = idsByWordKey.get(wordKey) ?? [];
-      ids.push(entry.id);
-      idsByWordKey.set(wordKey, ids);
-    });
 
     const cogniteCollection = collection(db, "users", user.uid, "manualCognites");
     const unsubscribe = onSnapshot(cogniteCollection, (snapshot) => {
@@ -156,8 +244,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       snapshot.docs.forEach((docSnap) => {
         const data = docSnap.data() as { word?: string; wordKey?: string };
         const wordKey = data.wordKey || (data.word ? normalizeVocabWordKey(data.word) : docSnap.id);
-        const matchingIds = idsByWordKey.get(wordKey) ?? [];
-        matchingIds.forEach((id) => nextIds.add(id));
+        const matchingEntries = entriesByWordKey.get(wordKey) ?? [];
+        matchingEntries.forEach((entry) => nextIds.add(entry.id));
       });
       setManualCogniteIds(Array.from(nextIds));
     }, (error) => {
@@ -165,7 +253,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [entriesByWordKey, user]);
 
   const statsRef = useRef(stats);
   useEffect(() => {
@@ -421,17 +509,6 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     saveStatsLocally(updatedStats);
   };
 
-  const getEntriesByWordKey = () => {
-    const map = new Map<string, VocabEntry[]>();
-    (vocabData.data as VocabEntry[]).forEach((entry) => {
-      const wordKey = normalizeVocabWordKey(entry.word);
-      const entries = map.get(wordKey) ?? [];
-      entries.push(entry);
-      map.set(wordKey, entries);
-    });
-    return map;
-  };
-
   const chunkItems = <T,>(items: T[], size: number) => {
     const chunks: T[][] = [];
     for (let index = 0; index < items.length; index += size) {
@@ -458,8 +535,6 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
   const clearLegacyCogniteFlags = async (wordKey: string) => {
     if (!db) return;
     const firestore = db;
-
-    const entriesByWordKey = getEntriesByWordKey();
     const matchingEntries = entriesByWordKey.get(wordKey) ?? [];
     if (matchingEntries.length === 0) return;
 
@@ -502,11 +577,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       return;
     }
     const firestore = db;
-
-    const entriesById = new Map((vocabData.data as VocabEntry[]).map((entry) => [entry.id, entry]));
-    const entriesByWordKey = getEntriesByWordKey();
     const selectedEntries = entryIds
-      .map((entryId) => entriesById.get(entryId))
+      .map((entryId) => vocabEntriesById.get(entryId))
       .filter((entry): entry is VocabEntry => Boolean(entry));
 
     if (selectedEntries.length === 0) return;
@@ -544,7 +616,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     await Promise.all(uniqueWordKeys.map((wordKey) => clearLegacyCogniteFlags(wordKey)));
     setManualCogniteIds((prev) =>
       prev.filter((entryId) => {
-        const entry = entriesById.get(entryId);
+        const entry = vocabEntriesById.get(entryId);
         return !entry || !uniqueWordKeys.includes(normalizeVocabWordKey(entry.word));
       }),
     );
@@ -557,8 +629,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const entries = vocabData.data as VocabEntry[];
-    const entry = entries.find((item) => item.id === entryId);
+    const entry = vocabEntriesById.get(entryId);
     if (!entry) {
       console.warn("[GamificationProvider] Could not resolve cognite word for entry:", entryId);
       return;
@@ -581,8 +652,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const entries = vocabData.data as VocabEntry[];
-    const entry = entries.find((item) => item.id === entryId);
+    const entry = vocabEntriesById.get(entryId);
     if (!entry) {
       console.warn("[GamificationProvider] Could not resolve cognite word for entry:", entryId);
       return;
@@ -621,7 +691,6 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     await batch.commit();
 
     if (isKamiAdminEmail(user.email)) {
-      const entriesByWordKey = getEntriesByWordKey();
       await Promise.all(
         wordKeys.flatMap((wordKey) => (entriesByWordKey.get(wordKey) ?? []).map((entry) => markWordGloballyDeleted(entry))),
       );
@@ -629,6 +698,42 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       await Promise.all(wordKeys.map((wordKey) => clearLegacyCogniteFlags(wordKey)));
     }
     setManualCogniteIds([]);
+  };
+
+  const saveVocabOverride = async (entryId: string, patch: VocabOverridePatch) => {
+    if (!db || !user || !isKamiAdminEmail(user.email)) {
+      console.warn("[GamificationProvider] Admin-only vocab edit rejected");
+      return;
+    }
+
+    const currentEntry = vocabEntriesById.get(entryId) ?? baseVocabEntriesById.get(entryId);
+    if (!currentEntry) {
+      console.warn("[GamificationProvider] Could not resolve vocab entry:", entryId);
+      return;
+    }
+
+    const nextOverride = sanitizeOverrideData({
+      ...currentEntry,
+      ...patch,
+      example: patch.example ?? currentEntry.example ?? [],
+      synonyms: patch.synonyms ?? currentEntry.synonyms ?? [],
+    });
+
+    await setDoc(doc(db, "adminVocabOverrides", entryId), {
+      ...nextOverride,
+      updatedByUid: user.uid,
+      updatedByEmail: user.email ?? null,
+      updatedAt: serverTimestamp(),
+    });
+  };
+
+  const clearVocabOverride = async (entryId: string) => {
+    if (!db || !user || !isKamiAdminEmail(user.email)) {
+      console.warn("[GamificationProvider] Admin-only vocab reset rejected");
+      return;
+    }
+
+    await deleteDoc(doc(db, "adminVocabOverrides", entryId));
   };
 
   const resetProgress = () => {
@@ -648,6 +753,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       user,
       globalDeletedWordKeys,
       manualCogniteIds,
+      vocabEntries,
       stats,
       isInitialized,
       addXP,
@@ -665,6 +771,8 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       removeManualCognite,
       clearAllManualCognites,
       deleteWordsGlobally,
+      saveVocabOverride,
+      clearVocabOverride,
       resetProgress,
       resetLocalState
     }}>

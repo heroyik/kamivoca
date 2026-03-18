@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import vocabData from "@/data/vocab.json";
+import { useGamification } from "@/hooks/useGamification";
 import { VocabEntry } from "@/utils/vocab";
 
 export interface GlobalWordStat {
@@ -28,9 +28,9 @@ function normalizeWordKey(word: string): string {
   return word.toLowerCase().trim();
 }
 
-function buildWordUnitMap(): Map<string, { word: string; meaning: string; book: string; unitNum: number; furigana?: string }> {
+function buildWordUnitMap(entries: VocabEntry[]): Map<string, { word: string; meaning: string; book: string; unitNum: number; furigana?: string }> {
   const uniqueWords = new Map<string, VocabEntry>();
-  (vocabData.data as VocabEntry[]).forEach((w) => {
+  entries.forEach((w) => {
     const key = normalizeWordKey(w.word);
     if (!uniqueWords.has(key)) uniqueWords.set(key, w);
   });
@@ -55,18 +55,14 @@ function buildWordUnitMap(): Map<string, { word: string; meaning: string; book: 
   return map;
 }
 
-const wordUnitMap = buildWordUnitMap();
-
-// ── Session cache ────────────────────────────────────────────────────────────
-let sessionCache: GlobalWordStat[] | null = null;
-
 export function useGlobalTop20() {
-  const [top20, setTop20] = useState<GlobalWordStat[]>(sessionCache || []);
-  const [loading, setLoading] = useState(!sessionCache);
+  const { vocabEntries } = useGamification();
+  const wordUnitMap = useMemo(() => buildWordUnitMap(vocabEntries), [vocabEntries]);
+  const [top20, setTop20] = useState<GlobalWordStat[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchTop20 = useCallback(async () => {
-    if (sessionCache) setTop20(sessionCache);
     if (!db) { setLoading(false); return; }
     try {
       setLoading(true);
@@ -91,16 +87,14 @@ export function useGlobalTop20() {
         return;
       }
       all.sort((a, b) => (b.totalCount - a.totalCount) || a.word.localeCompare(b.word));
-      const result = all.slice(0, 20);
-      sessionCache = result;
-      setTop20(result);
+      setTop20(all.slice(0, 20));
     } catch (e) {
       console.error("[useGlobalTop20] fetch error", e);
       setError("Failed to load global stats.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [wordUnitMap]);
 
   useEffect(() => { fetchTop20(); }, [fetchTop20]);
 

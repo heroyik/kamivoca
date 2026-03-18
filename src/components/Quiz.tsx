@@ -2,8 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSound } from "@/hooks/useSound";
-import { filterDeletedWords, VocabEntry, inferPOS, normalizeDisplayFurigana } from "@/utils/vocab";
-import vocabData from "@/data/vocab.json"; // Import full vocab for distractors
+import { filterDeletedWords, VocabEntry, inferPOS, normalizeDisplayFurigana, POS } from "@/utils/vocab";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { X, Frown } from "lucide-react";
@@ -23,13 +22,6 @@ interface QuizProps {
 }
 
 const HARD_JLPT_LEVELS = new Set(["N3", "N2", "N1", "級外"]);
-const difficultExampleEntries = Array.from(
-  new Map(
-    (vocabData.data as VocabEntry[])
-      .filter((entry) => HARD_JLPT_LEVELS.has(entry.jlpt) && /[一-龯々ヶヵ]/.test(entry.word))
-      .map((entry) => [entry.word, entry] as const),
-  ).values(),
-).sort((a, b) => b.word.length - a.word.length);
 
 function isKanji(char: string) {
   return /[一-龯々ヶヵ]/.test(char);
@@ -209,11 +201,7 @@ function escapeForRegex(text: string) {
 
 function annotateExactWord(text: string, word: string, reading: string) {
   const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const { prefix, baseWord, baseReading, suffix } = splitWordReading(word, reading);
-  const hasMixedKana = (prefix || suffix) && baseWord && baseReading && /[一-龯々ヶヵ]/.test(baseWord);
-  const annotation = hasMixedKana
-    ? `${prefix}${baseWord}(${baseReading})${suffix}`
-    : `${word}(${reading})`;
+  const annotation = `${word}(${reading})`;
 
   if (new RegExp(`${escapedWord}(?!\\()`).test(text)) {
     return text.replace(new RegExp(`${escapedWord}(?!\\()`, "g"), annotation);
@@ -231,14 +219,14 @@ function annotateWordStem(text: string, word: string, reading: string) {
   return text.replace(new RegExp(`${escapedBaseWord}(?!\\()`, "g"), `${baseWord}(${baseReading})`);
 }
 
-function annotateDifficultExampleWords(text: string) {
+function annotateDifficultExampleWords(text: string, difficultExampleEntries: VocabEntry[]) {
   return difficultExampleEntries.reduce((annotatedText, entry) => {
     if (!entry.furigana) return annotatedText;
     return annotateExactWord(annotatedText, entry.word, entry.furigana);
   }, text);
 }
 
-function annotateExampleSentence(example: string, word: string, reading: string) {
+function annotateExampleSentence(example: string, word: string, reading: string, difficultExampleEntries: VocabEntry[]) {
   if (!example) {
     return example;
   }
@@ -249,7 +237,40 @@ function annotateExampleSentence(example: string, word: string, reading: string)
     annotatedText = annotateWordStem(annotatedText, word, reading);
   }
 
-  return annotateDifficultExampleWords(annotatedText);
+  return annotateDifficultExampleWords(annotatedText, difficultExampleEntries);
+}
+
+function isAdverbLikePOS(pos: string) {
+  return pos.includes("副詞");
+}
+
+function isOnomatopoeiaPOS(pos: string) {
+  return pos.includes("オノマトペ");
+}
+
+function normalizeExampleForMatch(example: string) {
+  return example
+    .replace(/[「」『』"]/g, "")
+    .replace(/\([^)]+\)/g, "");
+}
+
+function selectFeedbackExample(entry: VocabEntry) {
+  const examples = (entry.example || []).filter((example) => example.trim().length > 0);
+  if (examples.length === 0) return null;
+
+  if (!isAdverbLikePOS(entry.pos)) {
+    return examples[0];
+  }
+
+  const exactSurfaceExamples = examples.filter((example) =>
+    normalizeExampleForMatch(example).includes(entry.word),
+  );
+
+  if (isOnomatopoeiaPOS(entry.pos)) {
+    return exactSurfaceExamples[0] ?? null;
+  }
+
+  return exactSurfaceExamples[0] ?? null;
 }
 
 function isValidQuizMeaning(meaning: string) {
@@ -349,7 +370,7 @@ function shouldExcludeDistractorEntry(currentEntry: VocabEntry, candidateEntry: 
 
 export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, priorityWord }: QuizProps) {
   const router = useRouter();
-  const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, globalDeletedWordKeys, markManualCognite } = useGamification();
+  const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, globalDeletedWordKeys, markManualCognite, vocabEntries } = useGamification();
 
   // Sound hook — preloaded + Chrome Android unlock
   const { play: playSound } = useSound(stats.settings?.soundEnabled ?? true);
@@ -366,18 +387,27 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
   }, [top20]);
 
   const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
+  const difficultExampleEntries = useMemo(() => Array.from(
+    new Map(
+      vocabEntries
+        .filter((entry) => HARD_JLPT_LEVELS.has(entry.jlpt) && /[一-龯々ヶヵ]/.test(entry.word))
+        .map((entry) => [entry.word, entry] as const),
+    ).values(),
+  ).sort((a, b) => b.word.length - a.word.length), [vocabEntries]);
 
   // Memoize grouped vocabulary by POS to optimize generation
   const vocabByPOS = useMemo(() => {
     const filteredVocab = filterEasyCognates(
-      filterDeletedWords(vocabData.data as VocabEntry[], globalDeletedWordKeys),
+      filterDeletedWords(vocabEntries, globalDeletedWordKeys),
       hideEasyCognates,
       manualCogniteIds,
     );
-    const groups: Record<string, VocabEntry[]> = {
+    const groups: Record<POS, VocabEntry[]> = {
       noun: [],
       verb: [],
       adjective: [],
+      adverb: [],
+      onomatopoeia: [],
       other: []
     };
     filteredVocab.forEach((entry: VocabEntry) => {
@@ -385,7 +415,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
       groups[pos].push(entry);
     });
     return groups;
-  }, [globalDeletedWordKeys, hideEasyCognates, manualCogniteIds]);
+  }, [globalDeletedWordKeys, hideEasyCognates, manualCogniteIds, vocabEntries]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -583,6 +613,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
 
   const currentQuestion = questions[currentIndex];
   const displayFurigana = normalizeDisplayFurigana(currentQuestion.word, currentQuestion.furigana);
+  const feedbackExample = selectFeedbackExample(currentQuestion);
   const progress = ((currentIndex) / questions.length) * 100;
   const painRank = wallOfPainMap.get(currentQuestion.word);
   const isUnknown = selectedOption === "UNKNOWN";
@@ -723,10 +754,10 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
                   {isReview && isCorrect && score + 1 === questions.length && !hasMistakes 
                     ? "🌟 Unit Mastered!" 
                     : isUnknown
-                      ? "😅 That's okay! Here's the answer:"
+                      ? "😅 Answer:"
                       : isCorrect
                         ? initiallyWasMistake ? "✨ 極めました！ (Mastered!)" : "✅ 正解！ (Correct!)"
-                        : "Correct solution:"}
+                        : "❌ Answer:"}
                 </h3>
                 {(!isCorrect || isUnknown) && (
                   <p className="correct-solution">
@@ -736,29 +767,26 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
               </div>
               
               {/* Example Sentences Section */}
-              {questions[currentIndex].example && questions[currentIndex].example!.length > 0 && (
+              {feedbackExample && (
                 <div className="mt-12 flex flex-col gap-8">
-                  {questions[currentIndex].example?.map((ex, idx) => (
-                    <div 
-                      key={idx} 
-                      className={`example-sentence-box ${isCorrect ? 'bg-green-soft' : 'bg-red-soft'}`}
-                      style={{
-                        fontSize: "15px",
-                        lineHeight: "1.6",
-                        padding: "8px 12px",
-                        borderRadius: "8px",
-                        background: isCorrect ? "rgba(255, 255, 255, 0.4)" : "rgba(0, 0, 0, 0.05)",
-                        border: "1px solid",
-                        borderColor: isCorrect ? "rgba(88, 167, 0, 0.2)" : "rgba(234, 61, 61, 0.1)",
-                        color: "inherit",
-                        maxWidth: "100%"
-                      }}
-                    >
-                      <FuriganaSentence
-                        text={annotateExampleSentence(ex, currentQuestion.word, currentQuestion.furigana)}
-                      />
-                    </div>
-                  ))}
+                  <div
+                    className={`example-sentence-box ${isCorrect ? 'bg-green-soft' : 'bg-red-soft'}`}
+                    style={{
+                      fontSize: "15px",
+                      lineHeight: "1.6",
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      background: isCorrect ? "rgba(255, 255, 255, 0.4)" : "rgba(0, 0, 0, 0.05)",
+                      border: "1px solid",
+                      borderColor: isCorrect ? "rgba(88, 167, 0, 0.2)" : "rgba(234, 61, 61, 0.1)",
+                      color: "inherit",
+                      maxWidth: "100%"
+                    }}
+                  >
+                    <FuriganaSentence
+                      text={annotateExampleSentence(feedbackExample, currentQuestion.word, currentQuestion.furigana, difficultExampleEntries)}
+                    />
+                  </div>
                 </div>
               )}
             </div>

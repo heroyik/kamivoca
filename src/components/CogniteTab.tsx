@@ -1,14 +1,13 @@
 "use client";
 
-import vocabData from "@/data/vocab.json";
 import { useGamification } from "@/hooks/useGamification";
 import { filterDeletedWords, normalizeDisplayFurigana, VocabEntry } from "@/utils/vocab";
 import { BrainCircuit, Trash2 } from "lucide-react";
 
 export default function CogniteTab() {
-  const { manualCogniteIds, removeManualCognite, clearAllManualCognites, globalDeletedWordKeys, stats } = useGamification();
+  const { manualCogniteIds, removeManualCognite, clearAllManualCognites, globalDeletedWordKeys, stats, vocabEntries } = useGamification();
 
-  const cogniteEntries = filterDeletedWords(vocabData.data as VocabEntry[], globalDeletedWordKeys)
+  const cogniteEntries = filterDeletedWords(vocabEntries as VocabEntry[], globalDeletedWordKeys)
     .filter((entry) => manualCogniteIds.includes(entry.id))
     .sort((a, b) => {
       if (a.level !== b.level) return a.level - b.level;

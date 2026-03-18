@@ -1,7 +1,5 @@
 "use client";
 
-import vocabData from '@/data/vocab.json';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -16,7 +14,7 @@ import Leaderboard from '@/components/Leaderboard';
 import UserProfile from '@/components/UserProfile';
 import ReviewTab from '@/components/ReviewTab';
 import CogniteTab from '@/components/CogniteTab';
-import AdminDeleteTab from '@/components/AdminDeleteTab';
+import AdminEditTab from '@/components/AdminEditTab';
 import RankToast from '@/components/RankToast';
 import Image from 'next/image';
 import { Github } from 'lucide-react';
@@ -54,9 +52,9 @@ const getMotivationalSticker = (idx: number) => {
 };
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite' | 'delete'>('learn');
+  const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite' | 'edit'>('learn');
   const [adminToolsUnlocked, setAdminToolsUnlocked] = useState(false);
-  const { stats, user, manualCogniteIds, globalDeletedWordKeys } = useGamification();
+  const { stats, user, manualCogniteIds, globalDeletedWordKeys, vocabEntries } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
   const isAdminUser = isKamiAdminEmail(user?.email);
@@ -64,23 +62,25 @@ export default function Home() {
 
   useEffect(() => {
     if (!isAdminUser) {
-      setAdminToolsUnlocked(false);
+      const timer = window.setTimeout(() => setAdminToolsUnlocked(false), 0);
+      return () => window.clearTimeout(timer);
     }
   }, [isAdminUser]);
 
   useEffect(() => {
-    if (!showAdminTabs && (activeTab === 'cognite' || activeTab === 'delete')) {
-      setActiveTab('profile');
+    if (!showAdminTabs && (activeTab === 'cognite' || activeTab === 'edit')) {
+      const timer = window.setTimeout(() => setActiveTab('profile'), 0);
+      return () => window.clearTimeout(timer);
     }
   }, [activeTab, showAdminTabs]);
 
   // Updated units calculation
   const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
-  const units = getUnits(globalDeletedWordKeys).map((unit) => ({
+  const units = getUnits(globalDeletedWordKeys, vocabEntries).map((unit) => ({
     ...unit,
     words: filterEasyCognates(unit.words, hideEasyCognates, manualCogniteIds),
   }));
-  const totalWords = getTotalWordCount(globalDeletedWordKeys);
+  const totalWords = getTotalWordCount(globalDeletedWordKeys, vocabEntries);
 
   const handleReviewMistakes = (e: React.MouseEvent, unitId: string) => {
     e.preventDefault();
@@ -91,7 +91,7 @@ export default function Home() {
   const handleDownload = async () => {
     const date = new Date().toISOString().split('T')[0];
     const fileName = `${date}-voca.json`;
-    const jsonString = JSON.stringify(vocabData, null, 2);
+    const jsonString = JSON.stringify({ data: vocabEntries }, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
 
     // Chrome 86+: use File System Access API for reliable filename support
@@ -290,7 +290,7 @@ export default function Home() {
 
       {activeTab === 'review' && <ReviewTab />}
       {activeTab === 'cognite' && showAdminTabs && <CogniteTab />}
-      {activeTab === 'delete' && showAdminTabs && <AdminDeleteTab />}
+      {activeTab === 'edit' && showAdminTabs && <AdminEditTab />}
       {activeTab === 'leader' && <Leaderboard />}
       {activeTab === 'profile' && (
         <UserProfile
@@ -346,11 +346,11 @@ export default function Home() {
         )}
         {showAdminTabs && (
           <div
-            onClick={() => setActiveTab('delete')}
-            className={`nav-item ${activeTab === 'delete' ? 'active' : ''}`}
+            onClick={() => setActiveTab('edit')}
+            className={`nav-item ${activeTab === 'edit' ? 'active' : ''}`}
           >
-            <span className="font-24">🗑️</span>
-            <span className="font-10 font-800">DELETE</span>
+            <span className="font-24">✏️</span>
+            <span className="font-10 font-800">EDIT</span>
           </div>
         )}
         <div

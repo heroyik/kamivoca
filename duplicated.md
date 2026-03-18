@@ -2,7 +2,7 @@
 
 Source: `voca_json/VOCA_word_furigana_separated.json`
 
-Generated entries scanned: **1081**
+Generated entries scanned: **892**
 
 Most exact/same-word duplicates have been merged or removed. The remaining groups below are mainly semantic neighbors or same-reading different-kanji pairs that still need manual product judgement.
 
@@ -10,7 +10,7 @@ Most exact/same-word duplicates have been merged or removed. The remaining group
 
 - Exact duplicate records (word + furigana + meaning all identical): **0 groups**
 - Same word duplicates: **0 groups**
-- Same furigana, different word: **5 groups**
+- Same furigana, different word: **6 groups**
 - Same normalized meaning, different word: **0 groups**
 
 ## Exact Duplicate Records
@@ -42,6 +42,11 @@ Most exact/same-word duplicates have been merged or removed. The remaining group
 
 - 1020 | 趣旨 | しゅし | 취지, 목적이나 중심 생각
 - 1027 | 主旨 | しゅし | 요지, 말이나 글의 핵심 내용
+
+### だらだら (2)
+
+- 0011 | だらだら | だらだら | 질질 끌며 늘어지게
+- 0260 | ダラダラ | ダラダラ | 빈둥거리다, 늘어지게 보내다
 
 ### とける (2)
 

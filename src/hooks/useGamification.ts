@@ -1,8 +1,8 @@
 "use client";
 
-import { useGamificationContext, UserStats } from "@/contexts/GamificationContext";
+import { useGamificationContext, UserStats, VocabOverridePatch } from "@/contexts/GamificationContext";
 
-export type { UserStats };
+export type { UserStats, VocabOverridePatch };
 
 export function useGamification() {
   const context = useGamificationContext();
@@ -12,6 +12,7 @@ export function useGamification() {
     user: context.user,
     globalDeletedWordKeys: context.globalDeletedWordKeys,
     manualCogniteIds: context.manualCogniteIds,
+    vocabEntries: context.vocabEntries,
     stats: context.stats,
     isInitialized: context.isInitialized,
     addXP: context.addXP,
@@ -29,6 +30,8 @@ export function useGamification() {
     removeManualCognite: context.removeManualCognite,
     clearAllManualCognites: context.clearAllManualCognites,
     deleteWordsGlobally: context.deleteWordsGlobally,
+    saveVocabOverride: context.saveVocabOverride,
+    clearVocabOverride: context.clearVocabOverride,
     resetProgress: context.resetProgress,
     resetLocalState: context.resetLocalState
   };
