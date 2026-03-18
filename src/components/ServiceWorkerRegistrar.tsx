@@ -11,11 +11,15 @@ export default function ServiceWorkerRegistrar() {
 
     const register = async () => {
       try {
-        await navigator.serviceWorker.register(`${BASE_PATH}/sw.js`, {
+        const registration = await navigator.serviceWorker.register(`${BASE_PATH}/sw.js`, {
           scope: `${BASE_PATH}/`,
         });
+        if (registration.active || registration.waiting || registration.installing) {
+          document.documentElement.dataset.offlineReady = "true";
+        }
       } catch (error) {
         console.warn("[SW] registration failed", error);
+        document.documentElement.dataset.offlineReady = "false";
       }
     };
 

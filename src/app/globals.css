@@ -1428,6 +1428,22 @@ rt.furigana-rt {
   letter-spacing: 0.08em;
 }
 
+.offline-ready-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #eef9f0;
+  border: 2px solid #9fd5aa;
+  color: #216c39;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 .connector-svg {
   position: absolute;
   top: 68px;

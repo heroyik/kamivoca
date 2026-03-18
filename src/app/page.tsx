@@ -54,6 +54,7 @@ const getMotivationalSticker = (idx: number) => {
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite' | 'edit'>('learn');
   const [adminToolsUnlocked, setAdminToolsUnlocked] = useState(false);
+  const [isOfflineReady, setIsOfflineReady] = useState(false);
   const { stats, user, manualCogniteIds, globalDeletedWordKeys, vocabEntries, isOfflineMode } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
@@ -73,6 +74,18 @@ export default function Home() {
       return () => window.clearTimeout(timer);
     }
   }, [activeTab, showAdminTabs]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const syncOfflineReady = () => {
+      setIsOfflineReady(document.documentElement.dataset.offlineReady === 'true');
+    };
+
+    syncOfflineReady();
+    const timer = window.setInterval(syncOfflineReady, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   // Updated units calculation
   const hideEasyCognates = stats.settings?.hideEasyCognates ?? false;
@@ -135,6 +148,11 @@ export default function Home() {
           {isOfflineMode && (
             <div className="offline-header-chip" title="Admin offline mode is active">
               OFFLINE
+            </div>
+          )}
+          {!isOfflineMode && isOfflineReady && (
+            <div className="offline-ready-chip" title="Offline cache is ready">
+              오프라인 준비 완료
             </div>
           )}
           <div
