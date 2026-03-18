@@ -1,6 +1,12 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
+import {
+    getFirestore,
+    initializeFirestore,
+    persistentLocalCache,
+    persistentSingleTabManager,
+    Firestore,
+} from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -21,7 +27,15 @@ if (typeof window !== "undefined") {
         try {
             const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
             auth = getAuth(app);
-            db = getFirestore(app);
+            try {
+                db = initializeFirestore(app, {
+                    localCache: persistentLocalCache({
+                        tabManager: persistentSingleTabManager({}),
+                    }),
+                });
+            } catch {
+                db = getFirestore(app);
+            }
             googleProvider = new GoogleAuthProvider();
         } catch (error) {
             console.error("Firebase initialization failed:", error);

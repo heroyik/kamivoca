@@ -54,7 +54,7 @@ const getMotivationalSticker = (idx: number) => {
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'learn' | 'review' | 'leader' | 'profile' | 'cognite' | 'edit'>('learn');
   const [adminToolsUnlocked, setAdminToolsUnlocked] = useState(false);
-  const { stats, user, manualCogniteIds, globalDeletedWordKeys, vocabEntries } = useGamification();
+  const { stats, user, manualCogniteIds, globalDeletedWordKeys, vocabEntries, isOfflineMode } = useGamification();
   const router = useRouter();
   const { rank, total, rankDelta, clearDelta } = useRank(user?.uid ?? null, stats.xp);
   const isAdminUser = isKamiAdminEmail(user?.email);
@@ -132,6 +132,11 @@ export default function Home() {
         </div>
 
         <div className="header-right flex items-center gap-12">
+          {isOfflineMode && (
+            <div className="offline-header-chip" title="Admin offline mode is active">
+              OFFLINE
+            </div>
+          )}
           <div
             onClick={handleDownload}
             className="vocab-stash-pill mt-0 flex items-center gap-2 py-4 px-10 h-32 hover-scale"

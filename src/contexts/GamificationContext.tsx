@@ -41,6 +41,9 @@ interface GamificationContextType {
   vocabEntries: VocabEntry[];
   stats: UserStats;
   isInitialized: boolean;
+  isOnline: boolean;
+  isOfflineMode: boolean;
+  isOfflineModeBlocked: boolean;
   addXP: (amount: number) => void;
   completeUnit: (unitId: string, xpEarned?: number, isPerfect?: boolean) => void;
   unlockProgress: (unitIds: string[], xp?: number, gems?: number) => void;
@@ -116,6 +119,7 @@ function sanitizeOverrideData(data: Record<string, unknown>): VocabOverridePatch
 
 export function GamificationProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isOnline, setIsOnline] = useState(true);
   const [globalDeletedWordKeys, setGlobalDeletedWordKeys] = useState<string[]>([]);
   const [manualCogniteIds, setManualCogniteIds] = useState<string[]>([]);
   const [vocabOverrides, setVocabOverrides] = useState<Record<string, VocabOverridePatch>>({});
@@ -260,6 +264,25 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
     statsRef.current = stats;
   }, [stats]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const syncOnlineState = () => setIsOnline(window.navigator.onLine);
+    syncOnlineState();
+
+    window.addEventListener("online", syncOnlineState);
+    window.addEventListener("offline", syncOnlineState);
+
+    return () => {
+      window.removeEventListener("online", syncOnlineState);
+      window.removeEventListener("offline", syncOnlineState);
+    };
+  }, []);
+
+  const isAdminUser = isKamiAdminEmail(user?.email);
+  const isOfflineMode = !isOnline && isAdminUser;
+  const isOfflineModeBlocked = !isOnline && !isAdminUser;
+
   // Auth & Firestore Listener
   useEffect(() => {
     if (!auth) {
@@ -337,6 +360,7 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
 
   const syncStatsToCloud = async (newStats: UserStats, isDeletion: boolean = false) => {
     if (!user || !db || !isInitialized) return;
+    if (!isOnline && !isAdminUser) return;
 
     try {
       const userDocRef = doc(db, "users", user.uid);
@@ -756,6 +780,9 @@ export function GamificationProvider({ children }: { children: ReactNode }) {
       vocabEntries,
       stats,
       isInitialized,
+      isOnline,
+      isOfflineMode,
+      isOfflineModeBlocked,
       addXP,
       completeUnit,
       unlockProgress,

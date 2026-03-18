@@ -15,6 +15,7 @@ export const viewport: Viewport = {
 
 import { GamificationProvider } from "@/contexts/GamificationContext";
 import AudioPrewarmer from "@/components/AudioPrewarmer";
+import OfflineModeGate from "@/components/OfflineModeGate";
 
 export default function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body>
         <GamificationProvider>
           <AudioPrewarmer />
+          <OfflineModeGate />
           {children}
         </GamificationProvider>
       </body>

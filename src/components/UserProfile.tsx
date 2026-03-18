@@ -19,6 +19,30 @@ interface UserProfileProps {
     onAdminToolsUnlock: () => void;
 }
 
+function getXpTitle(totalXp: number) {
+    if (totalXp >= 50000) return "言の葉の覇者";
+    if (totalXp >= 25000) return "語彙戦線の鬼神";
+    if (totalXp >= 12000) return "文型の達人";
+    if (totalXp >= 6000) return "漢字修行僧";
+    if (totalXp >= 3000) return "ことばの探究者";
+    if (totalXp >= 1500) return "単語道の使い手";
+    if (totalXp >= 700) return "かな文字の走者";
+    if (totalXp >= 250) return "日本語見習い";
+    return "ことばのたまご";
+}
+
+function getXpTitleAccent(totalXp: number) {
+    if (totalXp >= 50000) return "MYTHIC";
+    if (totalXp >= 25000) return "BOSS";
+    if (totalXp >= 12000) return "LEGEND";
+    if (totalXp >= 6000) return "ELITE";
+    if (totalXp >= 3000) return "PRO";
+    if (totalXp >= 1500) return "RANGER";
+    if (totalXp >= 700) return "RUNNER";
+    if (totalXp >= 250) return "ROOKIE";
+    return "STARTER";
+}
+
 export default function UserProfile({ user, stats, adminToolsUnlocked, onAdminToolsUnlock }: UserProfileProps) {
     const { unlockProgress, updateSettings, updateProfile, resetProgress, resetLocalState } = useGamification();
     const [devClickCount, setDevClickCount] = useState(0);
@@ -71,6 +95,8 @@ export default function UserProfile({ user, stats, adminToolsUnlocked, onAdminTo
                     const googlePhoto = user?.photoURL;
                     const displayPhoto = googlePhoto || (stats.photoURL?.startsWith('http') ? stats.photoURL : null);
                     const displayName = user?.displayName || stats.displayName || 'Guest User';
+                    const xpTitle = getXpTitle(stats.xp);
+                    const xpTitleAccent = getXpTitleAccent(stats.xp);
                     
                     console.log("[UserProfile] Render - User:", user?.uid, "Display Photo:", displayPhoto);
                     
@@ -108,9 +134,20 @@ export default function UserProfile({ user, stats, adminToolsUnlocked, onAdminTo
                                 ) : (
                                     <span>{getInitial(displayName)}</span>
                                 )}
+                                {isAdminUser && (
+                                    <div className="profile-admin-badge" aria-label="Admin account">
+                                        ADMIN
+                                    </div>
+                                )}
                             </div>
                             <h2 className="font-24 font-900 text-main mb-4">{displayName}</h2>
-                            <p className="text-secondary font-700 mb-16">日本語学習者 🇯🇵</p>
+                            <div className="profile-xp-title-wrap mb-16">
+                                <div className="profile-xp-title-pill">
+                                    <span className="profile-xp-title-accent">{xpTitleAccent}</span>
+                                    <span className="profile-xp-title-main">{xpTitle}</span>
+                                    <span className="profile-xp-title-flag">🇯🇵</span>
+                                </div>
+                            </div>
                         </>
                     );
                 })()}
