@@ -1,4 +1,4 @@
-# KamiVoca v3.0.0
+# KamiVoca v3.0.1
 
 KamiVoca is a mobile-first Japanese vocabulary app built with Next.js and Firebase. It combines a 15-step progression map, quiz/review loops, global mistake tracking, and admin-side dataset curation for a Korean-speaking learner audience.
 
@@ -292,7 +292,7 @@ Existing E2E coverage includes:
 - unit page navigation
 - deployed site smoke verification
 
-## Version 3.0.0 Highlights
+## Version 3.0.1 Highlights
 
 This release consolidates the recent admin and dataset tooling changes:
 - admin-only `EDIT` tab replaced the old delete-only admin surface
