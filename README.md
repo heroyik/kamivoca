@@ -151,6 +151,45 @@ npm run dev
 npm run build
 ```
 
+## Offline Mode
+
+Offline study is supported for the admin Google account only.
+
+Current behavior:
+- offline access is allowed only when the signed-in Google account matches `NEXT_PUBLIC_KAMI_ADMIN_KEY`
+- Firestore uses persistent local cache in the browser
+- a service worker precaches the app shell, review route, and unit routes `unit-1` through `unit-15`
+- the home header shows `OFFLINE ready!` once the service worker is installed and the offline cache is ready
+- when the device is offline, the header switches to `OFFLINE`
+
+Recommended real-device flow before boarding a flight:
+1. Open the deployed app in Chrome while online.
+2. Sign in with the admin Google account.
+3. Confirm the `ADMIN` badge is visible in the Profile tab.
+4. Wait until the home header shows `OFFLINE ready!`.
+5. Open Home, Review, Profile, and at least one quiz route while still online.
+6. Keep the tab open and then switch the device to airplane mode.
+7. Re-enter the app from the same open tab or installed shortcut.
+
+Important notes:
+- if `OFFLINE ready!` is not visible yet, do not assume the app is safe for offline route navigation
+- the first visit after a new deployment must happen online so the new service worker can install
+- opening a brand-new Chrome tab directly to a route while already offline may still fail if the updated cache has not been installed yet
+- guest mode and non-admin Google accounts are intentionally blocked when offline
+- online sync resumes automatically after the network returns
+
+What should work offline after preparation:
+- opening the home screen
+- entering review mode
+- entering cached unit routes
+- continuing to use the already signed-in admin session
+- reading runtime vocab from the bundled dataset
+
+What may still be limited offline:
+- fresh Google sign-in
+- leaderboard freshness
+- any data that was never cached before the device went offline
+
 ## Data Commands
 
 Normalize source data and rebuild transformed dataset:
