@@ -95,10 +95,18 @@ export default function Home() {
   }));
   const totalWords = getTotalWordCount(globalDeletedWordKeys, vocabEntries);
 
+  const navigateTo = (path: string) => {
+    if (isOfflineMode && typeof window !== 'undefined') {
+      window.location.assign(`${BASE_PATH}${path}`);
+      return;
+    }
+    router.push(path);
+  };
+
   const handleReviewMistakes = (e: React.MouseEvent, unitId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    router.push(`/quiz/${unitId}?mode=review`);
+    navigateTo(`/quiz/${unitId}?mode=review`);
   };
 
   const handleDownload = async () => {
@@ -271,7 +279,17 @@ export default function Home() {
               >
                 <Link
                   href={isLocked ? '#' : `/quiz/${unit.id}`}
-                  onClick={(e) => isLocked && e.preventDefault()}
+                  onClick={(e) => {
+                    if (isLocked) {
+                      e.preventDefault();
+                      return;
+                    }
+                    if (isOfflineMode) {
+                      e.preventDefault();
+                      navigateTo(`/quiz/${unit.id}`);
+                    }
+                  }}
+                  prefetch={!isOfflineMode}
                   className={`no-underline unit-button ${combinedClass}`}
                   aria-disabled={isLocked}
                 >

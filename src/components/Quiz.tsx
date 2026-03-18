@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { X, Frown } from "lucide-react";
 import { isKamiAdminEmail } from "@/lib/admin";
+import { BASE_PATH } from "@/lib/constants";
 import { useGamification } from "@/hooks/useGamification";
 import { useGlobalTop20 } from "@/hooks/useGlobalTop20";
 import { useRank } from "@/hooks/useRank";
@@ -370,7 +371,7 @@ function shouldExcludeDistractorEntry(currentEntry: VocabEntry, candidateEntry: 
 
 export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, priorityWord }: QuizProps) {
   const router = useRouter();
-  const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, globalDeletedWordKeys, markManualCognite, vocabEntries } = useGamification();
+  const { addXP, addGem, addMistake, completeUnit, user, stats, manualCogniteIds, globalDeletedWordKeys, markManualCognite, vocabEntries, isOfflineMode } = useGamification();
 
   // Sound hook — preloaded + Chrome Android unlock
   const { play: playSound } = useSound(stats.settings?.soundEnabled ?? true);
@@ -444,6 +445,14 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
   const [prevIndex, setPrevIndex] = useState(-1);
   const [initiallyWasMistake, setInitiallyWasMistake] = useState(false);
   const [hearts, setHearts] = useState(5); // New Magatama/Heart system
+
+  const navigateTo = (path: string) => {
+    if (isOfflineMode && typeof window !== "undefined") {
+      window.location.assign(`${BASE_PATH}${path}`);
+      return;
+    }
+    router.push(path);
+  };
 
   // Sync initial mistake status when moving to a new question
   if (currentIndex !== prevIndex && questions[currentIndex]) {
@@ -600,7 +609,7 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
         </div>
         <button
           onClick={() => {
-            router.push('/');
+            navigateTo('/');
             // Small delay to ensure navigation is triggered before any other state changes
           }}
           className={`duo-button ${isMastery ? 'duo-button-secondary' : 'duo-button-primary'} w-auto px-40 py-12`}
@@ -624,7 +633,17 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
     <div className="container flex flex-col min-h-screen p-20-120 relative">
       {/* Header */}
       <div className="flex-between gap-16 mb-16">
-        <Link href="/" aria-label="Close lesson" className="no-underline">
+        <Link
+          href="/"
+          aria-label="Close lesson"
+          className="no-underline"
+          prefetch={!isOfflineMode}
+          onClick={(event) => {
+            if (!isOfflineMode) return;
+            event.preventDefault();
+            navigateTo('/');
+          }}
+        >
           <X className="text-subtitle pointer" />
         </Link>
         <div className="flex-1 flex items-center gap-12">

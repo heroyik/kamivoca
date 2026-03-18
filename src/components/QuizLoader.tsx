@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { BASE_PATH } from "@/lib/constants";
 import { getUnits } from "@/utils/vocab";
 import Quiz from "./Quiz";
 import { useGamification } from "@/hooks/useGamification";
@@ -13,7 +14,7 @@ interface QuizLoaderProps {
 export default function QuizLoader({ unitId }: QuizLoaderProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { stats, isInitialized, manualCogniteIds, globalDeletedWordKeys, vocabEntries } = useGamification();
+    const { stats, isInitialized, manualCogniteIds, globalDeletedWordKeys, vocabEntries, isOfflineMode } = useGamification();
 
     const sourcesStr = searchParams.get("sources");
     const mode = searchParams.get("mode");
@@ -41,6 +42,14 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
 
     const hasMistakes = unitWords.length > 0;
 
+    const goHome = () => {
+        if (isOfflineMode && typeof window !== "undefined") {
+            window.location.assign(`${BASE_PATH}/`);
+            return;
+        }
+        router.push("/");
+    };
+
     if (!isInitialized) {
         return <div className="flex-center min-h-screen font-800">Initializing...</div>;
     }
@@ -55,7 +64,7 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
                 <div className="font-64">✨</div>
                 <h2 className="text-title text-duo-green">All Caught Up!</h2>
                 <p className="text-subtitle text-center px-20">You have no mistakes to review in this unit.</p>
-                <button onClick={() => router.push('/')} className="duo-button duo-button-primary w-auto px-40">GO BACK</button>
+                <button onClick={goHome} className="duo-button duo-button-primary w-auto px-40">GO BACK</button>
             </div>
         );
     }
@@ -70,7 +79,7 @@ export default function QuizLoader({ unitId }: QuizLoaderProps) {
                         ? "This step only contains easy cognates right now, so they were hidden by your profile setting."
                         : "No words are available in this step."}
                 </p>
-                <button onClick={() => router.push('/')} className="duo-button duo-button-primary w-auto px-40">GO BACK</button>
+                <button onClick={goHome} className="duo-button duo-button-primary w-auto px-40">GO BACK</button>
             </div>
         );
     }
