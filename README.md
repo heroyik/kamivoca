@@ -1,10 +1,10 @@
-# KamiVoca v3.0.2
+# KamiVoca v3.0.3
 
 KamiVoca is a mobile-first Japanese vocabulary app built with Next.js and Firebase. It combines a 15-step progression map, quiz/review loops, global mistake tracking, and admin-side dataset curation for a Korean-speaking learner audience.
 
 Current dataset state:
-- source entries: `891`
-- transformed app entries: `891`
+- source entries: `886`
+- transformed app entries: `886`
 - learning units: `15`
 - unit distribution: `60 x 7`, `59 x 8`
 
@@ -300,13 +300,10 @@ Existing E2E coverage includes:
 - unit page navigation
 - deployed site smoke verification
 
-## Version 3.0.2 Highlights
+## Version 3.0.3 Highlights
 
-This release consolidates the recent admin, dataset, and offline documentation changes:
-- admin-only `EDIT` tab replaced the old delete-only admin surface
-- runtime vocab overrides now merge through context and affect quiz/review immediately
-- source JSON can be synchronized from Firestore admin edits
-- sync finalization can clear remote `adminVocabOverrides`
-- source dataset is currently redistributed evenly across 15 units
-- sentence-like headwords were normalized conservatively and meanings were re-aligned
-- architecture and offline workflow docs were added and linked from README
+This release focuses on dataset cleanup and duplicate removal:
+- duplicate and near-duplicate vocab groups were reviewed and one-sided deletions were applied
+- source and runtime datasets were regenerated down to 886 entries
+- duplicate and distractor review reports were refreshed
+- Firestore mirrors were resynchronized to match the cleaned dataset

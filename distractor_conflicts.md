@@ -2,7 +2,7 @@
 
 Source: `voca_json/VOCA_word_furigana_separated.json`
 
-Generated entries scanned: **891**
+Generated entries scanned: **886**
 
 This report mirrors the current quiz distractor exclusion rules. Pairs listed here are candidates that should not appear together as answer options because they are same-reading pairs, known contrast pairs, or meanings are too close.
 
