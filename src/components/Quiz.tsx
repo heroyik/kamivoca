@@ -283,6 +283,35 @@ function normalizeWordKey(word: string) {
   return word.trim().toLowerCase();
 }
 
+function hashSeed(seed: string) {
+  let hash = 2166136261;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash ^= seed.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function createSeededRandom(seed: string) {
+  let state = hashSeed(seed) || 1;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+function seededShuffle<T>(items: T[], seed: string) {
+  const nextRandom = createSeededRandom(seed);
+  const shuffled = [...items];
+
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(nextRandom() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}
+
 const DISTRACTOR_EXCLUSION_GROUPS = [
   ["〜がてら", "ついでに"],
   ["手を繋ぐ", "手を握る"],
@@ -426,7 +455,10 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [hasMistakes, setHasMistakes] = useState(false);
   const [questions] = useState(() => {
-    const shuffledWords = [...unitWords].sort(() => Math.random() - 0.5);
+    const shuffledWords = seededShuffle(
+      unitWords,
+      `${unitId}:${priorityWord ?? "default"}:${unitWords.map((entry) => entry.id).join("|")}`,
+    );
 
     if (!priorityWord) {
       return shuffledWords;
@@ -442,7 +474,6 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
     const [priorityEntry] = shuffledWords.splice(priorityIndex, 1);
     return [priorityEntry, ...shuffledWords];
   });
-  const [prevIndex, setPrevIndex] = useState(-1);
   const [initiallyWasMistake, setInitiallyWasMistake] = useState(false);
   const [hearts, setHearts] = useState(5); // New Magatama/Heart system
 
@@ -454,12 +485,15 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
     router.push(path);
   };
 
-  // Sync initial mistake status when moving to a new question
-  if (currentIndex !== prevIndex && questions[currentIndex]) {
-    setPrevIndex(currentIndex);
-    const word = questions[currentIndex].word.trim();
-    setInitiallyWasMistake(!!stats.mistakes?.[word]);
-  }
+  useEffect(() => {
+    const currentWord = questions[currentIndex]?.word.trim();
+    if (!currentWord) {
+      setInitiallyWasMistake(false);
+      return;
+    }
+
+    setInitiallyWasMistake(!!stats.mistakes?.[currentWord]);
+  }, [currentIndex, questions, stats.mistakes]);
 
   // Refresh rank when quiz finishes (6.2)
   useEffect(() => {
@@ -471,9 +505,11 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
   const generateOptions = useCallback((currentEntry: VocabEntry) => {
     const correctAnswer = currentEntry.meaning;
     const pos = inferPOS(currentEntry);
+    const distractorSeed = `${unitId}:${currentEntry.id}:distractors`;
+    const optionSeed = `${unitId}:${currentEntry.id}:options`;
 
     // Keep distractors in the same POS bucket only
-    const finalDistractors = Array.from(
+    const finalDistractors = seededShuffle(Array.from(
       new Set(
         vocabByPOS[pos]
           .filter(
@@ -484,12 +520,10 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
           )
           .map((v) => v.meaning)
       )
-    )
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
+    ), distractorSeed).slice(0, 3);
 
-    return [correctAnswer, ...finalDistractors].sort(() => Math.random() - 0.5);
-  }, [vocabByPOS]);
+    return seededShuffle([correctAnswer, ...finalDistractors], optionSeed);
+  }, [unitId, vocabByPOS]);
 
   const options = useMemo(() => {
     if (questions.length > 0 && currentIndex < questions.length) {
