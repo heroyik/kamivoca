@@ -7,7 +7,6 @@ import { APP_VERSION, APP_NAME, BASE_PATH } from '@/lib/constants';
 import { isKamiAdminEmail } from '@/lib/admin';
 import { getUnits, getTotalWordCount } from '@/utils/vocab';
 import { filterEasyCognates } from '@/utils/cognates';
-import Link from 'next/link';
 import { useGamification } from '@/hooks/useGamification';
 import { useRank } from '@/hooks/useRank';
 import Leaderboard from '@/components/Leaderboard';
@@ -107,6 +106,11 @@ export default function Home() {
     e.preventDefault();
     e.stopPropagation();
     navigateTo(`/quiz/${unitId}?mode=review`);
+  };
+
+  const handleUnitSelect = (unitId: string, isLocked: boolean) => {
+    if (isLocked) return;
+    navigateTo(`/quiz/${unitId}`);
   };
 
   const handleDownload = async () => {
@@ -277,21 +281,19 @@ export default function Home() {
                 className="unit-node-container"
                 style={{ transform: `translateX(${offset}px)` }}
               >
-                <Link
-                  href={isLocked ? '#' : `/quiz/${unit.id}`}
-                  onClick={(e) => {
-                    if (isLocked) {
-                      e.preventDefault();
-                      return;
-                    }
-                    if (isOfflineMode) {
-                      e.preventDefault();
-                      navigateTo(`/quiz/${unit.id}`);
-                    }
-                  }}
-                  prefetch={!isOfflineMode}
+                <div
                   className={`no-underline unit-button ${combinedClass}`}
                   aria-disabled={isLocked}
+                  role={isLocked ? undefined : 'link'}
+                  tabIndex={isLocked ? -1 : 0}
+                  onClick={() => handleUnitSelect(unit.id, isLocked)}
+                  onKeyDown={(e) => {
+                    if (isLocked) return;
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleUnitSelect(unit.id, isLocked);
+                    }
+                  }}
                 >
                   {getUnitIcon(index, isLocked, isCompleted, isMastered)}
 
@@ -311,7 +313,7 @@ export default function Home() {
                       START!
                     </div>
                   )}
-                </Link>
+                </div>
 
                 <div className={`unit-label-card tier-${tier}`} style={{
                   boxShadow: `0 4px 0 ${isLocked ? '#e5e5e5' : 'rgba(0,0,0,0.1)'}`,
