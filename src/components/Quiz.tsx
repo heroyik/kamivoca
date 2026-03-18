@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSound } from "@/hooks/useSound";
 import { filterDeletedWords, VocabEntry, inferPOS, normalizeDisplayFurigana, POS } from "@/utils/vocab";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { X, Frown } from "lucide-react";
 import { isKamiAdminEmail } from "@/lib/admin";
 import { BASE_PATH } from "@/lib/constants";
@@ -667,19 +666,16 @@ export default function Quiz({ unitId, unitWords, unitTitle, isReview = false, p
     <div className="container flex flex-col min-h-screen p-20-120 relative">
       {/* Header */}
       <div className="flex-between gap-16 mb-16">
-        <Link
-          href="/"
+        <button
+          type="button"
           aria-label="Close lesson"
-          className="no-underline"
-          prefetch={!isOfflineMode}
-          onClick={(event) => {
-            if (!isOfflineMode) return;
-            event.preventDefault();
+          className="quiz-close-button"
+          onClick={() => {
             navigateTo('/');
           }}
         >
           <X className="text-subtitle pointer" />
-        </Link>
+        </button>
         <div className="flex-1 flex items-center gap-12">
           <div className="flex-1 progress-bar-track">
             <div className="progress-bar-fill" style={{ width: `${progress}%` }} />

@@ -1610,6 +1610,29 @@ rt.furigana-rt {
   overflow: hidden;
 }
 
+.quiz-close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.quiz-close-button:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .progress-bar-fill {
   height: 100%;
   background-color: var(--duo-green);
