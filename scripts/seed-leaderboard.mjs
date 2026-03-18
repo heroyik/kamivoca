@@ -11,27 +11,10 @@
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import { readFileSync } from "fs";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { getFirebaseWebConfig } from "./lib/firebase-env.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const envPath = resolve(__dirname, "../secrets/.env.local");
-const envLines = readFileSync(envPath, "utf-8").split("\n");
-const env = {};
-for (const line of envLines) {
-  const [key, ...rest] = line.split("=");
-  if (key && rest.length) env[key.trim()] = rest.join("=").trim();
-}
-
-const app = initializeApp({
-  apiKey:            env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain:        env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId:         env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket:     env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId:             env.NEXT_PUBLIC_FIREBASE_APP_ID,
-});
+const { config } = getFirebaseWebConfig();
+const app = initializeApp(config);
 
 const db = getFirestore(app);
 
@@ -50,7 +33,7 @@ const SEED_USERS = [
 ];
 
 async function main() {
-  console.log(`\n🌍 Seeding leaderboard → ${env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}\n`);
+  console.log(`\n🌍 Seeding leaderboard → ${config.projectId}\n`);
 
   for (const u of SEED_USERS) {
     const ref = doc(db, "users", u.id);

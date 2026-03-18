@@ -1,41 +1,23 @@
-import admin from 'firebase-admin';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const serviceAccountPath = path.join(__dirname, '../secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json');
-
-if (!fs.existsSync(serviceAccountPath)) {
-  console.error('Service account file not found');
-  process.exit(1);
-}
-
-const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-const db = admin.firestore();
+import { getDocument, listDocuments } from "./lib/firestore-rest.mjs";
+import { getFirebaseWebConfig } from "./lib/firebase-env.mjs";
 
 async function verify() {
-  console.log('Verifying Firestore data...');
+  const { config } = getFirebaseWebConfig();
+  console.log(`Verifying Firestore data -> ${config.projectId}...`);
   
   const collections = ['vocabEntries', 'fullVocaEntries', 'users', 'datasetMeta'];
   
   for (const collectionName of collections) {
-    const snapshot = await db.collection(collectionName).get();
-    console.log(`Collection "${collectionName}": ${snapshot.size} documents found.`);
+    const documents = await listDocuments(collectionName);
+    console.log(`Collection "${collectionName}": ${documents.length} documents found.`);
   }
 
   // Check specific metadata
-  const metaVocab = await db.collection('datasetMeta').doc('vocab').get();
-  console.log('Metadata "vocab":', metaVocab.exists ? metaVocab.data() : 'MISSING');
+  const metaVocab = await getDocument("datasetMeta/vocab");
+  console.log('Metadata "vocab":', metaVocab || 'MISSING');
 
-  const metaFullVoca = await db.collection('datasetMeta').doc('fullVoca').get();
-  console.log('Metadata "fullVoca":', metaFullVoca.exists ? metaFullVoca.data() : 'MISSING');
+  const metaFullVoca = await getDocument("datasetMeta/fullVoca");
+  console.log('Metadata "fullVoca":', metaFullVoca || 'MISSING');
 
   process.exit(0);
 }

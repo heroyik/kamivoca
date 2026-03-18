@@ -1,19 +1,5 @@
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-const serviceAccount = JSON.parse(
-  readFileSync('./secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json', 'utf8')
-);
-
-if (getApps().length === 0) {
-  initializeApp({
-    credential: cert(serviceAccount)
-  });
-}
-
-const db = getFirestore();
+import { batchSet } from "./lib/firestore-rest.mjs";
+import { getFirebaseWebConfig } from "./lib/firebase-env.mjs";
 
 const mockGlobalStats = [
   { word: "読む", failCount: 156, meaning: "to read", book: "N5", unitNum: 1 },
@@ -29,22 +15,20 @@ const mockGlobalStats = [
 ];
 
 async function seedGlobalStats() {
-  console.log('Seeding globalWordStats...');
-  const batch = db.batch();
+  const { config } = getFirebaseWebConfig();
+  console.log(`Seeding globalWordStats -> ${config.projectId}...`);
 
-  for (const stat of mockGlobalStats) {
-    const docRef = db.collection('globalWordStats').doc(encodeURIComponent(stat.word));
-    batch.set(docRef, {
+  await batchSet("globalWordStats", mockGlobalStats.map((stat) => ({
+    id: encodeURIComponent(stat.word),
+    data: {
       word: stat.word,
       failCount: stat.failCount,
       meaning: stat.meaning,
       book: stat.book,
       unitNum: stat.unitNum,
-      updatedAt: new Date()
-    });
-  }
+    },
+  })), { serverTimestampFields: ["updatedAt"] });
 
-  await batch.commit();
   console.log('Successfully seeded 10 global word stats!');
 }
 

@@ -1,18 +1,5 @@
-import admin from 'firebase-admin';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-const serviceAccount = JSON.parse(
-  readFileSync('/Users/ikyoon/proj/kamivoca/secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json', 'utf8')
-);
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-}
-
-const db = admin.firestore();
+import { batchSet } from "./lib/firestore-rest.mjs";
+import { getFirebaseWebConfig } from "./lib/firebase-env.mjs";
 
 const users = [
   { id: 'seed-rank-2', displayName: 'Li Wei', xp: 2850, photoURL: '/images/avatars/li_wei.png', nationality: 'Chinese' },
@@ -27,20 +14,17 @@ const users = [
 ];
 
 async function seed() {
-  console.log("Seeding ranks 2-10...");
-  const batch = db.batch();
-  
-  for (const user of users) {
-    const { id, ...data } = user;
-    const ref = db.collection('users').doc(id);
-    batch.set(ref, {
+  const { config } = getFirebaseWebConfig();
+  console.log(`Seeding ranks 2-10 -> ${config.projectId}...`);
+
+  await batchSet("users", users.map(({ id, ...data }) => ({
+    id,
+    data: {
       ...data,
       email: `${id}@example.com`,
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  }
+    },
+  })), { serverTimestampFields: ["createdAt"] });
 
-  await batch.commit();
   console.log("Seeding completed successfully!");
 }
 

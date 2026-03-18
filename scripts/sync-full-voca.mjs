@@ -2,7 +2,7 @@
 /**
  * scripts/sync-full-voca.mjs
  *
- * Full sync of local dataset (furigana separated) -> Firestore (Admin SDK).
+ * Full sync of local dataset (furigana separated) -> Firestore (Firebase CLI OAuth).
  *
  * Source:
  * - voca_json/VOCA_word_furigana_separated.json
@@ -16,25 +16,11 @@ import crypto from "crypto";
 import { readFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import admin from "firebase-admin";
+import { batchDelete, batchSet, listDocuments } from "./lib/firestore-rest.mjs";
+import { getFirebaseWebConfig } from "./lib/firebase-env.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const datasetPath = resolve(__dirname, "../voca_json/VOCA_word_furigana_separated.json");
-const serviceAccountPath = resolve(__dirname, "../secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json");
-
-// 1. Initialize Firebase Admin
-if (!existsSync(serviceAccountPath)) {
-  console.error(`❌ Missing service account file: ${serviceAccountPath}`);
-  process.exit(1);
-}
-
-const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, "utf-8"));
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-const db = admin.firestore();
 
 function normalizeWordKey(word = "") {
   return word
@@ -52,8 +38,8 @@ function chunk(arr, size) {
 }
 
 async function main() {
-  const projectId = serviceAccount.project_id;
-  console.log(`\n🔄 Initializing sync (Full Voca) via Admin SDK -> ${projectId}`);
+  const { config } = getFirebaseWebConfig();
+  console.log(`\n🔄 Initializing sync (Full Voca) via Firebase CLI OAuth -> ${config.projectId}`);
 
   // 2. Load Local Data
   if (!existsSync(datasetPath)) {
@@ -65,8 +51,8 @@ async function main() {
   const local = JSON.parse(raw);
   if (!Array.isArray(local)) throw new Error("Dataset must be an array.");
 
-  const deletedWordSnapshot = await db.collection("adminDeletedWords").select().get();
-  const deletedWordKeys = new Set(deletedWordSnapshot.docs.map((docSnap) => docSnap.id));
+  const deletedWordDocs = await listDocuments("adminDeletedWords");
+  const deletedWordKeys = new Set(deletedWordDocs.map((docSnap) => docSnap.id));
   const filteredLocal = local.filter((entry) => !deletedWordKeys.has(normalizeWordKey(entry.word)));
 
   const localMap = new Map();
@@ -82,9 +68,8 @@ async function main() {
 
   // 3. Fetch Remote State
   console.log("🔍 Fetching remote entries...");
-  const fullVocaCol = db.collection("fullVocaEntries");
-  const remoteSnap = await fullVocaCol.select().get(); // Only need IDs
-  const remoteIds = new Set(remoteSnap.docs.map((d) => d.id));
+  const remoteDocs = await listDocuments("fullVocaEntries");
+  const remoteIds = new Set(remoteDocs.map((doc) => doc.id));
   const localIds = new Set(localMap.keys());
 
   const upserts = [...localMap.entries()].map(([id, entry]) => ({ id, entry }));
@@ -95,15 +80,9 @@ async function main() {
   // 4. Perform Upserts
   let count = 0;
   for (const part of chunk(upserts, 400)) {
-    const batch = db.batch();
-    for (const { id, entry } of part) {
-      const docRef = fullVocaCol.doc(id);
-      batch.set(docRef, {
-        ...entry,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    }
-    await batch.commit();
+    await batchSet("fullVocaEntries", part.map(({ id, entry }) => ({ id, data: entry })), {
+      serverTimestampFields: ["updatedAt"],
+    });
     count += part.length;
     process.stdout.write(`\r   Upserting... ${count}/${upserts.length}`);
   }
@@ -112,11 +91,7 @@ async function main() {
   // 5. Perform Deletes
   let delCount = 0;
   for (const part of chunk(deletes, 400)) {
-    const batch = db.batch();
-    for (const id of part) {
-      batch.delete(fullVocaCol.doc(id));
-    }
-    await batch.commit();
+    await batchDelete(part.map((id) => `fullVocaEntries/${id}`));
     delCount += part.length;
     process.stdout.write(`\r   Deleting... ${delCount}/${deletes.length}`);
   }
@@ -124,14 +99,15 @@ async function main() {
 
   // 6. Update Metadata
   const datasetHash = crypto.createHash("sha256").update(raw).digest("hex");
-  const metaRef = db.collection("datasetMeta").doc("fullVoca");
-  await metaRef.set({
-    source: "voca_json/VOCA_word_furigana_separated.json",
-    collection: "fullVocaEntries",
-    totalCount: localMap.size,
-    hashSha256: datasetHash,
-    syncedAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+  await batchSet("datasetMeta", [{
+    id: "fullVoca",
+    data: {
+      source: "voca_json/VOCA_word_furigana_separated.json",
+      collection: "fullVocaEntries",
+      totalCount: localMap.size,
+      hashSha256: datasetHash,
+    },
+  }], { serverTimestampFields: ["syncedAt"] });
 
   console.log(`\n✅ Sync Summary:`);
   console.log(`   - Upserted: ${upserts.length}`);

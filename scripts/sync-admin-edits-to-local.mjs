@@ -4,11 +4,11 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import { spawnSync } from "child_process";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import admin from "firebase-admin";
+import { batchDelete, listDocuments } from "./lib/firestore-rest.mjs";
+import { getFirebaseWebConfig } from "./lib/firebase-env.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fullDatasetPath = resolve(__dirname, "../voca_json/VOCA_word_furigana_separated.json");
-const serviceAccountPath = resolve(__dirname, "../secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json");
 const transformScriptPath = resolve(__dirname, "./transform_japanese_data.mjs");
 const shouldClearRemoteOverrides = process.argv.includes("--clear-remote-overrides");
 
@@ -59,25 +59,10 @@ function sanitizeOverride(data) {
   return patch;
 }
 
-if (!existsSync(serviceAccountPath)) {
-  console.error(`Missing service account file: ${serviceAccountPath}`);
-  process.exit(1);
-}
-
 if (!existsSync(fullDatasetPath)) {
   console.error(`Missing source dataset file: ${fullDatasetPath}`);
   process.exit(1);
 }
-
-const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, "utf8"));
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-const db = admin.firestore();
 
 function chunk(items, size) {
   const chunks = [];
@@ -88,7 +73,8 @@ function chunk(items, size) {
 }
 
 async function main() {
-  console.log(`Syncing admin edits -> local JSON (${serviceAccount.project_id})`);
+  const { config } = getFirebaseWebConfig();
+  console.log(`Syncing admin edits -> local JSON (${config.projectId})`);
   if (shouldClearRemoteOverrides) {
     console.log("Remote override cleanup is enabled.");
   }
@@ -98,15 +84,15 @@ async function main() {
     throw new Error("Expected voca_json/VOCA_word_furigana_separated.json to contain an array.");
   }
 
-  const [overrideSnapshot, deletedSnapshot] = await Promise.all([
-    db.collection("adminVocabOverrides").get(),
-    db.collection("adminDeletedWords").select().get(),
+  const [overrideDocs, deletedDocs] = await Promise.all([
+    listDocuments("adminVocabOverrides"),
+    listDocuments("adminDeletedWords"),
   ]);
 
   const overrideMap = new Map(
-    overrideSnapshot.docs.map((docSnap) => [docSnap.id, sanitizeOverride(docSnap.data())]),
+    overrideDocs.map((docSnap) => [docSnap.id, sanitizeOverride(docSnap)]),
   );
-  const deletedWordKeys = new Set(deletedSnapshot.docs.map((docSnap) => docSnap.id));
+  const deletedWordKeys = new Set(deletedDocs.map((docSnap) => docSnap.id));
 
   let appliedOverrideCount = 0;
   let missingOverrideCount = 0;
@@ -149,13 +135,9 @@ async function main() {
     throw new Error("transform_japanese_data.mjs failed after syncing local admin edits.");
   }
 
-  if (shouldClearRemoteOverrides && overrideSnapshot.size > 0) {
-    for (const docs of chunk(overrideSnapshot.docs, 400)) {
-      const batch = db.batch();
-      docs.forEach((docSnap) => batch.delete(docSnap.ref));
-      await batch.commit();
-    }
-    console.log(`Cleared remote adminVocabOverrides: ${overrideSnapshot.size}`);
+  if (shouldClearRemoteOverrides && overrideDocs.length > 0) {
+    await batchDelete(overrideDocs.map((docSnap) => `adminVocabOverrides/${docSnap.id}`));
+    console.log(`Cleared remote adminVocabOverrides: ${overrideDocs.length}`);
   } else if (shouldClearRemoteOverrides) {
     console.log("Cleared remote adminVocabOverrides: 0");
   }

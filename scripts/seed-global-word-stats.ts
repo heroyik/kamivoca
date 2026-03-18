@@ -6,13 +6,14 @@
  * Firestore /globalWordStats/{encodedWord} with synthetic fail counts.
  *
  * Run ONCE:
- *   GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json npx ts-node scripts/seed-global-word-stats.ts
+ *   npx ts-node scripts/seed-global-word-stats.ts
  *
  * After running, archive or delete this script — never re-run.
  */
 
-import { initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { initializeApp } from "firebase/app";
+import { getDoc, getFirestore, doc, setDoc } from "firebase/firestore";
+import { readFileSync } from "fs";
 import * as path from "path";
 
 // ── 20 hardest words (scored by length × 2 + accents × 3) ────────────────────
@@ -40,24 +41,41 @@ const SEED_WORDS: { word: string; meaning: string; seedCount: number }[] = [
 ];
 
 async function main() {
-  const credPath = path.resolve(process.cwd(), "serviceAccount.json");
-  initializeApp({ credential: cert(credPath) });
+  const envPath = path.resolve(process.cwd(), ".env.local");
+  const envLines = readFileSync(envPath, "utf8").split(/\r?\n/);
+  const env: Record<string, string> = {};
+  for (const line of envLines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const separatorIndex = trimmed.indexOf("=");
+    if (separatorIndex === -1) continue;
+    env[trimmed.slice(0, separatorIndex)] = trimmed.slice(separatorIndex + 1);
+  }
+
+  initializeApp({
+    apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  });
   const db = getFirestore();
 
   console.log("Seeding globalWordStats…");
 
   for (const entry of SEED_WORDS) {
     const docId = encodeURIComponent(entry.word);
-    const ref = db.collection("globalWordStats").doc(docId);
+    const ref = doc(db, "globalWordStats", docId);
 
     // Skip if document already exists to avoid double-seeding
-    const snap = await ref.get();
+    const snap = await getDoc(ref);
     if (snap.exists) {
       console.log(`  ⏭  SKIP  ${entry.word} (already seeded)`);
       continue;
     }
 
-    await ref.set({
+    await setDoc(ref, {
       word:       entry.word,
       meaning:    entry.meaning,
       seedCount:  entry.seedCount,

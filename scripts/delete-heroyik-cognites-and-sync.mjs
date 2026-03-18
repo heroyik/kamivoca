@@ -4,18 +4,13 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { spawnSync } from "child_process";
-import admin from "firebase-admin";
+import { batchDelete, batchSet, listDocuments, lookupAuthUserByEmail, runCollectionQuery } from "./lib/firestore-rest.mjs";
+import { getFirebaseWebConfig } from "./lib/firebase-env.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const serviceAccountPath = resolve(__dirname, "../secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json");
 const rawDatasetPath = resolve(__dirname, "../voca_json/VOCA_word_furigana_separated.json");
 const transformedDatasetPath = resolve(__dirname, "../src/data/vocab.json");
 const adminEmail = (process.env.KAMI_ADMIN_KEY || process.env.NEXT_PUBLIC_KAMI_ADMIN_KEY || "").trim().toLowerCase();
-
-if (!existsSync(serviceAccountPath)) {
-  console.error(`Missing service account file: ${serviceAccountPath}`);
-  process.exit(1);
-}
 
 if (!existsSync(rawDatasetPath)) {
   console.error(`Missing dataset file: ${rawDatasetPath}`);
@@ -26,15 +21,6 @@ if (!adminEmail) {
   console.error("Missing KAMI_ADMIN_KEY (or NEXT_PUBLIC_KAMI_ADMIN_KEY) environment variable.");
   process.exit(1);
 }
-
-const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, "utf8"));
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-const db = admin.firestore();
-const auth = admin.auth();
 
 function normalizeWordKey(word = "") {
   return word
@@ -54,14 +40,7 @@ function chunk(items, size) {
 }
 
 async function deleteDocs(refs) {
-  let deleted = 0;
-  for (const part of chunk(refs, 400)) {
-    const batch = db.batch();
-    part.forEach((ref) => batch.delete(ref));
-    await batch.commit();
-    deleted += part.length;
-  }
-  return deleted;
+  return batchDelete(refs);
 }
 
 async function setAdminDeletedWords(wordKeys, removedEntries) {
@@ -75,58 +54,57 @@ async function setAdminDeletedWords(wordKeys, removedEntries) {
 
   let upserted = 0;
   for (const part of chunk(wordKeys, 400)) {
-    const batch = db.batch();
-    part.forEach((wordKey) => {
+    await batchSet("adminDeletedWords", part.map((wordKey) => {
       const sample = entriesByWordKey.get(wordKey);
-      batch.set(
-        db.collection("adminDeletedWords").doc(wordKey),
-        {
+      return {
+        id: wordKey,
+        data: {
           word: sample?.word ?? null,
           wordKey,
           deletedByEmail: adminEmail,
           deletedByUid: null,
-          deletedAt: admin.firestore.FieldValue.serverTimestamp(),
           source: "scripts/delete-heroyik-cognites-and-sync.mjs",
         },
-        { merge: true },
-      );
-    });
-    await batch.commit();
+      };
+    }), { serverTimestampFields: ["deletedAt"] });
     upserted += part.length;
   }
   return upserted;
 }
 
 async function collectCollectionGroupRefs(wordKeys) {
-  const userSnapshot = await db.collection("users").get();
-  return userSnapshot.docs.flatMap((userDoc) =>
-    wordKeys.map((wordKey) => db.collection("users").doc(userDoc.id).collection("manualCognites").doc(wordKey)),
+  const users = await listDocuments("users");
+  return users.flatMap((userDoc) =>
+    wordKeys.map((wordKey) => `users/${userDoc.id}/manualCognites/${wordKey}`),
   );
 }
 
 async function main() {
-  console.log(`Initializing cleanup for ${adminEmail} -> ${serviceAccount.project_id}`);
+  const { config } = getFirebaseWebConfig();
+  console.log(`Initializing cleanup for ${adminEmail} -> ${config.projectId}`);
 
   const rawDataset = JSON.parse(readFileSync(rawDatasetPath, "utf8"));
   if (!Array.isArray(rawDataset)) {
     throw new Error("Raw dataset must be an array.");
   }
 
-  const adminUser = await auth.getUserByEmail(adminEmail);
-  const adminManualSnapshot = await db.collection("users").doc(adminUser.uid).collection("manualCognites").get();
+  const adminUser = await lookupAuthUserByEmail(adminEmail);
+  if (!adminUser?.localId) {
+    throw new Error(`Could not resolve Firebase Auth user for ${adminEmail}`);
+  }
+
+  const adminManualDocs = await listDocuments(`users/${adminUser.localId}/manualCognites`);
 
   const adminWordKeys = new Set(
-    adminManualSnapshot.docs.map((docSnap) => {
-      const data = docSnap.data();
-      return data.wordKey || normalizeWordKey(data.word || docSnap.id);
+    adminManualDocs.map((docSnap) => {
+      return docSnap.wordKey || normalizeWordKey(docSnap.word || docSnap.id);
     }),
   );
 
-  const legacySnapshot = await db.collection("vocabEntries").where("is_cognite", "==", "y").get();
+  const legacyDocs = await runCollectionQuery("vocabEntries", "is_cognite", "EQUAL", "y");
   const legacyWordKeys = new Set(
-    legacySnapshot.docs.map((docSnap) => {
-      const data = docSnap.data();
-      return normalizeWordKey(data.word || "");
+    legacyDocs.map((docSnap) => {
+      return normalizeWordKey(docSnap.word || "");
     }).filter(Boolean),
   );
 
@@ -143,8 +121,8 @@ async function main() {
 
   console.log(`Deleting ${deletedWordKeys.length} word keys`);
   console.log(`Removing ${removedEntries.length} raw dataset entries`);
-  console.log(`Admin manual cognite docs: ${adminManualSnapshot.size}`);
-  console.log(`Legacy is_cognite docs: ${legacySnapshot.size}`);
+  console.log(`Admin manual cognite docs: ${adminManualDocs.length}`);
+  console.log(`Legacy is_cognite docs: ${legacyDocs.length}`);
 
   writeFileSync(rawDatasetPath, `${JSON.stringify(keptEntries, null, 2)}\n`, "utf8");
   console.log(`Updated ${rawDatasetPath}`);
@@ -153,12 +131,12 @@ async function main() {
   const manualCogniteDeleteCount = await deleteDocs(deletedManualCogniteRefs);
 
   const remoteRefs = [
-    ...removedEntryIds.map((id) => db.collection("vocabEntries").doc(id)),
-    ...removedEntryIds.map((id) => db.collection("fullVocaEntries").doc(id)),
-    ...legacySnapshot.docs
+    ...removedEntryIds.map((id) => `vocabEntries/${id}`),
+    ...removedEntryIds.map((id) => `fullVocaEntries/${id}`),
+    ...legacyDocs
       .map((docSnap) => docSnap.id)
       .filter((id) => !removedEntryIds.includes(id))
-      .map((id) => db.collection("vocabEntries").doc(id)),
+      .map((id) => `vocabEntries/${id}`),
   ];
   const remoteDeleteCount = await deleteDocs(remoteRefs);
 

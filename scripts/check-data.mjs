@@ -1,27 +1,18 @@
-import admin from 'firebase-admin';
-import { readFileSync } from 'fs';
-
-const serviceAccount = JSON.parse(
-  readFileSync('/Users/ikyoon/proj/kamivoca/secrets/kamivoca-app-firebase-adminsdk-fbsvc-2e9e8b97be.json', 'utf8')
-);
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-}
-
-const db = admin.firestore();
+import { listDocuments } from "./lib/firestore-rest.mjs";
+import { getFirebaseWebConfig } from "./lib/firebase-env.mjs";
 
 async function check() {
-  const usersSnap = await db.collection('users').get();
-  console.log(`Users count: ${usersSnap.size}`);
-  usersSnap.docs.forEach(doc => {
-    console.log(`- ${doc.id}: ${doc.data().displayName} (${doc.data().xp} XP)`);
+  const { config } = getFirebaseWebConfig();
+  console.log(`Checking Firestore data -> ${config.projectId}`);
+
+  const users = await listDocuments("users");
+  console.log(`Users count: ${users.length}`);
+  users.forEach((doc) => {
+    console.log(`- ${doc.id}: ${doc.displayName} (${doc.xp} XP)`);
   });
 
-  const statsSnap = await db.collection('globalWordStats').get();
-  console.log(`GlobalWordStats count: ${statsSnap.size}`);
+  const stats = await listDocuments("globalWordStats");
+  console.log(`GlobalWordStats count: ${stats.length}`);
 }
 
 check().catch(console.error);
